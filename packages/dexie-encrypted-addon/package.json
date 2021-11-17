@@ -1,0 +1,55 @@
+{
+  "name": "@pvermeer/dexie-encrypted-addon",
+  "version": "2.0.0-beta.6",
+  "description": "Addon for Dexie.js database to add encryption",
+  "main": "index.js",
+  "module": "esm/dexie-encrypted-addon/src/index.js",
+  "types": "index.d.ts",
+  "author": "PVermeer",
+  "license": "MIT",
+  "keywords": [
+    "dexie",
+    "dexie.js",
+    "indexeddb",
+    "database",
+    "encryption",
+    "encrypted"
+  ],
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bash ../../scripts/build-package.sh",
+    "lint": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './tsconfig.json'\"} ./src && npm run lint:test",
+    "lint:test": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './test/tsconfig.json'\"} ./test",
+    "test": "npm run lint && npm run build && npm run test:jasmine && npm run test:karma",
+    "test:karma": "karma start ../../karma.conf.js  --context=$PWD",
+    "test:karma:debug": "karma start ../../karma.conf.js --context=$PWD --debug",
+    "test:jasmine": "ts-node ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'",
+    "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
+  },
+  "dependencies": {
+    "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
+    "@stablelib/base64": "^1.0.1",
+    "@stablelib/utf8": "^1.0.1",
+    "tslib": "^2.3.1",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "puppeteer": "^11.0.0"
+  },
+  "peerDependencies": {
+    "dexie": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PVermeer/dexie-addon-suite-monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PVermeer/dexie-addon-suite-monorepo/issues"
+  },
+  "homepage": "https://github.com/PVermeer/dexie-addon-suite-monorepo#readme"
+}

@@ -1,0 +1,58 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "baseUrl": "./",
+        "rootDir": "./packages",
+        "sourceMap": false,
+        "declaration": true,
+        "removeComments": false,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "module": "es2020",
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "target": "es2017",
+        "stripInternal": true,
+        "composite": true,
+        "isolatedModules": true,
+        "lib": [
+            "es2020",
+            "dom"
+        ],
+        "paths": {
+            "@pvermeer/dexie-suite-addon": [
+                "./packages/dexie-addon-suite/src"
+            ],
+            "@pvermeer/dexie-encrypted-addon": [
+                "./packages/dexie-encrypted-addon/src"
+            ],
+            "@pvermeer/dexie-immutable-addon": [
+                "./packages/dexie-immutable-addon/src"
+            ],
+            "@pvermeer/dexie-populate-addon": [
+                "./packages/dexie-populate-addon/src"
+            ],
+            "@pvermeer/dexie-rxjs-addon": [
+                "./packages/dexie-rxjs-addon/src"
+            ]
+        },
+        "strict": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strictPropertyInitialization": false,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    },
+    "ts-node": {
+        "transpileOnly": true,
+        "compilerOptions": {
+            "module": "CommonJS"
+        },
+        "require": [
+            "tsconfig-paths/register"
+        ]
+    }
+}

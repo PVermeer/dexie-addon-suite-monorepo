@@ -1,0 +1,20 @@
+{
+    "extends": "./tsconfig.base.json",
+    "references": [
+        {
+            "path": "packages/dexie-addon-suite"
+        },
+        {
+            "path": "packages/dexie-encrypted-addon"
+        },
+        {
+            "path": "packages/dexie-immutable-addon"
+        },
+        {
+            "path": "packages/dexie-populate-addon"
+        },
+        {
+            "path": "packages/dexie-rxjs-addon"
+        }
+    ]
+}

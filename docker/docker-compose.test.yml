@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  test:
+    container_name: test
+    build:
+      context: ../../
+      dockerfile: deployments/docker/Dockerfile
+      target: install
+    command: ["npm", "run", "test"]
+    volumes:
+      - ../../reports:/home/app/reports
+    tty: true

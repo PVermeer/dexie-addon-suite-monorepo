@@ -1,0 +1,920 @@
+diff --git a/node_modules/dts-bundle-generator/dist/bin/dts-bundle-generator.js b/node_modules/dts-bundle-generator/dist/bin/dts-bundle-generator.js
+index 47deeb4..2f6be8c 100755
+--- a/node_modules/dts-bundle-generator/dist/bin/dts-bundle-generator.js
++++ b/node_modules/dts-bundle-generator/dist/bin/dts-bundle-generator.js
+@@ -11,8 +11,10 @@ var get_compiler_options_1 = require("../get-compiler-options");
+ var fix_path_1 = require("../helpers/fix-path");
+ var measure_time_1 = require("../helpers/measure-time");
+ var logger_1 = require("../logger");
+-// tslint:disable-next-line:no-any
+ function toStringsArray(data) {
++    if (data === undefined) {
++        return data;
++    }
+     if (!Array.isArray(data)) {
+         throw new Error(data + " is not a array");
+     }
+@@ -129,24 +131,24 @@ function parseArgs() {
+ }
+ function generateOutFileName(inputFilePath) {
+     var inputFileName = path.parse(inputFilePath).name;
+-    return fix_path_1.fixPath(path.join(inputFilePath, '..', inputFileName + '.d.ts'));
++    return (0, fix_path_1.fixPath)(path.join(inputFilePath, '..', inputFileName + '.d.ts'));
+ }
+-// tslint:disable-next-line:cyclomatic-complexity
++// eslint-disable-next-line complexity
+ function main() {
+     var args = parseArgs();
+     if (args.silent && args.verbose) {
+         throw new Error('Cannot use both silent and verbose options at the same time');
+     }
+     else if (args.verbose) {
+-        logger_1.enableVerbose();
++        (0, logger_1.enableVerbose)();
+     }
+     else if (!args.silent) {
+-        logger_1.enableNormalLog();
++        (0, logger_1.enableNormalLog)();
+     }
+     var bundlerConfig;
+     if (args.config !== undefined) {
+-        logger_1.verboseLog("Trying to load config from " + args.config + " file...");
+-        bundlerConfig = load_config_file_1.loadConfigFile(args.config);
++        (0, logger_1.verboseLog)("Trying to load config from " + args.config + " file...");
++        bundlerConfig = (0, load_config_file_1.loadConfigFile)(args.config);
+     }
+     else {
+         if (args._.length < 1) {
+@@ -156,9 +158,9 @@ function main() {
+             throw new Error('Cannot use outFile with multiple entries');
+         }
+         bundlerConfig = {
+-            entries: args._.map(function (path) {
++            entries: args._.map(function (entryPath) {
+                 return {
+-                    filePath: String(path),
++                    filePath: String(entryPath),
+                     outFile: args['out-file'],
+                     noCheck: args['no-check'],
+                     libraries: {
+@@ -184,38 +186,38 @@ function main() {
+             },
+         };
+     }
+-    logger_1.verboseLog("Total entries count=" + bundlerConfig.entries.length);
+-    var generatedDts = bundle_generator_1.generateDtsBundle(bundlerConfig.entries, bundlerConfig.compilationOptions);
++    (0, logger_1.verboseLog)("Total entries count=" + bundlerConfig.entries.length);
++    var generatedDts = (0, bundle_generator_1.generateDtsBundle)(bundlerConfig.entries, bundlerConfig.compilationOptions);
+     var outFilesToCheck = [];
+     for (var i = 0; i < bundlerConfig.entries.length; ++i) {
+         var entry = bundlerConfig.entries[i];
+         var outFile = entry.outFile !== undefined ? entry.outFile : generateOutFileName(entry.filePath);
+-        logger_1.normalLog("Writing " + entry.filePath + " -> " + outFile);
++        (0, logger_1.normalLog)("Writing " + entry.filePath + " -> " + outFile);
+         ts.sys.writeFile(outFile, generatedDts[i]);
+         if (!entry.noCheck) {
+             outFilesToCheck.push(outFile);
+         }
+     }
+     if (outFilesToCheck.length === 0) {
+-        logger_1.normalLog('File checking is skipped (due nothing to check)');
++        (0, logger_1.normalLog)('File checking is skipped (due nothing to check)');
+         return;
+     }
+-    logger_1.normalLog('Checking generated files...');
++    (0, logger_1.normalLog)('Checking generated files...');
+     var preferredConfigFile = bundlerConfig.compilationOptions !== undefined ? bundlerConfig.compilationOptions.preferredConfigPath : undefined;
+-    var compilerOptions = get_compiler_options_1.getCompilerOptions(outFilesToCheck, preferredConfigFile);
++    var compilerOptions = (0, get_compiler_options_1.getCompilerOptions)(outFilesToCheck, preferredConfigFile);
+     if (compilerOptions.skipLibCheck) {
+         compilerOptions.skipLibCheck = false;
+-        logger_1.warnLog('Compiler option "skipLibCheck" is disabled to properly check generated output');
++        (0, logger_1.warnLog)('Compiler option "skipLibCheck" is disabled to properly check generated output');
+     }
+     var program = ts.createProgram(outFilesToCheck, compilerOptions);
+-    check_diagnostics_errors_1.checkProgramDiagnosticsErrors(program);
++    (0, check_diagnostics_errors_1.checkProgramDiagnosticsErrors)(program);
+ }
+ try {
+-    var executionTime = measure_time_1.measureTime(main);
+-    logger_1.normalLog("Done in " + (executionTime / 1000).toFixed(2) + "s");
++    var executionTime = (0, measure_time_1.measureTime)(main);
++    (0, logger_1.normalLog)("Done in " + (executionTime / 1000).toFixed(2) + "s");
+ }
+ catch (ex) {
+-    logger_1.normalLog('');
+-    logger_1.errorLog("Error: " + ex.message);
++    (0, logger_1.normalLog)('');
++    (0, logger_1.errorLog)("Error: " + ex.message);
+     process.exit(1);
+ }
+diff --git a/node_modules/dts-bundle-generator/dist/bundle-generator.d.ts b/node_modules/dts-bundle-generator/dist/bundle-generator.d.ts
+index d75f484..65ab319 100644
+--- a/node_modules/dts-bundle-generator/dist/bundle-generator.d.ts
++++ b/node_modules/dts-bundle-generator/dist/bundle-generator.d.ts
+@@ -1,4 +1,4 @@
+-// Generated by dts-bundle-generator v5.9.0
++// Generated by dts-bundle-generator v6.0.0
+ 
+ export interface CompilationOptions {
+ 	/**
+@@ -71,6 +71,12 @@ export interface EntryPointConfig {
+ 	 * Path to input file.
+ 	 */
+ 	filePath: string;
++	/**
++	 * Path of the package.json.
++	 * If specified it will be used as a final check for external modules.
++	 * This is usefull in monorepos with multiple package.json's.
++	 */
++	packageJson?: string;
+ 	libraries?: LibrariesOptions;
+ 	/**
+ 	 * Fail if generated dts contains class declaration.
+@@ -78,6 +84,6 @@ export interface EntryPointConfig {
+ 	failOnClass?: boolean;
+ 	output?: OutputOptions;
+ }
+-export declare function generateDtsBundle(entries: ReadonlyArray<EntryPointConfig>, options?: CompilationOptions): string[];
++export declare function generateDtsBundle(entries: readonly EntryPointConfig[], options?: CompilationOptions): string[];
+ 
+ export {};
+diff --git a/node_modules/dts-bundle-generator/dist/bundle-generator.js b/node_modules/dts-bundle-generator/dist/bundle-generator.js
+index fb67c40..4f273a4 100644
+--- a/node_modules/dts-bundle-generator/dist/bundle-generator.js
++++ b/node_modules/dts-bundle-generator/dist/bundle-generator.js
+@@ -21,20 +21,20 @@ var fix_path_1 = require("./helpers/fix-path");
+ var module_info_1 = require("./module-info");
+ var generate_output_1 = require("./generate-output");
+ var logger_1 = require("./logger");
++var package_json_1 = require("./helpers/package-json");
+ function generateDtsBundle(entries, options) {
+     if (options === void 0) { options = {}; }
+-    logger_1.normalLog('Compiling input files...');
+-    var _a = compile_dts_1.compileDts(entries.map(function (entry) { return entry.filePath; }), options.preferredConfigPath, options.followSymlinks), program = _a.program, rootFilesRemapping = _a.rootFilesRemapping;
++    (0, logger_1.normalLog)('Compiling input files...');
++    var _a = (0, compile_dts_1.compileDts)(entries.map(function (entry) { return entry.filePath; }), options.preferredConfigPath, options.followSymlinks), program = _a.program, rootFilesRemapping = _a.rootFilesRemapping;
+     var typeChecker = program.getTypeChecker();
+     var typeRoots = ts.getEffectiveTypeRoots(program.getCompilerOptions(), {});
+     var sourceFiles = program.getSourceFiles().filter(function (file) {
+-        return !isSourceFileDefaultLibrary(program, file);
++        return !program.isSourceFileDefaultLibrary(file);
+     });
+-    logger_1.verboseLog("Input source files:\n  " + sourceFiles.map(function (file) { return file.fileName; }).join('\n  '));
++    (0, logger_1.verboseLog)("Input source files:\n  " + sourceFiles.map(function (file) { return file.fileName; }).join('\n  '));
+     var typesUsageEvaluator = new types_usage_evaluator_1.TypesUsageEvaluator(sourceFiles, typeChecker);
+-    // tslint:disable-next-line:cyclomatic-complexity
+     return entries.map(function (entry) {
+-        logger_1.normalLog("Processing " + entry.filePath);
++        (0, logger_1.normalLog)("Processing " + entry.filePath);
+         var newRootFilePath = rootFilesRemapping.get(entry.filePath);
+         if (newRootFilePath === undefined) {
+             throw new Error("Cannot remap root source file " + entry.filePath);
+@@ -51,7 +51,7 @@ function generateDtsBundle(entries, options) {
+             inlinedLibraries: librariesOptions.inlinedLibraries || [],
+             typeRoots: typeRoots,
+         };
+-        var rootFileExports = typescript_1.getExportsForSourceFile(typeChecker, rootSourceFileSymbol);
++        var rootFileExports = (0, typescript_1.getExportsForSourceFile)(typeChecker, rootSourceFileSymbol);
+         var rootFileExportSymbols = rootFileExports.map(function (exp) { return exp.symbol; });
+         var collectionResult = {
+             typesReferences: new Set(),
+@@ -63,35 +63,40 @@ function generateDtsBundle(entries, options) {
+         var updateResultCommonParams = {
+             isStatementUsed: function (statement) { return isNodeUsed(statement, rootFileExportSymbols, typesUsageEvaluator, typeChecker); },
+             shouldStatementBeImported: function (statement) {
+-                return shouldNodeBeImported(statement, rootFileExportSymbols, typesUsageEvaluator, typeChecker, isSourceFileDefaultLibrary.bind(null, program));
++                return shouldNodeBeImported(statement, rootFileExportSymbols, typesUsageEvaluator, typeChecker, program.isSourceFileDefaultLibrary.bind(program));
+             },
+             shouldDeclareGlobalBeInlined: function (currentModule) { return Boolean(outputOptions.inlineDeclareGlobals) && currentModule.type === 0 /* ShouldBeInlined */; },
+             shouldDeclareExternalModuleBeInlined: function () { return Boolean(outputOptions.inlineDeclareExternals); },
+-            getModuleInfo: function (fileName) { return module_info_1.getModuleInfo(fileName, criteria); },
+-            resolveIdentifier: function (identifier) { return typescript_1.resolveIdentifier(typeChecker, identifier); },
++            getModuleInfo: function (fileName) { return (0, module_info_1.getModuleInfo)(fileName, criteria); },
++            resolveIdentifier: function (identifier) { return (0, typescript_1.resolveIdentifier)(typeChecker, identifier); },
+             getDeclarationsForExportedAssignment: function (exportAssignment) {
+                 var symbolForExpression = typeChecker.getSymbolAtLocation(exportAssignment.expression);
+                 if (symbolForExpression === undefined) {
+                     return [];
+                 }
+-                var symbol = typescript_1.getActualSymbol(symbolForExpression, typeChecker);
+-                return typescript_1.getDeclarationsForSymbol(symbol);
++                var symbol = (0, typescript_1.getActualSymbol)(symbolForExpression, typeChecker);
++                return (0, typescript_1.getDeclarationsForSymbol)(symbol);
+             },
+             getDeclarationUsagesSourceFiles: function (declaration) {
+                 return getDeclarationUsagesSourceFiles(declaration, rootFileExportSymbols, typesUsageEvaluator, typeChecker);
+             },
+             areDeclarationSame: function (left, right) {
+-                var leftSymbols = typescript_1.splitTransientSymbol(getNodeSymbol(left, typeChecker), typeChecker);
+-                var rightSymbols = typescript_1.splitTransientSymbol(getNodeSymbol(right, typeChecker), typeChecker);
++                var leftSymbols = (0, typescript_1.splitTransientSymbol)(getNodeSymbol(left, typeChecker), typeChecker);
++                var rightSymbols = (0, typescript_1.splitTransientSymbol)(getNodeSymbol(right, typeChecker), typeChecker);
+                 return leftSymbols.some(function (leftSymbol) { return rightSymbols.includes(leftSymbol); });
+             },
++            isMonorepoInternalModule: function (moduleName) {
++                return entry.monorepo ?
++                    (0, package_json_1.dependencyIsListedAsMonorepo)(entry.monorepo, moduleName) :
++                    false;
++            },
+         };
+         for (var _i = 0, sourceFiles_1 = sourceFiles; _i < sourceFiles_1.length; _i++) {
+             var sourceFile = sourceFiles_1[_i];
+-            logger_1.verboseLog("\n\n======= Preparing file: " + sourceFile.fileName + " =======");
++            (0, logger_1.verboseLog)("\n\n======= Preparing file: " + sourceFile.fileName + " =======");
+             var prevStatementsCount = collectionResult.statements.length;
+             var updateFn = sourceFile === rootSourceFile ? updateResultForRootSourceFile : updateResult;
+-            var currentModule = module_info_1.getModuleInfo(sourceFile.fileName, criteria);
++            var currentModule = (0, module_info_1.getModuleInfo)(sourceFile.fileName, criteria);
+             var params = __assign(__assign({}, updateResultCommonParams), { currentModule: currentModule, statements: sourceFile.statements });
+             updateFn(params, collectionResult);
+             // handle `import * as module` usage if it's used as whole module
+@@ -99,7 +104,7 @@ function generateDtsBundle(entries, options) {
+                 updateImportsForStatement(sourceFile, params, collectionResult);
+             }
+             if (collectionResult.statements.length === prevStatementsCount) {
+-                logger_1.verboseLog("No output for file: " + sourceFile.fileName);
++                (0, logger_1.verboseLog)("No output for file: " + sourceFile.fileName);
+             }
+         }
+         if (entry.failOnClass) {
+@@ -111,8 +116,8 @@ function generateDtsBundle(entries, options) {
+         }
+         // by default this option should be enabled
+         var exportReferencedTypes = outputOptions.exportReferencedTypes !== false;
+-        return generate_output_1.generateOutput(__assign(__assign({}, collectionResult), { needStripDefaultKeywordForStatement: function (statement) {
+-                var statementExports = typescript_1.getExportsForStatement(rootFileExports, typeChecker, statement);
++        return (0, generate_output_1.generateOutput)(__assign(__assign({}, collectionResult), { needStripDefaultKeywordForStatement: function (statement) {
++                var statementExports = (0, typescript_1.getExportsForStatement)(rootFileExports, typeChecker, statement);
+                 // if true - no direct export was found
+                 // that means that node might have an export keyword (like interface, type, etc)
+                 // otherwise, if there are only re-exports with renaming (like export { foo as bar })
+@@ -120,13 +125,13 @@ function generateDtsBundle(entries, options) {
+                 // because we'll re-export it in the way
+                 return statementExports.find(function (exp) { return exp.exportedName === 'default'; }) === undefined;
+             }, shouldStatementHasExportKeyword: function (statement) {
+-                var statementExports = typescript_1.getExportsForStatement(rootFileExports, typeChecker, statement);
++                var statementExports = (0, typescript_1.getExportsForStatement)(rootFileExports, typeChecker, statement);
+                 // if true - no direct export was found
+                 // that means that node might have an export keyword (like interface, type, etc)
+                 // otherwise, if there are only re-exports with renaming (like export { foo as bar })
+                 // we don't need to put export keyword for this statement
+                 // because we'll re-export it in the way
+-                var hasStatementedDefaultKeyword = typescript_1.hasNodeModifier(statement, ts.SyntaxKind.DefaultKeyword);
++                var hasStatementedDefaultKeyword = (0, typescript_1.hasNodeModifier)(statement, ts.SyntaxKind.DefaultKeyword);
+                 var result = statementExports.length === 0 || statementExports.find(function (exp) {
+                     // "directly" means "without renaming" or "without additional node/statement"
+                     // for instance, `class A {} export default A;` - here `statement` is `class A {}`
+@@ -141,7 +146,7 @@ function generateDtsBundle(entries, options) {
+                 // but if `exportReferencedTypes` option is disabled we have to check direct export for them either
+                 var onlyDirectlyExportedShouldBeExported = !exportReferencedTypes
+                     || ts.isClassDeclaration(statement)
+-                    || (ts.isEnumDeclaration(statement) && !typescript_1.hasNodeModifier(statement, ts.SyntaxKind.ConstKeyword))
++                    || (ts.isEnumDeclaration(statement) && !(0, typescript_1.hasNodeModifier)(statement, ts.SyntaxKind.ConstKeyword))
+                     || ts.isFunctionDeclaration(statement)
+                     || ts.isVariableStatement(statement);
+                 if (onlyDirectlyExportedShouldBeExported) {
+@@ -149,7 +154,7 @@ function generateDtsBundle(entries, options) {
+                     // to having export keyword in declaration file
+                     result = result && statementExports.length !== 0;
+                 }
+-                else if (typescript_1.isAmbientModule(statement) || ts.isExportDeclaration(statement)) {
++                else if ((0, typescript_1.isAmbientModule)(statement) || ts.isExportDeclaration(statement)) {
+                     result = false;
+                 }
+                 return result;
+@@ -171,7 +176,7 @@ function generateDtsBundle(entries, options) {
+                 }
+                 // we don't need to specify exact file here since we need to figure out whether a file is external or internal one
+                 var moduleFileName = resolveModuleFileName(rootSourceFile.fileName, node.argument.literal.text);
+-                return !module_info_1.getModuleInfo(moduleFileName, criteria).isExternal;
++                return !(0, module_info_1.getModuleInfo)(moduleFileName, criteria).isExternal;
+             } }), {
+             sortStatements: outputOptions.sortNodes,
+             umdModuleName: outputOptions.umdModuleName,
+@@ -185,7 +190,7 @@ var skippedNodes = [
+     ts.SyntaxKind.ImportDeclaration,
+     ts.SyntaxKind.ImportEqualsDeclaration,
+ ];
+-// tslint:disable-next-line:cyclomatic-complexity
++// eslint-disable-next-line complexity
+ function updateResult(params, result) {
+     for (var _i = 0, _a = params.statements; _i < _a.length; _i++) {
+         var statement = _a[_i];
+@@ -193,14 +198,14 @@ function updateResult(params, result) {
+         if (skippedNodes.indexOf(statement.kind) !== -1) {
+             continue;
+         }
+-        if (typescript_1.isDeclareModule(statement)) {
++        if ((0, typescript_1.isDeclareModule)(statement)) {
+             updateResultForModuleDeclaration(statement, params, result);
+             continue;
+         }
+         if (params.currentModule.type === 3 /* ShouldBeUsedForModulesOnly */) {
+             continue;
+         }
+-        if (typescript_1.isDeclareGlobalStatement(statement) && params.shouldDeclareGlobalBeInlined(params.currentModule, statement)) {
++        if ((0, typescript_1.isDeclareGlobalStatement)(statement) && params.shouldDeclareGlobalBeInlined(params.currentModule, statement)) {
+             result.statements.push(statement);
+             continue;
+         }
+@@ -209,7 +214,7 @@ function updateResult(params, result) {
+             continue;
+         }
+         if (!params.isStatementUsed(statement)) {
+-            logger_1.verboseLog("Skip file member: " + statement.getText().replace(/(\n|\r)/g, '').slice(0, 50) + "...");
++            (0, logger_1.verboseLog)("Skip file member: " + statement.getText().replace(/(\n|\r)/g, '').slice(0, 50) + "...");
+             continue;
+         }
+         switch (params.currentModule.type) {
+@@ -225,7 +230,7 @@ function updateResult(params, result) {
+         }
+     }
+ }
+-// tslint:disable-next-line:cyclomatic-complexity
++// eslint-disable-next-line complexity
+ function updateResultForRootSourceFile(params, result) {
+     function isReExportFromImportableModule(statement) {
+         if (!ts.isExportDeclaration(statement) || statement.moduleSpecifier === undefined || !ts.isStringLiteral(statement.moduleSpecifier)) {
+@@ -306,7 +311,8 @@ function updateResultForModuleDeclaration(moduleDecl, params, result) {
+     // if we have declaration of external module inside internal one
+     if (!params.currentModule.isExternal && moduleInfo.isExternal) {
+         // if it's allowed - we need to just add it to result without any processing
+-        if (params.shouldDeclareExternalModuleBeInlined()) {
++        if (params.shouldDeclareExternalModuleBeInlined() &&
++            !params.isMonorepoInternalModule(params.currentModule.fileName)) {
+             result.statements.push(moduleDecl);
+         }
+         return;
+@@ -314,11 +320,11 @@ function updateResultForModuleDeclaration(moduleDecl, params, result) {
+     updateResult(__assign(__assign({}, params), { currentModule: moduleInfo, statements: moduleDecl.body.statements }), result);
+ }
+ function resolveModuleFileName(currentFileName, moduleName) {
+-    return moduleName.startsWith('.') ? fix_path_1.fixPath(path.join(currentFileName, '..', moduleName)) : "node_modules/" + moduleName + "/";
++    return moduleName.startsWith('.') ? (0, fix_path_1.fixPath)(path.join(currentFileName, '..', moduleName)) : "node_modules/" + moduleName + "/";
+ }
+ function addTypesReference(library, typesReferences) {
+     if (!typesReferences.has(library)) {
+-        logger_1.normalLog("Library \"" + library + "\" will be added via reference directive");
++        (0, logger_1.normalLog)("Library \"" + library + "\" will be added via reference directive");
+         typesReferences.add(library);
+     }
+ }
+@@ -349,9 +355,9 @@ function updateImportsForStatement(statement, params, result) {
+ }
+ function getDeclarationUsagesSourceFiles(declaration, rootFileExports, typesUsageEvaluator, typeChecker) {
+     return new Set(getExportedSymbolsUsingStatement(declaration, rootFileExports, typesUsageEvaluator, typeChecker)
+-        .map(function (symbol) { return typescript_1.getDeclarationsForSymbol(symbol); })
++        .map(function (symbol) { return (0, typescript_1.getDeclarationsForSymbol)(symbol); })
+         .reduce(function (acc, val) { return acc.concat(val); }, [])
+-        .map(function (declaration) { return declaration.getSourceFile(); }));
++        .map(function (decl) { return decl.getSourceFile(); }));
+ }
+ function getImportModuleName(imp) {
+     if (ts.isImportDeclaration(imp)) {
+@@ -363,7 +369,7 @@ function getImportModuleName(imp) {
+     }
+     if (ts.isExternalModuleReference(imp.moduleReference)) {
+         if (!ts.isStringLiteral(imp.moduleReference.expression)) {
+-            logger_1.warnLog("Cannot handle non string-literal-like import expression: " + imp.moduleReference.expression.getText());
++            (0, logger_1.warnLog)("Cannot handle non string-literal-like import expression: " + imp.moduleReference.expression.getText());
+             return null;
+         }
+         return imp.moduleReference.expression.text;
+@@ -430,7 +436,7 @@ function getRootSourceFile(program, rootFileName) {
+     return sourceFile;
+ }
+ function isNodeUsed(node, rootFileExports, typesUsageEvaluator, typeChecker) {
+-    if (typescript_1.isNodeNamedDeclaration(node)) {
++    if ((0, typescript_1.isNodeNamedDeclaration)(node)) {
+         var nodeSymbol_1 = getNodeSymbol(node, typeChecker);
+         if (nodeSymbol_1 === null) {
+             return false;
+@@ -449,7 +455,7 @@ function shouldNodeBeImported(node, rootFileExports, typesUsageEvaluator, typeCh
+     if (nodeSymbol === null) {
+         return false;
+     }
+-    var symbolDeclarations = typescript_1.getDeclarationsForSymbol(nodeSymbol);
++    var symbolDeclarations = (0, typescript_1.getDeclarationsForSymbol)(nodeSymbol);
+     var isSymbolDeclaredInDefaultLibrary = symbolDeclarations.some(function (declaration) { return isDefaultLibrary(declaration.getSourceFile()); });
+     if (isSymbolDeclaredInDefaultLibrary) {
+         // we shouldn't import a node declared in the default library (such dom, es2015)
+@@ -478,21 +484,17 @@ function getExportedSymbolsUsingStatement(node, rootFileExports, typesUsageEvalu
+     }
+     // we should import only symbols which are used in types directly
+     return Array.from(symbolsUsingNode).filter(function (symbol) {
+-        var symbolsDeclarations = typescript_1.getDeclarationsForSymbol(symbol);
++        var symbolsDeclarations = (0, typescript_1.getDeclarationsForSymbol)(symbol);
+         if (symbolsDeclarations.length === 0 || symbolsDeclarations.every(typescript_1.isDeclarationFromExternalModule)) {
+             return false;
+         }
+         return rootFileExports.some(function (rootSymbol) { return typesUsageEvaluator.isSymbolUsedBySymbol(symbol, rootSymbol); });
+     });
+ }
+-function isSourceFileDefaultLibrary(program, file) {
+-    // tslint:disable-next-line:no-unnecessary-type-assertion
+-    return program.isSourceFileDefaultLibrary(file);
+-}
+ function getNodeSymbol(node, typeChecker) {
+     var nodeName = node.name;
+     if (nodeName === undefined) {
+         return null;
+     }
+-    return typescript_1.getDeclarationNameSymbol(nodeName, typeChecker);
++    return (0, typescript_1.getDeclarationNameSymbol)(nodeName, typeChecker);
+ }
+diff --git a/node_modules/dts-bundle-generator/dist/compile-dts.js b/node_modules/dts-bundle-generator/dist/compile-dts.js
+index 6c1609c..f60f8cf 100644
+--- a/node_modules/dts-bundle-generator/dist/compile-dts.js
++++ b/node_modules/dts-bundle-generator/dist/compile-dts.js
+@@ -20,7 +20,7 @@ var get_absolute_path_1 = require("./helpers/get-absolute-path");
+ var check_diagnostics_errors_1 = require("./helpers/check-diagnostics-errors");
+ function compileDts(rootFiles, preferredConfigPath, followSymlinks) {
+     if (followSymlinks === void 0) { followSymlinks = true; }
+-    var compilerOptions = get_compiler_options_1.getCompilerOptions(rootFiles, preferredConfigPath);
++    var compilerOptions = (0, get_compiler_options_1.getCompilerOptions)(rootFiles, preferredConfigPath);
+     // currently we don't support these compiler options
+     // and removing them shouldn't affect generated code
+     // so let's just remove them for this run
+@@ -29,21 +29,21 @@ function compileDts(rootFiles, preferredConfigPath, followSymlinks) {
+     compilerOptions.tsBuildInfoFile = undefined;
+     compilerOptions.declarationDir = undefined;
+     if (compilerOptions.composite) {
+-        logger_1.warnLog("Composite projects aren't supported at the time. Prefer to use non-composite project to generate declarations instead or just ignore this message if everything works fine. See https://github.com/timocov/dts-bundle-generator/issues/93");
++        (0, logger_1.warnLog)("Composite projects aren't supported at the time. Prefer to use non-composite project to generate declarations instead or just ignore this message if everything works fine. See https://github.com/timocov/dts-bundle-generator/issues/93");
+         compilerOptions.composite = undefined;
+     }
+     var dtsFiles = getDeclarationFiles(rootFiles, compilerOptions);
+-    logger_1.verboseLog("dts cache:\n  " + Object.keys(dtsFiles).join('\n  ') + "\n");
++    (0, logger_1.verboseLog)("dts cache:\n  " + Object.keys(dtsFiles).join('\n  ') + "\n");
+     var host = ts.createCompilerHost(compilerOptions);
+     if (!followSymlinks) {
+-        host.realpath = function (path) { return path; };
++        host.realpath = function (p) { return p; };
+     }
+     host.resolveModuleNames = function (moduleNames, containingFile) {
+         return moduleNames.map(function (moduleName) {
+             var resolvedModule = ts.resolveModuleName(moduleName, containingFile, compilerOptions, host).resolvedModule;
+             if (resolvedModule && !resolvedModule.isExternalLibraryImport && resolvedModule.extension !== ts.Extension.Dts) {
+                 resolvedModule.extension = ts.Extension.Dts;
+-                logger_1.verboseLog("Change module from .ts to .d.ts: " + resolvedModule.resolvedFileName);
++                (0, logger_1.verboseLog)("Change module from .ts to .d.ts: " + resolvedModule.resolvedFileName);
+                 resolvedModule.resolvedFileName = changeExtensionToDts(resolvedModule.resolvedFileName);
+             }
+             return resolvedModule;
+@@ -51,13 +51,13 @@ function compileDts(rootFiles, preferredConfigPath, followSymlinks) {
+     };
+     var originalGetSourceFile = host.getSourceFile;
+     host.getSourceFile = function (fileName, languageVersion, onError) {
+-        var absolutePath = get_absolute_path_1.getAbsolutePath(fileName);
++        var absolutePath = (0, get_absolute_path_1.getAbsolutePath)(fileName);
+         var storedValue = dtsFiles.get(absolutePath);
+         if (storedValue !== undefined) {
+-            logger_1.verboseLog("dts cache match: " + absolutePath);
++            (0, logger_1.verboseLog)("dts cache match: " + absolutePath);
+             return ts.createSourceFile(fileName, storedValue, languageVersion);
+         }
+-        logger_1.verboseLog("dts cache mismatch: " + absolutePath + " (" + fileName + ")");
++        (0, logger_1.verboseLog)("dts cache mismatch: " + absolutePath + " (" + fileName + ")");
+         return originalGetSourceFile(fileName, languageVersion, onError);
+     };
+     var rootFilesRemapping = new Map();
+@@ -67,7 +67,7 @@ function compileDts(rootFiles, preferredConfigPath, followSymlinks) {
+         return rootDtsFile;
+     });
+     var program = ts.createProgram(inputFiles, compilerOptions, host);
+-    check_diagnostics_errors_1.checkProgramDiagnosticsErrors(program);
++    (0, check_diagnostics_errors_1.checkProgramDiagnosticsErrors)(program);
+     warnAboutTypeScriptFilesInProgram(program);
+     return { program: program, rootFilesRemapping: rootFilesRemapping };
+ }
+@@ -93,17 +93,17 @@ function getDeclarationFiles(rootFiles, compilerOptions) {
+     if (allFilesAreDeclarations) {
+         // if all files are declarations we don't need to compile the project twice
+         // so let's just return empty map to speed up
+-        logger_1.verboseLog('Skipping compiling the project to generate d.ts because all files in it are d.ts already');
++        (0, logger_1.verboseLog)('Skipping compiling the project to generate d.ts because all files in it are d.ts already');
+         return declarations;
+     }
+-    check_diagnostics_errors_1.checkProgramDiagnosticsErrors(program);
+-    var emitResult = program.emit(undefined, function (fileName, data) { return declarations.set(get_absolute_path_1.getAbsolutePath(fileName), data); }, undefined, true);
+-    check_diagnostics_errors_1.checkDiagnosticsErrors(emitResult.diagnostics, 'Errors while emitting declarations');
++    (0, check_diagnostics_errors_1.checkProgramDiagnosticsErrors)(program);
++    var emitResult = program.emit(undefined, function (fileName, data) { return declarations.set((0, get_absolute_path_1.getAbsolutePath)(fileName), data); }, undefined, true);
++    (0, check_diagnostics_errors_1.checkDiagnosticsErrors)(emitResult.diagnostics, 'Errors while emitting declarations');
+     return declarations;
+ }
+ function warnAboutTypeScriptFilesInProgram(program) {
+     var nonDeclarationFiles = program.getSourceFiles().filter(function (file) { return !file.isDeclarationFile; });
+     if (nonDeclarationFiles.length !== 0) {
+-        logger_1.warnLog("WARNING: It seems that some files in the compilation still are not declaration files.\nFor more information see https://github.com/timocov/dts-bundle-generator/issues/53.\nIf you think this is a mistake, feel free to open new issue or just ignore this warning.\n  " + nonDeclarationFiles.map(function (file) { return file.fileName; }).join('\n  ') + "\n");
++        (0, logger_1.warnLog)("WARNING: It seems that some files in the compilation still are not declaration files.\nFor more information see https://github.com/timocov/dts-bundle-generator/issues/53.\nIf you think this is a mistake, feel free to open new issue or just ignore this warning.\n  " + nonDeclarationFiles.map(function (file) { return file.fileName; }).join('\n  ') + "\n");
+     }
+ }
+diff --git a/node_modules/dts-bundle-generator/dist/config-file/check-schema-match.js b/node_modules/dts-bundle-generator/dist/config-file/check-schema-match.js
+index 579dcd4..2831c49 100644
+--- a/node_modules/dts-bundle-generator/dist/config-file/check-schema-match.js
++++ b/node_modules/dts-bundle-generator/dist/config-file/check-schema-match.js
+@@ -20,7 +20,7 @@ function checkSchemaMatch(value, schema, errors) {
+     return checkSchemaMatchRecursively(value, schema, '', errors);
+ }
+ exports.checkSchemaMatch = checkSchemaMatch;
+-// tslint:disable-next-line:cyclomatic-complexity
++// eslint-disable-next-line complexity
+ function checkSchemaMatchRecursively(value, schema, prefix, errors) {
+     if (typeof schema === 'boolean' || typeof schema === 'string') {
+         var schemeType = typeof schema;
+diff --git a/node_modules/dts-bundle-generator/dist/config-file/load-config-file.js b/node_modules/dts-bundle-generator/dist/config-file/load-config-file.js
+index 953fa10..e8d1726 100644
+--- a/node_modules/dts-bundle-generator/dist/config-file/load-config-file.js
++++ b/node_modules/dts-bundle-generator/dist/config-file/load-config-file.js
+@@ -9,10 +9,11 @@ var check_schema_match_1 = require("./check-schema-match");
+  * @internal Do not output this function in generated dts for the npm package
+  */
+ function loadConfigFile(configPath) {
+-    var possibleConfig = require(get_absolute_path_1.getAbsolutePath(configPath));
++    // eslint-disable-next-line @typescript-eslint/no-var-requires
++    var possibleConfig = require((0, get_absolute_path_1.getAbsolutePath)(configPath));
+     var errors = [];
+-    if (!check_schema_match_1.checkSchemaMatch(possibleConfig, configScheme, errors)) {
+-        logger_1.errorLog(errors.join('\n'));
++    if (!(0, check_schema_match_1.checkSchemaMatch)(possibleConfig, configScheme, errors)) {
++        (0, logger_1.errorLog)(errors.join('\n'));
+         throw new Error('Cannot parse config file');
+     }
+     if (!Array.isArray(possibleConfig.entries) || possibleConfig.entries.length === 0) {
+@@ -20,13 +21,18 @@ function loadConfigFile(configPath) {
+     }
+     var configFolder = path.dirname(configPath);
+     possibleConfig.entries.forEach(function (entry) {
+-        entry.filePath = get_absolute_path_1.getAbsolutePath(entry.filePath, configFolder);
++        var _a, _b;
++        entry.filePath = (0, get_absolute_path_1.getAbsolutePath)(entry.filePath, configFolder);
+         if (entry.outFile !== undefined) {
+-            entry.outFile = get_absolute_path_1.getAbsolutePath(entry.outFile, configFolder);
++            entry.outFile = (0, get_absolute_path_1.getAbsolutePath)(entry.outFile, configFolder);
++        }
++        if (((_a = entry.monorepo) === null || _a === void 0 ? void 0 : _a.packageJsonPath) && ((_b = entry.monorepo) === null || _b === void 0 ? void 0 : _b.packagesPath)) {
++            entry.monorepo.packageJsonPath = (0, get_absolute_path_1.getAbsolutePath)(entry.monorepo.packageJsonPath, configFolder);
++            entry.monorepo.packagesPath = (0, get_absolute_path_1.getAbsolutePath)(entry.monorepo.packagesPath, configFolder);
+         }
+     });
+     if (possibleConfig.compilationOptions !== undefined && possibleConfig.compilationOptions.preferredConfigPath !== undefined) {
+-        possibleConfig.compilationOptions.preferredConfigPath = get_absolute_path_1.getAbsolutePath(possibleConfig.compilationOptions.preferredConfigPath, configFolder);
++        possibleConfig.compilationOptions.preferredConfigPath = (0, get_absolute_path_1.getAbsolutePath)(possibleConfig.compilationOptions.preferredConfigPath, configFolder);
+     }
+     return possibleConfig;
+ }
+@@ -40,6 +46,10 @@ var configScheme = {
+         {
+             filePath: check_schema_match_1.schemaPrimitiveValues.requiredString,
+             outFile: check_schema_match_1.schemaPrimitiveValues.string,
++            monorepo: {
++                packagesPath: check_schema_match_1.schemaPrimitiveValues.string,
++                packageJsonPath: check_schema_match_1.schemaPrimitiveValues.string,
++            },
+             failOnClass: check_schema_match_1.schemaPrimitiveValues.boolean,
+             noCheck: check_schema_match_1.schemaPrimitiveValues.boolean,
+             libraries: {
+diff --git a/node_modules/dts-bundle-generator/dist/generate-output.js b/node_modules/dts-bundle-generator/dist/generate-output.js
+index 3cdc7a7..287100c 100644
+--- a/node_modules/dts-bundle-generator/dist/generate-output.js
++++ b/node_modules/dts-bundle-generator/dist/generate-output.js
+@@ -8,7 +8,7 @@ function generateOutput(params, options) {
+     if (options === void 0) { options = {}; }
+     var resultOutput = '';
+     if (!options.noBanner) {
+-        resultOutput += "// Generated by dts-bundle-generator v" + package_version_1.packageVersion() + "\n\n";
++        resultOutput += "// Generated by dts-bundle-generator v" + (0, package_version_1.packageVersion)() + "\n\n";
+     }
+     if (params.typesReferences.size !== 0) {
+         var header = generateReferenceTypesDirective(Array.from(params.typesReferences));
+@@ -106,15 +106,15 @@ function needAddDeclareKeyword(statement, nodeText) {
+ function getStatementText(statement, helpers) {
+     var shouldStatementHasExportKeyword = helpers.shouldStatementHasExportKeyword(statement);
+     var needStripDefaultKeyword = helpers.needStripDefaultKeywordForStatement(statement);
+-    var hasStatementExportKeyword = ts.isExportAssignment(statement) || typescript_1.hasNodeModifier(statement, ts.SyntaxKind.ExportKeyword);
++    var hasStatementExportKeyword = ts.isExportAssignment(statement) || (0, typescript_1.hasNodeModifier)(statement, ts.SyntaxKind.ExportKeyword);
+     var nodeText = getTextAccordingExport(statement.getText(), hasStatementExportKeyword, shouldStatementHasExportKeyword);
+     if (ts.isEnumDeclaration(statement)
+-        && typescript_1.hasNodeModifier(statement, ts.SyntaxKind.ConstKeyword)
++        && (0, typescript_1.hasNodeModifier)(statement, ts.SyntaxKind.ConstKeyword)
+         && helpers.needStripConstFromConstEnum(statement)) {
+         nodeText = nodeText.replace(/\bconst\s/, '');
+     }
+     // strip the `default` keyword from node
+-    if (typescript_1.hasNodeModifier(statement, ts.SyntaxKind.DefaultKeyword) && needStripDefaultKeyword) {
++    if ((0, typescript_1.hasNodeModifier)(statement, ts.SyntaxKind.DefaultKeyword) && needStripDefaultKeyword) {
+         // we need just to remove `default` from any node except class node
+         // for classes we need to replace `default` with `declare` instead
+         nodeText = nodeText.replace(/\bdefault\s/, ts.isClassDeclaration(statement) ? 'declare ' : '');
+@@ -163,6 +163,7 @@ function getTextAccordingExport(nodeText, isNodeExported, shouldNodeBeExported)
+     return nodeText;
+ }
+ function spacesToTabs(text) {
++    // eslint-disable-next-line no-regex-spaces
+     return text.replace(/^(    )+/gm, function (substring) {
+         return '\t'.repeat(substring.length / 4);
+     });
+diff --git a/node_modules/dts-bundle-generator/dist/get-compiler-options.js b/node_modules/dts-bundle-generator/dist/get-compiler-options.js
+index 99ccb83..2b0bf7c 100644
+--- a/node_modules/dts-bundle-generator/dist/get-compiler-options.js
++++ b/node_modules/dts-bundle-generator/dist/get-compiler-options.js
+@@ -15,15 +15,15 @@ var parseConfigHost = {
+ };
+ function getCompilerOptions(inputFileNames, preferredConfigPath) {
+     var configFileName = preferredConfigPath !== undefined ? preferredConfigPath : findConfig(inputFileNames);
+-    logger_1.verboseLog("Using config: " + configFileName);
++    (0, logger_1.verboseLog)("Using config: " + configFileName);
+     var configParseResult = ts.readConfigFile(configFileName, ts.sys.readFile);
+-    check_diagnostics_errors_1.checkDiagnosticsErrors(configParseResult.error !== undefined ? [configParseResult.error] : [], 'Error while processing tsconfig file');
+-    var compilerOptionsParseResult = ts.parseJsonConfigFileContent(configParseResult.config, parseConfigHost, path.resolve(path.dirname(configFileName)), undefined, get_absolute_path_1.getAbsolutePath(configFileName));
++    (0, check_diagnostics_errors_1.checkDiagnosticsErrors)(configParseResult.error !== undefined ? [configParseResult.error] : [], 'Error while processing tsconfig file');
++    var compilerOptionsParseResult = ts.parseJsonConfigFileContent(configParseResult.config, parseConfigHost, path.resolve(path.dirname(configFileName)), undefined, (0, get_absolute_path_1.getAbsolutePath)(configFileName));
+     // we don't want to raise an error if no inputs found in a config file
+     // because this error is mostly for CLI, but we'll pass an inputs in createProgram
+     var diagnostics = compilerOptionsParseResult.errors
+         .filter(function (d) { return d.code !== 18003 /* NoInputsWereFoundDiagnosticCode */; });
+-    check_diagnostics_errors_1.checkDiagnosticsErrors(diagnostics, 'Error while processing tsconfig compiler options');
++    (0, check_diagnostics_errors_1.checkDiagnosticsErrors)(diagnostics, 'Error while processing tsconfig compiler options');
+     return compilerOptionsParseResult.options;
+ }
+ exports.getCompilerOptions = getCompilerOptions;
+@@ -31,7 +31,7 @@ function findConfig(inputFiles) {
+     if (inputFiles.length !== 1) {
+         throw new Error('Cannot find tsconfig for multiple files. Please specify preferred tsconfig file');
+     }
+-    var searchPath = fix_path_1.fixPath(inputFiles[0]);
++    var searchPath = (0, fix_path_1.fixPath)(inputFiles[0]);
+     var configFileName = ts.findConfigFile(searchPath, ts.sys.fileExists);
+     if (!configFileName) {
+         throw new Error("Cannot find config file for file " + searchPath);
+diff --git a/node_modules/dts-bundle-generator/dist/helpers/check-diagnostics-errors.js b/node_modules/dts-bundle-generator/dist/helpers/check-diagnostics-errors.js
+index 516c481..30d2452 100644
+--- a/node_modules/dts-bundle-generator/dist/helpers/check-diagnostics-errors.js
++++ b/node_modules/dts-bundle-generator/dist/helpers/check-diagnostics-errors.js
+@@ -17,7 +17,7 @@ function checkDiagnosticsErrors(diagnostics, failMessage) {
+     if (diagnostics.length === 0) {
+         return;
+     }
+-    logger_1.errorLog(ts.formatDiagnostics(diagnostics, formatDiagnosticsHost).trim());
++    (0, logger_1.errorLog)(ts.formatDiagnostics(diagnostics, formatDiagnosticsHost).trim());
+     throw new Error(failMessage);
+ }
+ exports.checkDiagnosticsErrors = checkDiagnosticsErrors;
+diff --git a/node_modules/dts-bundle-generator/dist/helpers/get-absolute-path.js b/node_modules/dts-bundle-generator/dist/helpers/get-absolute-path.js
+index 1e8ee9d..ee76edb 100644
+--- a/node_modules/dts-bundle-generator/dist/helpers/get-absolute-path.js
++++ b/node_modules/dts-bundle-generator/dist/helpers/get-absolute-path.js
+@@ -8,6 +8,6 @@ function getAbsolutePath(fileName, cwd) {
+     if (!path.isAbsolute(fileName)) {
+         fileName = path.join(cwd !== undefined ? cwd : process.cwd(), fileName);
+     }
+-    return fix_path_1.fixPath(fileName);
++    return (0, fix_path_1.fixPath)(fileName);
+ }
+ exports.getAbsolutePath = getAbsolutePath;
+diff --git a/node_modules/dts-bundle-generator/dist/helpers/node-modules.js b/node_modules/dts-bundle-generator/dist/helpers/node-modules.js
+index baa0923..8fe444b 100644
+--- a/node_modules/dts-bundle-generator/dist/helpers/node-modules.js
++++ b/node_modules/dts-bundle-generator/dist/helpers/node-modules.js
+@@ -2,7 +2,7 @@
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getTypesLibraryName = exports.getLibraryName = void 0;
+ var nodeModulesFolderName = 'node_modules/';
+-var libraryNameRegex = /node_modules\/((?:(?=@)[^\/]+\/[^\/]+|[^\/]+))\//;
++var libraryNameRegex = /node_modules\/((?:(?=@)[^/]+\/[^/]+|[^/]+))\//;
+ function getLibraryName(fileName) {
+     var lastNodeModulesIndex = fileName.lastIndexOf(nodeModulesFolderName);
+     if (lastNodeModulesIndex === -1) {
+diff --git a/node_modules/dts-bundle-generator/dist/helpers/package-json.js b/node_modules/dts-bundle-generator/dist/helpers/package-json.js
+new file mode 100644
+index 0000000..e671eb8
+--- /dev/null
++++ b/node_modules/dts-bundle-generator/dist/helpers/package-json.js
+@@ -0,0 +1,47 @@
++"use strict";
++var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
++    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
++        if (ar || !(i in from)) {
++            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
++            ar[i] = from[i];
++        }
++    }
++    return to.concat(ar || Array.prototype.slice.call(from));
++};
++Object.defineProperty(exports, "__esModule", { value: true });
++exports.dependencyIsListedAsMonorepo = exports.getPackageJsonDependencies = void 0;
++/* eslint-disable */
++var fs = require("fs");
++var chachedDependencies = undefined;
++function getPackageJsonDependencies(packageJsonFilePath) {
++    if (chachedDependencies !== undefined)
++        return chachedDependencies;
++    if (!fs.existsSync(packageJsonFilePath)) {
++        throw new Error("Cannot find up package.json in " + packageJsonFilePath);
++    }
++    var packageJson = require(packageJsonFilePath);
++    var dependencies = Object.keys(packageJson.dependencies || {});
++    var devDependencies = Object.keys(packageJson.devDependencies || {});
++    var peerDependencies = Object.keys(packageJson.peerDependencies || {});
++    var optionalDependencies = Object.keys(packageJson.optionalDependencies || {});
++    chachedDependencies = __spreadArray(__spreadArray(__spreadArray(__spreadArray([], dependencies, true), devDependencies, true), peerDependencies, true), optionalDependencies, true);
++    return chachedDependencies;
++}
++exports.getPackageJsonDependencies = getPackageJsonDependencies;
++function dependencyIsListedAsMonorepo(monorepo, modulePath) {
++    var _a = modulePath.split(monorepo.packagesPath), _ = _a[0], moduleStartPath = _a[1];
++    moduleStartPath = moduleStartPath.slice(1);
++    if (!moduleStartPath)
++        return false;
++    var hasScope = moduleStartPath.startsWith('@');
++    var moduleName = hasScope ?
++        moduleStartPath.split('/').splice(0, 2).join('/') :
++        moduleStartPath.split('/')[0];
++    var dependencies = getPackageJsonDependencies(monorepo.packageJsonPath);
++    return dependencies.some(function (dep) {
++        return dep === moduleName ||
++            (dep.startsWith('@') && dep.split('/')[1] === moduleName) ||
++            (hasScope && dep === moduleName.split('/')[1]);
++    });
++}
++exports.dependencyIsListedAsMonorepo = dependencyIsListedAsMonorepo;
+diff --git a/node_modules/dts-bundle-generator/dist/helpers/package-version.js b/node_modules/dts-bundle-generator/dist/helpers/package-version.js
+index f23fa6b..7fe3a13 100644
+--- a/node_modules/dts-bundle-generator/dist/helpers/package-version.js
++++ b/node_modules/dts-bundle-generator/dist/helpers/package-version.js
+@@ -8,6 +8,7 @@ function packageVersion() {
+     while (dirName.length !== 0) {
+         var packageJsonFilePath = path.join(dirName, 'package.json');
+         if (fs.existsSync(packageJsonFilePath)) {
++            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-var-requires
+             return require(packageJsonFilePath).version;
+         }
+         dirName = path.join(dirName, '..');
+diff --git a/node_modules/dts-bundle-generator/dist/helpers/typescript.js b/node_modules/dts-bundle-generator/dist/helpers/typescript.js
+index b3b98d9..ca97635 100644
+--- a/node_modules/dts-bundle-generator/dist/helpers/typescript.js
++++ b/node_modules/dts-bundle-generator/dist/helpers/typescript.js
+@@ -55,11 +55,11 @@ function splitTransientSymbol(symbol, typeChecker) {
+         if (!isNodeNamedDeclaration(declaration) || declaration.name === undefined) {
+             continue;
+         }
+-        var symbol_1 = typeChecker.getSymbolAtLocation(declaration.name);
+-        if (symbol_1 === undefined) {
++        var sym = typeChecker.getSymbolAtLocation(declaration.name);
++        if (sym === undefined) {
+             continue;
+         }
+-        result.push(getActualSymbol(symbol_1, typeChecker));
++        result.push(getActualSymbol(sym, typeChecker));
+     }
+     return result;
+ }
+@@ -96,7 +96,7 @@ function isRelativeDeclareModule(node) {
+     if (!isDeclareModule(node) || !ts.isStringLiteral(node.name)) {
+         return false;
+     }
+-    var moduleName = fix_path_1.fixPath(node.name.text);
++    var moduleName = (0, fix_path_1.fixPath)(node.name.text);
+     return moduleName.startsWith('./') || moduleName.startsWith('../');
+ }
+ exports.isRelativeDeclareModule = isRelativeDeclareModule;
+@@ -134,7 +134,7 @@ function getDeclarationsForSymbol(symbol) {
+ }
+ exports.getDeclarationsForSymbol = getDeclarationsForSymbol;
+ function isDeclarationFromExternalModule(node) {
+-    return node_modules_1.getLibraryName(node.getSourceFile().fileName) !== null;
++    return (0, node_modules_1.getLibraryName)(node.getSourceFile().fileName) !== null;
+ }
+ exports.isDeclarationFromExternalModule = isDeclarationFromExternalModule;
+ function getExportsForSourceFile(typeChecker, sourceFileSymbol) {
+@@ -234,7 +234,7 @@ function getExportsForName(exportedSymbols, typeChecker, name) {
+     return exportedSymbols.filter(function (rootExport) { return rootExport.symbol === declarationSymbol; });
+ }
+ function isNamedTupleMember(node) {
+-    // tslint:disable-next-line:no-unnecessary-type-assertion
++    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+     var compatTs = ts;
+     if (!compatTs.isNamedTupleMember) {
+         return false;
+diff --git a/node_modules/dts-bundle-generator/dist/logger.js b/node_modules/dts-bundle-generator/dist/logger.js
+index 4b70157..b0f346c 100644
+--- a/node_modules/dts-bundle-generator/dist/logger.js
++++ b/node_modules/dts-bundle-generator/dist/logger.js
+@@ -35,13 +35,16 @@ function logMessage(message, level) {
+     switch (level) {
+         case 3 /* Error */:
+             // print red
++            // eslint-disable-next-line no-console
+             console.error("\u001B[0;31m" + message + "\u001B[0m");
+             break;
+         case 2 /* Warning */:
++            // eslint-disable-next-line no-console
+             console.warn("\u001B[1;33m" + message + "\u001B[0m");
+             break;
+         case 1 /* Normal */:
+         case 0 /* Verbose */:
++            // eslint-disable-next-line no-console
+             console.log(message);
+     }
+ }
+diff --git a/node_modules/dts-bundle-generator/dist/module-info.js b/node_modules/dts-bundle-generator/dist/module-info.js
+index e493a1f..3e5822c 100644
+--- a/node_modules/dts-bundle-generator/dist/module-info.js
++++ b/node_modules/dts-bundle-generator/dist/module-info.js
+@@ -14,12 +14,12 @@ exports.getModuleInfo = getModuleInfo;
+  * @param criteria Criteria of module info
+  */
+ function getModuleInfoImpl(currentFilePath, originalFileName, criteria) {
+-    var npmLibraryName = node_modules_1.getLibraryName(currentFilePath);
++    var npmLibraryName = (0, node_modules_1.getLibraryName)(currentFilePath);
+     if (npmLibraryName === null) {
+         if (criteria.typeRoots !== undefined) {
+             for (var _i = 0, _a = criteria.typeRoots; _i < _a.length; _i++) {
+                 var root = _a[_i];
+-                var relativePath = fix_path_1.fixPath(path.relative(root, originalFileName));
++                var relativePath = (0, fix_path_1.fixPath)(path.relative(root, originalFileName));
+                 if (!relativePath.startsWith('../')) {
+                     // relativePath is path relative to type root
+                     // so we should treat it as "library from node_modules/@types/"
+@@ -29,11 +29,11 @@ function getModuleInfoImpl(currentFilePath, originalFileName, criteria) {
+         }
+         return { type: 0 /* ShouldBeInlined */, fileName: originalFileName, isExternal: false };
+     }
+-    var typesLibraryName = node_modules_1.getTypesLibraryName(currentFilePath);
++    var typesLibraryName = (0, node_modules_1.getTypesLibraryName)(currentFilePath);
+     if (shouldLibraryBeInlined(npmLibraryName, typesLibraryName, criteria.inlinedLibraries)) {
+         return { type: 0 /* ShouldBeInlined */, fileName: originalFileName, isExternal: true };
+     }
+-    if (shouldLibraryBeImported(npmLibraryName, typesLibraryName, criteria.importedLibraries)) {
++    if (shouldLibraryBeImported(npmLibraryName, typesLibraryName, criteria.importedLibraries, criteria.allowedTypesLibraries)) {
+         return { type: 1 /* ShouldBeImported */, fileName: originalFileName, isExternal: true };
+     }
+     if (typesLibraryName !== null && isLibraryAllowed(typesLibraryName, criteria.allowedTypesLibraries)) {
+@@ -44,12 +44,17 @@ function getModuleInfoImpl(currentFilePath, originalFileName, criteria) {
+ function shouldLibraryBeInlined(npmLibraryName, typesLibraryName, inlinedLibraries) {
+     return isLibraryAllowed(npmLibraryName, inlinedLibraries) || typesLibraryName !== null && isLibraryAllowed(typesLibraryName, inlinedLibraries);
+ }
+-function shouldLibraryBeImported(npmLibraryName, typesLibraryName, importedLibraries) {
+-    // npm library can be imported only when it is not from @types
+-    var shouldNpmLibraryBeImported = typesLibraryName === null && isLibraryAllowed(npmLibraryName, importedLibraries);
+-    // library from @types can be imported only when it is specified explicitly
+-    var shouldTypesLibraryBeImported = importedLibraries !== undefined && typesLibraryName !== null && isLibraryAllowed(typesLibraryName, importedLibraries);
+-    return shouldNpmLibraryBeImported || shouldTypesLibraryBeImported;
++function shouldLibraryBeImported(npmLibraryName, typesLibraryName, importedLibraries, allowedTypesLibraries) {
++    if (typesLibraryName === null) {
++        return isLibraryAllowed(npmLibraryName, importedLibraries);
++    }
++    // to be imported a library from types shouldn't be allowed to be references as types
++    // thus by default we treat all libraries as "should be imported"
++    // but if it is a @types library then it should be imported only if it is not marked as "should be referenced as types" explicitly
++    if (allowedTypesLibraries === undefined || !isLibraryAllowed(typesLibraryName, allowedTypesLibraries)) {
++        return isLibraryAllowed(typesLibraryName, importedLibraries);
++    }
++    return false;
+ }
+ function isLibraryAllowed(libraryName, allowedArray) {
+     return allowedArray === undefined || allowedArray.indexOf(libraryName) !== -1;
+diff --git a/node_modules/dts-bundle-generator/dist/types-usage-evaluator.js b/node_modules/dts-bundle-generator/dist/types-usage-evaluator.js
+index 977efc7..2db34bd 100644
+--- a/node_modules/dts-bundle-generator/dist/types-usage-evaluator.js
++++ b/node_modules/dts-bundle-generator/dist/types-usage-evaluator.js
+@@ -43,13 +43,13 @@ var TypesUsageEvaluator = /** @class */ (function () {
+         }
+     };
+     TypesUsageEvaluator.prototype.computeUsageForNode = function (node) {
+-        if (typescript_1.isRelativeDeclareModule(node) && node.body !== undefined && ts.isModuleBlock(node.body)) {
++        if ((0, typescript_1.isRelativeDeclareModule)(node) && node.body !== undefined && ts.isModuleBlock(node.body)) {
+             for (var _i = 0, _a = node.body.statements; _i < _a.length; _i++) {
+                 var statement = _a[_i];
+                 this.computeUsageForNode(statement);
+             }
+         }
+-        else if (typescript_1.isNodeNamedDeclaration(node) && node.name) {
++        else if ((0, typescript_1.isNodeNamedDeclaration)(node) && node.name) {
+             var childSymbol = this.getSymbol(node.name);
+             this.computeUsagesRecursively(node, childSymbol);
+         }
+@@ -72,10 +72,10 @@ var TypesUsageEvaluator = /** @class */ (function () {
+                 // identifiers in labelled tuples don't have symbols for their labels
+                 // so let's just skip them from collecting
+                 // since this feature is for TypeScript > 4, we have to check that a function exist before accessing it
+-                if (typescript_1.isNamedTupleMember(child.parent) && child.parent.name === child) {
++                if ((0, typescript_1.isNamedTupleMember)(child.parent) && child.parent.name === child) {
+                     continue;
+                 }
+-                var childSymbols = typescript_1.splitTransientSymbol(this.getSymbol(child), this.typeChecker);
++                var childSymbols = (0, typescript_1.splitTransientSymbol)(this.getSymbol(child), this.typeChecker);
+                 for (var _a = 0, childSymbols_1 = childSymbols; _a < childSymbols_1.length; _a++) {
+                     var childSymbol = childSymbols_1[_a];
+                     var symbols = this.nodesParentsMap.get(childSymbol);
+@@ -99,7 +99,7 @@ var TypesUsageEvaluator = /** @class */ (function () {
+         return this.getActualSymbol(nodeSymbol);
+     };
+     TypesUsageEvaluator.prototype.getActualSymbol = function (symbol) {
+-        return typescript_1.getActualSymbol(symbol, this.typeChecker);
++        return (0, typescript_1.getActualSymbol)(symbol, this.typeChecker);
+     };
+     return TypesUsageEvaluator;
+ }());

@@ -1,0 +1,48 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Karma",
+            "type": "pwa-chrome",
+            "request": "attach",
+            "url": "http://localhost:9876/debug.html",
+            "address": "localhost",
+            "port": 9333,
+            "webRoot": "${workspaceFolder}/packages"
+        },
+        {
+            "name": "Attach to Jasmine (nodemon)",
+            "type": "pwa-node",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "address": "localhost",
+            "port": 9334,
+            "request": "attach",
+            "restart": true,
+            "runtimeExecutable": "nodemon",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "Run Jasmine (node) tests",
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "${workspaceRoot}/node_modules/jasmine/bin/jasmine",
+                "--config=jasmine.conf.json",
+                "--reporter=jasmine-console-reporter"
+            ],
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "cwd": "${workspaceRoot}/test",
+            "protocol": "inspector",
+            "console": "integratedTerminal"
+        }
+    ]
+}

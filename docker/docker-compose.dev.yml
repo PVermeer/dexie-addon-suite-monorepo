@@ -1,0 +1,81 @@
+version: "3.8"
+services:
+  test-jasmine:
+    container_name: test_jasmine
+    depends_on:
+      - build-bundles
+      - build-esm-es5
+      - build-es6
+    build:
+      context: ../../
+      dockerfile: deployments/docker/Dockerfile
+      target: install
+    command: ["npm", "run", "test:jasmine:debug"]
+    ports:
+      - "9229:9229"
+    volumes:
+      - ../../src:/home/app/src:ro
+      - ../../test:/home/app/test:ro
+      - ../../dist:/home/app/dist:ro
+      - ../../reports:/home/app/reports
+    tty: true
+
+  test-karma:
+    container_name: test_karma
+    depends_on:
+      - build-bundles
+      - build-esm-es5
+      - build-es6
+    build:
+      context: ../../
+      dockerfile: deployments/docker/Dockerfile
+      target: install
+    command: ["npm", "run", "test:karma:debug"]
+    ports:
+      - "9339:9229"
+      - "9876:9876"
+    volumes:
+      - ../../src:/home/app/src:ro
+      - ../../test:/home/app/test:ro
+      - ../../dist:/home/app/dist:ro
+      - ../../reports:/home/app/reports
+    tty: true
+
+  build-bundles:
+    container_name: bundles
+    build:
+      context: ../../
+      dockerfile: deployments/docker/Dockerfile
+      target: install
+    command: ["npm", "run", "build:bundles:watch"]
+    volumes:
+      - ../../src:/home/app/src:ro
+      - ../../dist:/home/app/dist
+      - ../../reports:/home/app/reports
+    tty: true
+
+  build-esm-es5:
+    container_name: esm-es5
+    build:
+      context: ../../
+      dockerfile: deployments/docker/Dockerfile
+      target: install
+    command: ["npm", "run", "build:esm-es5:watch"]
+    volumes:
+      - ../../src:/home/app/src:ro
+      - ../../dist:/home/app/dist
+      - ../../reports:/home/app/reports
+    tty: true
+
+  build-es6:
+    container_name: es6
+    build:
+      context: ../../
+      dockerfile: deployments/docker/Dockerfile
+      target: install
+    command: ["npm", "run", "build:es6:watch"]
+    volumes:
+      - ../../src:/home/app/src:ro
+      - ../../dist:/home/app/dist
+      - ../../reports:/home/app/reports
+    tty: true

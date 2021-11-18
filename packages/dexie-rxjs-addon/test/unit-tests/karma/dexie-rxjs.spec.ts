@@ -1,9 +1,9 @@
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
-import { Observable, Subscription } from 'rxjs';
+import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { databasesNegative, databasesPositive, Friend, methods, mockFriends } from '../../mocks/mocks.spec';
 import { flatPromise } from '../../../../common/src/promise';
+import { databasesNegative, databasesPositive, Friend, methods, mockFriends } from '../../mocks/mocks.spec';
 
 describe('Rxjs', () => {
     databasesPositive.forEach((database, _i) => {
@@ -85,17 +85,17 @@ describe('Rxjs', () => {
                             expect(sub.closed).toBe(false);
                         });
                         it('should emit the correct value', async () => {
-                            const getFriend = await obs$.pipe(take(1)).toPromise();
+                            const getFriend = await firstValueFrom(obs$.pipe(take(1)));
                             expect(getFriend).toEqual(friend);
 
                             const [newFriend] = mockFriends(1);
                             const newId = await db.friends.add(newFriend);
                             const obsNew$ = method$(newId, newFriend.customId);
-                            const getNewFriend = await obsNew$.pipe(take(1)).toPromise();
+                            const getNewFriend = await firstValueFrom(obsNew$.pipe(take(1)));
                             expect(getNewFriend).toEqual(newFriend);
 
                             const obsOld$ = method$(id, customId);
-                            const getOldFriend = await obsOld$.pipe(take(1)).toPromise();
+                            const getOldFriend = await firstValueFrom(obsOld$.pipe(take(1)));
                             expect(getOldFriend).toEqual(friend);
                         });
                         it('should emit on record update', async () => {
@@ -261,7 +261,7 @@ describe('Rxjs', () => {
                         if (method.array) {
                             it('should be an array', async () => {
                                 const getObs$ = method$(id, customId, { emitFull: true });
-                                const collection = await getObs$.pipe(take(1)).toPromise();
+                                const collection = await firstValueFrom(getObs$.pipe(take(1)));
                                 expect(Array.isArray(collection)).toBeTrue();
                             });
                             if (method.alwaysEmit) {

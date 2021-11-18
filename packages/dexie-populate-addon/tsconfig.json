@@ -1,9 +1,14 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "outDir": "../../dist/dexie-populate-addon/esm"
+        "outDir": "./dist/esm"
     },
     "include": [
         "src"
+    ],
+    "references": [
+        {
+            "path": "../common"
+        }
     ]
 }

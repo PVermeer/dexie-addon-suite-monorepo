@@ -1,10 +1,14 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "outDir": "../../dist/dexie-rxjs-addon/esm"
+        "outDir": "./dist/esm"
     },
     "include": [
         "src"
     ],
-    "references": []
+    "references": [
+        {
+            "path": "../common"
+        }
+    ]
 }

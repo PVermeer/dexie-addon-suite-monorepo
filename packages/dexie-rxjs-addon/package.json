@@ -3,15 +3,8 @@
   "version": "1.0.0-beta.18",
   "description": "Addon for Dexie.js database to add rxjs observables",
   "main": "dist/index.js",
-  "module": "dist/esm-es5/index.js",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "<3.8": {
-      "*": [
-        "./dist/ts3.4/index.d.ts"
-      ]
-    }
-  },
+  "module": "dist/esm/dexie-rxjs-addon/src/index.js",
+  "types": "dist/index.d.ts",
   "author": "PVermeer",
   "license": "MIT",
   "keywords": [
@@ -24,7 +17,10 @@
   ],
   "files": [
     "dist",
-    "patches"
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"

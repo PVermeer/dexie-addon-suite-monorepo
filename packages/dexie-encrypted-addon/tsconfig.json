@@ -1,13 +1,15 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "outDir": "../../dist/dexie-encrypted-addon/esm",
+        "outDir": "./dist/esm",
     },
     "include": [
-        "src",
-        "../common"
+        "src"
     ],
     "references": [
+        {
+            "path": "../common"
+        },
         {
             "path": "../dexie-immutable-addon"
         }

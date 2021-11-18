@@ -36,7 +36,7 @@ describe('Dexie', () => {
                 }),
                 await new Promise<void>(resolve => {
                     const scriptAddon = document.createElement('script');
-                    scriptAddon.src = '/base/dist/dexie-immutable-addon/dexie-immutable-addon.min.js';
+                    scriptAddon.src = '/base/dist/dexie-immutable-addon.min.js';
                     scriptAddon.type = 'text/javascript';
                     scriptAddon.onload = () => resolve();
                     document.head.append(scriptAddon);

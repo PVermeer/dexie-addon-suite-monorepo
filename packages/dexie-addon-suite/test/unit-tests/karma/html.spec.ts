@@ -42,7 +42,7 @@ describe('HTML script tag', () => {
         ]);
         await new Promise<void>(resolve => {
             const script = document.createElement('script');
-            script.src = `/base/dist/dexie-addon-suite/dexie-addon-suite.min.js`;
+            script.src = `/base/dist/dexie-addon-suite.min.js`;
             script.type = 'text/javascript';
             script.onload = () => resolve();
             document.head.append(script);
@@ -187,7 +187,7 @@ describe('HTML script tag', () => {
             expect(getFriend).toEqual(friendExpectedPop);
         });
         it('should be able to get a populated observable', async () => {
-            const getFriend = await db.friends.$.populate().get(id).pipe(rxjs.operators.take(1)).toPromise();
+            const getFriend = await firstValueFrom(db.friends.$.populate().get(id).pipe(rxjs.operators.take(1)));
             expect(getFriend).toEqual(friendExpectedPop);
         });
     });

@@ -11,7 +11,7 @@ try
     set -e
 
     echo "Cleaning dist folder"
-    rm -rf ../../dist/$package
+    rm -rf $packagePath/dist/*
 
     echo "Building package: $package"
 
@@ -27,11 +27,19 @@ try
     tsc --build
     echo "Esm is done"
 
-    echo "Package $package build successful"
+    # Tsc doesn't rewrite import and since outDir is specified with composite referenced project
+    # the common package is not build in the correct location for each package. So copy it here
+    # to the right location. Every tsconfig of the packages should reference it.
+    echo "Copying common package"
+    cp -r $packagePath/../common/dist/esm $packagePath/dist
+    echo "Copy done"
+
 )
 catch || {
-    rm -rf ../../dist/$package
+    rm -rf $packagePath/dist/*
+    echo "Package $package build failed!"
     exit 1
 }
 
+echo "Package $package build successful"
 exit 0;

@@ -32,7 +32,7 @@ describe('HTML script tag', () => {
         ]);
         await new Promise<void>(resolve => {
             const script = document.createElement('script');
-            script.src = `/base/dist/dexie-rxjs-addon/dexie-rxjs-addon.min.js`;
+            script.src = `/base/dist/dexie-rxjs-addon.min.js`;
             script.type = 'text/javascript';
             script.onload = () => resolve();
             document.head.append(script);

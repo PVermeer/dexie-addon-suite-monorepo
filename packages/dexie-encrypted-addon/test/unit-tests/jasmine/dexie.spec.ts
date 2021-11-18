@@ -12,7 +12,7 @@ describe('Dexie', () => {
         let DexieEncryptionAddonReq: DexieEncryptedAddon;
         beforeAll(() => {
             DexieReq = require('dexie');
-            DexieEncryptionAddonReq = require('../../../../../dist/dexie-encrypted-addon');
+            DexieEncryptionAddonReq = require('../../../dist/index');
         });
         it('should load Dexie.js', () => {
             expect(DexieReq).toBeTruthy();

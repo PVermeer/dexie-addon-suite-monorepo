@@ -36,15 +36,15 @@ const bundles = env => {
         resolve: {
             extensions: ['.tsx', '.ts', '.js', '.json'],
             plugins: [new TsconfigPathsPlugin()]
-        }
-        // devtool: 'source-map'
+        },
+        devtool: 'source-map'
     }
 
     const umd = {
         ...base,
         output: {
             filename: 'index.js',
-            path: path.resolve(__dirname, 'dist', package),
+            path: path.resolve(packagePath, 'dist'),
             library: {
                 name: configLib.umdName,
                 type: 'umd',
@@ -62,9 +62,9 @@ const bundles = env => {
             new BundleAnalyzerPlugin({
                 analyzerMode: 'static',
                 openAnalyzer: false,
-                reportFilename: path.resolve(__dirname, 'reports', package, 'umd-webpack-report.html'),
+                reportFilename: path.resolve(packagePath, 'reports', 'umd-webpack-report.html'),
                 generateStatsFile: true,
-                statsFilename: path.resolve(__dirname, 'reports', package, 'umd-webpack-stats.json'),
+                statsFilename: path.resolve(packagePath, 'reports', 'umd-webpack-stats.json'),
                 statsOptions: {
                     source: false,
                     usedExports: true,
@@ -78,7 +78,7 @@ const bundles = env => {
         ...base,
         output: {
             filename: `${configLib.packageName}.min.js`,
-            path: path.resolve(__dirname, 'dist', package),
+            path: path.resolve(packagePath, 'dist'),
             library: {
                 name: configLib.umdName,
                 type: 'window',
@@ -98,9 +98,9 @@ const bundles = env => {
             new BundleAnalyzerPlugin({
                 analyzerMode: 'static',
                 openAnalyzer: false,
-                reportFilename: path.resolve(__dirname, 'reports', package, 'mini-umd-webpack-report.html'),
+                reportFilename: path.resolve(packagePath, 'reports', 'mini-umd-webpack-report.html'),
                 generateStatsFile: true,
-                statsFilename: path.resolve(__dirname, 'reports', package, 'mini-umd-webpack-stats.json'),
+                statsFilename: path.resolve(packagePath, 'reports', 'mini-umd-webpack-stats.json'),
                 statsOptions: {
                     source: false,
                     usedExports: true,

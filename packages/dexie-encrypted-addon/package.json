@@ -2,9 +2,9 @@
   "name": "@pvermeer/dexie-encrypted-addon",
   "version": "2.0.0-beta.6",
   "description": "Addon for Dexie.js database to add encryption",
-  "main": "index.js",
-  "module": "esm/dexie-encrypted-addon/src/index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/esm/dexie-encrypted-addon/src/index.js",
+  "types": "dist/index.d.ts",
   "author": "PVermeer",
   "license": "MIT",
   "keywords": [
@@ -16,7 +16,11 @@
     "encrypted"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
@@ -38,11 +42,8 @@
     "tslib": "^2.3.1",
     "tweetnacl": "^1.0.3"
   },
-  "devDependencies": {
-    "puppeteer": "^11.0.0"
-  },
   "peerDependencies": {
-    "dexie": "^3.0.0"
+    "dexie": "^3.0.3"
   },
   "repository": {
     "type": "git",

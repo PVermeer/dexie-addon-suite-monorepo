@@ -12,7 +12,7 @@ describe('Dexie', () => {
         let DexieImmutableAddonReq: DexieImmutableAddon;
         beforeAll(() => {
             DexieReq = require('dexie');
-            DexieImmutableAddonReq = require('../../../../../dist/dexie-immutable-addon');
+            DexieImmutableAddonReq = require('../../../dist/index');
         });
         it('should load Dexie.js', () => {
             expect(DexieReq).toBeTruthy();

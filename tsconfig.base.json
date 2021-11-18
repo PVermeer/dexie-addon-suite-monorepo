@@ -3,7 +3,7 @@
     "compilerOptions": {
         "baseUrl": "./",
         "rootDir": "./packages",
-        "sourceMap": false,
+        "sourceMap": true,
         "declaration": true,
         "removeComments": false,
         "downlevelIteration": true,

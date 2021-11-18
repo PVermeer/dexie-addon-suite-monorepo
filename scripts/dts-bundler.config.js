@@ -1,6 +1,5 @@
 const path = require('path');
 const packagePath = process.env['packagePath'];
-console.log(packagePath);
 const configLib = require('./build-package-config')(packagePath);
 
 
@@ -8,13 +7,13 @@ const configLib = require('./build-package-config')(packagePath);
 const config = {
 
     compilationOptions: {
-        preferredConfigPath: '../tsconfig.json'
+        preferredConfigPath: path.join('..', 'tsconfig.json')
     },
 
     entries: [
         {
             filePath: path.join(packagePath, 'src', 'index.ts'),
-            outFile: path.join('..', 'dist', configLib.packagePathName, 'index.d.ts'),
+            outFile: path.join(packagePath, 'dist', 'index.d.ts'),
             monorepo: {
                 packagesPath: path.join(packagePath, '..'),
                 packageJsonPath: packagePath + '/package.json'

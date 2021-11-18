@@ -12,7 +12,7 @@ describe('Dexie', () => {
         let PopulateReq: DexiePopulateAddon;
         beforeAll(() => {
             DexieReq = require('dexie');
-            PopulateReq = require('../../../../../dist/dexie-populate-addon');
+            PopulateReq = require('../../../dist/index');
         });
         it('should be able to require Dexie.js', () => {
             expect(DexieReq).toBeTruthy();

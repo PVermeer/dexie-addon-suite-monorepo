@@ -20,13 +20,16 @@ describe('Dexie', () => {
         });
         it('should throw when trying to require', () => {
             let addon: any;
+            let error: Error = new Error;
             // Addon throws because window.self is not defined.
             // Dependency 'dexie-observable' relies on this.
             try {
                 addon = require('../../../dist/index');
-            } catch (error) {
-                expect(error instanceof Error).toBeTrue();
+            } catch (_error: any) {
+                error = _error;
             }
+            expect(error instanceof ReferenceError).toBeTrue();
+            expect(error.message).toBe('self is not defined');
             expect(addon).toBeUndefined();
         });
     });

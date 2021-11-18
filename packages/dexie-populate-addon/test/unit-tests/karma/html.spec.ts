@@ -21,7 +21,7 @@ describe('HTML script tag (Still using dexie@next HTML import)', () => {
         ]);
         await new Promise<void>(resolve => {
             const script = document.createElement('script');
-            script.src = `/base/dist/dexie-populate-addon/dexie-populate-addon.min.js`;
+            script.src = `/base/dist/dexie-populate-addon.min.js`;
             script.type = 'text/javascript';
             script.onload = () => resolve();
             document.head.append(script);

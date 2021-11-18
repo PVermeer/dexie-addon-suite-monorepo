@@ -20,7 +20,7 @@ describe('Dexie', () => {
             // Addon throws because window.self is not defined.
             // Dependency 'dexie-observable' relies on this.
             try {
-                addon = require('../../../../../dist/dexie-rxjs-addon');
+                addon = require('../../../dist/index');
             } catch (error) {
                 expect(error instanceof Error).toBeTrue();
             }

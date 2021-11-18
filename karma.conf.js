@@ -21,11 +21,11 @@ module.exports = function (config) {
     }
 
     const baseConfig = {
-        basePath: './',
+        basePath: context,
         files: [
             path.join(context, 'test', 'unit-tests', 'karma', 'index.ts'),
             // Serve dist folder so files can be loaded when needed in tests
-            { pattern: './dist/' + configLib.packagePathName + '/**/*.+(js|map)', included: false, watched: true }
+            { pattern: 'dist/**/*.+(js|map)', included: false, watched: true }
         ],
         frameworks: ['jasmine', 'webpack'],
         plugins: [

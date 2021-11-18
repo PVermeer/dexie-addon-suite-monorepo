@@ -1,10 +1,12 @@
 import type { PopulateOptions } from '@pvermeer/dexie-populate-addon';
 import type { ObservableTablePopulated, PopulatedTableObservable } from './table-extended.class';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
+import { Ref } from '@pvermeer/dexie-populate-addon';
 
 export { addonSuite } from './addon-suite';
 export type { ObservableTablePopulated, PopulatedTableObservable } from './table-extended.class';
 export { Encryption };
+export type { Ref };
 
 
 declare module 'dexie' {

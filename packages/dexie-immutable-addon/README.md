@@ -17,13 +17,9 @@ npm install @pvermeer/dexie-immutable-addon
 ```
 
 #### Dexie.js
-Dexie Immutable Addon depends on Dexie.js v3. 
+Dexie Immutable Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 ```
 npm install dexie
-```
-At the time of writing Dexie v3 is in the RC stage. To install this version you have to use the @next npm version. Current version of Dexie.js: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
-```
-npm install dexie@next
 ```
 
 Documentation
@@ -33,10 +29,12 @@ Documentation
 #### Addon
 Add immutable() to your Dexie database. See below examples and https://dexie.org for more info.
 
-This addon just overwrites the save methods of Dexie.js and uses the Lodash cloneDeep method before saving records to IndexedDb. This prevents the original input object to be modified by Dexie. For example: an `++id` in your Table schema and using `add()` mutates the input object to `{ id: <some number>, ...originalObject }`, while `bulkAdd()` does not mutate the input objects. In combination with other addons, that mutate input (e.g.: encryption), this could lead to some weird and unexpected behavior.
+This addon just overwrites the save methods of Dexie.js and uses the `lodash` cloneDeep method before saving records to IndexedDb. This prevents the original input object to be modified by Dexie.
+
+For example: an `++id` in your Table schema and using `add()` mutates the input object to `{ id: <some number>, ...originalObject }`, while `bulkAdd()` does not mutate the input objects. In combination with other addons, that mutate input (e.g.: encryption), this could lead to some weird and unexpected behavior.
 
 ### Create Dexie database
-#### ES6
+#### ESM
 ```js
 import Dexie from 'dexie';
 import { immutable } from '@pvermeer/dexie-immutable-addon';

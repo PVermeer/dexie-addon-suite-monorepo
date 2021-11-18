@@ -19,13 +19,9 @@ npm install @pvermeer/dexie-rxjs-addon rxjs
 **rxjs**: https://rxjs-dev.firebaseapp.com/
 
 **Dexie.js**: 
-Dexie Populate Addon depends on Dexie.js v3. 
+Dexie Populate Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 ```
 npm install dexie
-```
-At the time of writing Dexie v3 is in the RC stage. To install this version you have to use the @next npm version. Current version of Dexie.js: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
-```
-npm install dexie@next
 ```
 
 Documentation
@@ -145,7 +141,7 @@ subs.unsubscribe();
 ```
 
 ### Load the addon
-#### Example (ES6)
+#### Example (ESM)
 ```js
 import Dexie from 'dexie';
 import { dexieRxjs } from '@pvermeer/dexie-rxjs-addon';
@@ -202,7 +198,7 @@ db.open()
 
 Bundled & minified package: <https://unpkg.com/@pvermeer/dexie-rxjs-addon@latest/dist/dexie-rxjs-addon.min.js>.
 
-Addon is export as namespace DexieRxjsAddon
+Addon is exported as namespace DexieRxjsAddon
 
 ```html
 <!doctype html>

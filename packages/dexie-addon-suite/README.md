@@ -22,20 +22,16 @@ Install over npm
 npm install @pvermeer/dexie-addon-suite rxjs
 ```
 
-#### Dependencies
+#### Peer dependencies
 **rxjs**: https://rxjs-dev.firebaseapp.com/
 
 RxJs is not bundled so you can use your own implementation.
 
 **Dexie.js**:
 
-Dexie Addon Suite depends on Dexie.js v3. 
+Dexie Addon Suite depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 ```
 npm install dexie
-```
-At the time of writing Dexie v3 is in the RC stage. To install this version you have to use the @next npm version. Current version of Dexie.js: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
-```
-npm install dexie@next
 ```
 
 Documentation
@@ -58,7 +54,7 @@ Add `addonSuite(db: Dexie)` to your Dexie database. See below examples and https
 
 For individual documentation check the individual repositories / packages (*links are above*).
 
-By default this addon will load:
+By default these addons will be loaded:
 - dexie-immutable-addon;
 - dexie-populate-addon;
 - dexie-rxjs-addon.
@@ -112,14 +108,11 @@ export class Friend {
     firstName: string;
     lastName: string;
     memberOf: Ref<Club[], number[]>;
-    group: Ref<Group, number>;
 
-    doSomething() { return 'done'; }
-
-    constructor() { }
+    doSomething() { }
 }
 ```
-With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number[]` and a property `group` that can be assigned with the index key of `number`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf` and `Group` in `group`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]` and for `group` it will be `Group | null`.
+With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number[]`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]`.
 
 The ref type is a (fake) nominal type so the type system can differentiate this type from other assignable types.
 

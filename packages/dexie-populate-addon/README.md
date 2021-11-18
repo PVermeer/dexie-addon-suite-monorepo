@@ -17,13 +17,9 @@ npm install @pvermeer/dexie-populate-addon
 ```
 
 #### Dexie.js
-Dexie Populate Addon depends on Dexie.js v3. 
+Dexie Populate Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 ```
 npm install dexie
-```
-At the time of writing Dexie v3 is in the RC stage. To install this version you have to use the @next npm version. Current version of Dexie.js: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
-```
-npm install dexie@next
 ```
 
 Documentation
@@ -48,27 +44,31 @@ Relational keys will be indexed. Multi-index `*groups` and compound indices can 
 Add populate() to your Dexie database. See below examples and https://dexie.org for more info.
 
 #### Ref type (TypeScript)
-For typescript there is a special `Ref` type for your Classes and Interfaces to let the typesystem know that this is a potentially populated property:
+For typescript there is a special `Ref` type for your Classes and Interfaces to let the type system know that this is a potentially populated property:
 
 ```ts
 import { Ref } from '@pvermeer/dexie-populate-addon';
+
+class Club {
+    id?: number;
+    name: string;
+    size: number;
+    description: string;
+}
 
 export class Friend {
     id?: number;
     firstName: string;
     lastName: string;
     memberOf: Ref<Club[], number[]>;
-    group: Ref<Group, number>;
 
-    doSomething() { return 'done'; }
-
-    constructor() { }
+    doSomething() { }
 }
 
 ```
-With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number[]` and a property `group` that can be assigned with the index key of `number`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf` and `Group` in `group`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]` and for `group` it will be `Group | null`.
+With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number[]`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]`.
 
-The ref type is a (fake) nominal type so the type system can differentiate this type from other assignable types.
+The `Ref` type is a (fake) nominal type so the type system can differentiate this type from other assignable types.
 
 #### Populate method
 The `Table` class of Dexie is extended with the `populate()` method:
@@ -83,7 +83,7 @@ populate(keysOrOptions?: string[] | PopulateOptions): PopulateTable;
 
 It returns a new `PopulateTable` with the available `Dexie.Table` methods that support population. Dexie `Table` methods can then be used as normal.
 
-When no parameters are provided, the return is a deep populated record. Since this is not always wanted and to speed up the database lookup, parameters can be provided:
+When no options are provided, the return is a deep populated record. Since this is not always wanted and to speed up the database lookup, options can be provided:
 - Providing `string[]` expects population keys as provided in the table schema. Only thoses properties will be populated (deep).
 - Providing `{ shallow: true }` disables deep population. Only one layer of population is applied.
 
@@ -111,7 +111,7 @@ And more... see https://dexie.org
 
 
 ### Create Dexie database
-#### ES6
+#### ESM
 ```js
 import Dexie from 'dexie';
 import { populate } from '@pvermeer/dexie-populate-addon';

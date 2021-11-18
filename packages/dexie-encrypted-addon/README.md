@@ -17,7 +17,7 @@ npm install @pvermeer/dexie-encrypted-addon
 ```
 
 #### Dexie.js
-Dexie Encrypted Addon depends on Dexie.js v3. 
+Dexie Encrypted Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 ```
 npm install dexie
 ```
@@ -87,8 +87,8 @@ Implementing this yourself would be more performend when also modeling the datab
 Dexie does not do immutability by default.
 This is recommended so your original input object does not change after encrypting values or hashing the primary index key.
 
-By default immutablity is applied to all creation and update methods via overrides via ![npm (prod) dependency version (scoped)](https://img.shields.io/npm/dependency-version/@pvermeer/dexie-encrypted-addon/@pvermeer/dexie-immutable-addon).
-The immutable addon is loaded with this addon so you don't have to add it.
+By default immutablity is applied to all creation and update methods via overrides via `@pvermeer/dexie-immutable-addon` [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon).
+The immutable addon is loaded with this addon so you don't have to provide it.
 
 This behavior can be disabled via the options object provided to the addon:
 ```ts
@@ -99,7 +99,7 @@ interface EncryptedOptions {
 ```
 *Setting this to false can lead to unexpected / weird behavior in your application*
 
-#### Example (ES6)
+#### Example (ESM)
 ```js
 import Dexie from 'dexie';
 import { encrypted, Encryption } from '@pvermeer/dexie-encrypted-addon';

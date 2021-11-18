@@ -11,7 +11,7 @@ export class ObservableCollection<T, TKey> {
         startWith([]),
         mergeMap(() => this._collection.toArray()),
         distinctUntilChanged(isEqual),
-        shareReplay()
+        shareReplay(1)
     );
 
     /**

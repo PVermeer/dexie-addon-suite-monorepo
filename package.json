@@ -8,6 +8,7 @@
   "scripts": {
     "lerna": "lerna",
     "bootstrap": "lerna bootstrap || npx lerna bootstrap",
+    "bootstrap:ci": "lerna bootstrap --ci || npx lerna bootstrap --ci",
     "init": "semantic-release-cli setup",
     "lint": "lerna run lint",
     "build": "lerna run build",
@@ -19,15 +20,16 @@
     "packages/*"
   ],
   "dependencies": {
-    "@pvermeer/dexie-addon-suite": "file:packages/suite",
-    "@pvermeer/dexie-encrypted-addon": "file:packages/encrypted",
-    "@pvermeer/dexie-immutable-addon": "file:packages/immutable",
-    "@pvermeer/dexie-populate-addon": "file:packages/populate",
-    "@pvermeer/dexie-rxjs-addon": "file:packages/rxjs"
+    "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
+    "@pvermeer/dexie-encrypted-addon": "file:packages/dexie-encrypted-addon",
+    "@pvermeer/dexie-immutable-addon": "file:packages/dexie-immutable-addon",
+    "@pvermeer/dexie-populate-addon": "file:packages/dexie-populate-addon",
+    "@pvermeer/dexie-rxjs-addon": "file:packages/dexie-rxjs-addon"
   },
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",
     "@commitlint/config-conventional": "^14.1.0",
+    "@commitlint/config-lerna-scopes": "^15.0.0",
     "@types/faker": "^5.5.9",
     "@types/is-ci": "^3.0.0",
     "@types/jasmine": "^3.10.2",
@@ -46,7 +48,6 @@
     "faker": "^5.5.3",
     "fork-ts-checker-webpack-plugin": "^6.4.0",
     "husky": "^7.0.4",
-    "is-ci": "^3.0.1",
     "is-wsl": "^2.2.0",
     "jasmine": "^3.10.0",
     "jasmine-console-reporter": "^3.1.0",

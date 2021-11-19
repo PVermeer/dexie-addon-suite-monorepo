@@ -5,6 +5,7 @@ const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const isWsl = require('is-wsl');
+const isCI = process.env['CI'];
 
 /*
  * Using webpack for much better debug experience with tests.
@@ -32,6 +33,7 @@ module.exports = function (config) {
             'karma-jasmine',
             'karma-webpack',
             'karma-chrome-launcher',
+            'karma-firefox-launcher',
             'karma-mocha-reporter',
             'karma-jasmine-html-reporter'
         ],
@@ -86,9 +88,24 @@ module.exports = function (config) {
                 flags: [
                     '--remote-debugging-port=9333'
                 ]
-            }
+            },
+            ChromeHeadless_no_sandbox: {
+                base: 'ChromeHeadless',
+                flags: [
+                    '--no-sandbox'
+                ]
+            },
+            // No binary for Edge Headless on Github Actions
+            // EdgeHeadless_no_sandbox: {
+            //     base: "EdgeHeadless",
+            //     flags: [
+            //         "--no-sandbox"
+            //     ],
+            // }
         },
-        browsers: ['ChromeDebug'],
+        browsers: [
+            'ChromeDebug'
+        ],
         reporters: ['mocha', 'kjhtml'],
         mochaReporter: {
             ignoreSkipped: true
@@ -124,5 +141,15 @@ module.exports = function (config) {
         restartOnFileChange: true
     }
 
-    config.set(config.debug ? debugOptions : configOptions);
+    const ciOptions = {
+        ...configOptions,
+
+        browsers: [
+            'ChromeHeadless_no_sandbox',
+            'FirefoxHeadless'
+        ]
+    }
+
+    if (isCI) config.set(ciOptions);
+    else config.set(config.debug ? debugOptions : configOptions);
 }

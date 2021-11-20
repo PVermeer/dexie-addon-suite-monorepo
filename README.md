@@ -1,5 +1,13 @@
+
 Dexie Addons - Monorepo
 ======
+
+[![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
+[![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/beta.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
+![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/test.yml/badge.svg?branch=master)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 
 Dexie Addons for Dexie.js v3: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 

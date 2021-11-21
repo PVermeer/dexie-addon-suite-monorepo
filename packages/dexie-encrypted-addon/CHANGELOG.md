@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# 2.0.0-beta.7 (2021-11-21)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
 # [2.0.0-beta.6](https://github.com/PVermeer/dexie-encrypted-addon/compare/v2.0.0-beta.5...v2.0.0-beta.6) (2020-11-22)
 
 

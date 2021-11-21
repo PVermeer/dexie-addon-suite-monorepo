@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# 1.0.0-beta.19 (2021-11-21)
+
+
+### Bug Fixes
+
+* **dexie-rxjs:** shareReplay should be buffer 1 ([0c39eef](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/0c39eef8e970dd4e174e39038716d7475167d04e))
+
+
+
+
+
 # [1.0.0-beta.18](https://github.com/PVermeer/dexie-rxjs-addon/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2020-11-22)
 
 

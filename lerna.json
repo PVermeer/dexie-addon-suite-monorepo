@@ -3,5 +3,19 @@
   "npmClient": "npm",
   "packages": [
     "packages/*"
-  ]
+  ],
+  "command": {
+    "version": {
+      "allowBranch": [
+        "master",
+        "beta",
+        "next"
+      ],
+      "conventionalCommits": true,
+      "message": "chore: new releases [skip ci]"
+    },
+    "publish": {
+      "conventionalCommits": true
+    }
+  }
 }

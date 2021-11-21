@@ -20,6 +20,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "common": "file:packages/common",
     "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
     "@pvermeer/dexie-encrypted-addon": "file:packages/dexie-encrypted-addon",
     "@pvermeer/dexie-immutable-addon": "file:packages/dexie-immutable-addon",

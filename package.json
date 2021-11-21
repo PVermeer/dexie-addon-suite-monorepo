@@ -13,7 +13,8 @@
     "lint": "lerna run lint",
     "build": "lerna run build",
     "test": "lerna run test",
-    "semantic-release": "semantic-release",
+    "version": "bash ./scripts/version.sh",
+    "release": "bash ./scripts/release.sh",
     "prepare": "husky install && patch-package"
   },
   "workspaces": [

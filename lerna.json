@@ -13,9 +13,6 @@
       ],
       "conventionalCommits": true,
       "message": "chore: new releases [skip ci]"
-    },
-    "publish": {
-      "conventionalCommits": true
     }
   }
 }

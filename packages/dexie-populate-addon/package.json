@@ -3,7 +3,7 @@
   "version": "1.0.0-beta.7",
   "description": "Addon for Dexie.js database to populate relationships",
   "main": "dist/index.js",
-  "module": "dist/esm/dexie-populate-addon/src/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "author": "PVermeer",
   "license": "MIT",

@@ -2,7 +2,8 @@ import { Dexie, PromiseExtended } from 'dexie';
 import faker from 'faker/locale/nl';
 import { populate } from '../../src/populate';
 import { Populated, Ref } from '../../src/types';
-import { OmitMethods } from "../../../common/src/utility-types";
+
+type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
 export class HairColor {
     id?: number;

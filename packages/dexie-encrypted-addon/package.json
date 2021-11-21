@@ -3,7 +3,7 @@
   "version": "2.0.0-beta.6",
   "description": "Addon for Dexie.js database to add encryption",
   "main": "dist/index.js",
-  "module": "dist/esm/dexie-encrypted-addon/src/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "author": "PVermeer",
   "license": "MIT",

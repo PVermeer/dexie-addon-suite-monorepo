@@ -2,8 +2,18 @@ import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { flatPromise } from '../../../../common/src/promise';
 import { databasesNegative, databasesPositive, Friend, methods, mockFriends } from '../../mocks/mocks.spec';
+
+function flatPromise() {
+    let resolve: ((value?: unknown) => void) | undefined;
+    let reject: ((value?: unknown) => void) | undefined;
+    const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+    });
+    if (!resolve || !reject) { throw new Error('What the hell...'); }
+    return { promise, resolve, reject };
+}
 
 describe('Rxjs', () => {
     databasesPositive.forEach((database, _i) => {

@@ -6,9 +6,19 @@ import { take } from 'rxjs/operators';
 import * as addonSuiteModule from '../../../src/addon-suite';
 import { addonSuite } from '../../../src/index';
 import { PopulateTableObservable } from '../../../src/populate-table-observable.class';
-import { flatPromise } from '../../../../common/src/promise';
 import { Club, databasesPositive, Friend, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
+
+function flatPromise() {
+    let resolve: ((value?: unknown) => void) | undefined;
+    let reject: ((value?: unknown) => void) | undefined;
+    const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+    });
+    if (!resolve || !reject) { throw new Error('What the hell...'); }
+    return { promise, resolve, reject };
+}
 
 describe('Suite', () => {
     databasesPositive.forEach((database, _i) => {

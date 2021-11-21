@@ -1,9 +1,10 @@
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/en';
 import { Ref } from '@pvermeer/dexie-populate-addon';
-import { OmitMethods } from '../../../common/src/utility-types';
 import { addonSuite, Config } from '../../src/addon-suite';
 import { EncryptedOptions, Encryption } from '@pvermeer/dexie-encrypted-addon';
+
+type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
 export class HairColor {
     id?: number;

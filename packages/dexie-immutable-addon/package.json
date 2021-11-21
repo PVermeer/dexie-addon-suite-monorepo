@@ -3,7 +3,7 @@
   "version": "1.0.0-beta.8",
   "description": "Addon for Dexie.js database to add immutability",
   "main": "dist/index.js",
-  "module": "dist/esm/dexie-immutable-addon/src/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "author": "PVermeer",
   "license": "MIT",

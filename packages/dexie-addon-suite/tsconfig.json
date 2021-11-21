@@ -1,27 +1,7 @@
 {
     "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "outDir": "./dist/esm"
-    },
+    "compilerOptions": {},
     "include": [
         "src"
-    ],
-    "references": [
-        {
-            "path": "../common"
-        },
-        {
-            "path": "../dexie-encrypted-addon"
-        },
-        {
-            "path": "../dexie-immutable-addon"
-        },
-        {
-            "path": "../dexie-populate-addon"
-        },
-        {
-            "path": "../dexie-rxjs-addon"
-        }
     ]
-
 }

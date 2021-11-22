@@ -34,13 +34,11 @@ jobs:
       - name: Install
         run: npm run bootstrap:ci
 
-      # - name: Test
-      #   run: npm run test
-
-      - name: Temp build
-        run: npm run build
+      - name: Test
+        run: npm run test
 
       - name: Configure git user
+        if: ${{ github.event_name == 'push' }}
         run: |
           git config --global user.email "ci@ci.com"
           git config --global user.name "@$GITHUB_ACTOR"

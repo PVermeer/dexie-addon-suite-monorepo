@@ -26,23 +26,6 @@
             "skipFiles": [
                 "<node_internals>/**"
             ]
-        },
-        {
-            "name": "Run Jasmine (node) tests",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "${workspaceRoot}/node_modules/jasmine/bin/jasmine",
-                "--config=jasmine.conf.json",
-                "--reporter=jasmine-console-reporter"
-            ],
-            "runtimeArgs": [
-                "-r",
-                "ts-node/register"
-            ],
-            "cwd": "${workspaceRoot}/test",
-            "protocol": "inspector",
-            "console": "integratedTerminal"
         }
     ]
 }

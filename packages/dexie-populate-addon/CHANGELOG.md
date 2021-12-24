@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.9](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.8...@pvermeer/dexie-populate-addon@1.0.0-beta.9) (2021-12-24)
+
+
+### Bug Fixes
+
+* **dexie-populate-addon:** simplytyped should be a dependency (not dev) ([3e7267d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/3e7267d2b5f7bbd578de39ae373136099c9a98f3))
+
+
+
+
+
 # 1.0.0-beta.8 (2021-11-21)
 
 **Note:** Version bump only for package @pvermeer/dexie-populate-addon

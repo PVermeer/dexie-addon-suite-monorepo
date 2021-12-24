@@ -41,6 +41,7 @@
     "lodash.flatten": "^4.4.0",
     "lodash.isequal": "^4.5.0",
     "lodash.uniqby": "^4.7.0",
+    "simplytyped": "^3.3.0",
     "tslib": "^2.3.1"
   },
   "peerDependencies": {

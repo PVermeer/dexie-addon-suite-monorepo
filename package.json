@@ -65,7 +65,6 @@
     "license-webpack-plugin": "^4.0.0",
     "nodemon": "^2.0.15",
     "patch-package": "^6.4.7",
-    "simplytyped": "^3.3.0",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "tsconfig-paths": "^3.11.0",

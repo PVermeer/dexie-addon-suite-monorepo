@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.10](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.9...@pvermeer/dexie-populate-addon@1.0.0-beta.10) (2021-12-28)
+
+
+### Bug Fixes
+
+* **dexie-addon-suite:** export populate types + better clarifications ([dcaffcf](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/dcaffcfbfd6e25f515ed705a1028e522e043c87b))
+
+
+
+
+
 # [1.0.0-beta.9](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.8...@pvermeer/dexie-populate-addon@1.0.0-beta.9) (2021-12-24)
 
 

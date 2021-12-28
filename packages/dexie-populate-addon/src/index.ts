@@ -2,14 +2,13 @@ import { WhereClauseExtended } from './populate-collection.class';
 import { TableExtended } from './table-extended.class';
 
 export { populate } from './populate';
-export type { PopulateOptions, Populated } from './types';
 export type { WhereClauseExtended } from './populate-collection.class';
 export { PopulateTable } from './populate-table.class';
 export { Populate } from './populate.class';
 export type { PopulateTree } from './populate.class';
-export type { TableExtended } from './table-extended.class';
 export type { RelationalDbSchema } from './schema-parser.class';
-export type { Ref } from './types';
+export type { TableExtended } from './table-extended.class';
+export type { Populated, PopulateOptions, Ref } from './types';
 
 declare module 'dexie' {
 

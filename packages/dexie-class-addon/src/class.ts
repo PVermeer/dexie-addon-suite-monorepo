@@ -1,4 +1,4 @@
-import { Dexie } from 'dexie';
+import { Dexie, Table } from 'dexie';
 import { getTableExtended } from './table-extended.class';
 
 type DexieExtended = Dexie & {
@@ -14,9 +14,16 @@ export function classMap(db: Dexie) {
         class: true
     };
 
-    function serialize(item: { [prop: string]: any; }) {
+    function serialize(table: Table, item: { [prop: string]: any; }) {
+
         let itemState = item;
         if (item['serialize'] && typeof item['serialize'] === 'function') itemState = item.serialize();
+
+        const primaryKey = table.schema.primKey.name;
+        if (primaryKey in itemState && itemState[primaryKey] === undefined) {
+            delete itemState[primaryKey];
+        }
+
         return itemState;
     }
 
@@ -30,10 +37,10 @@ export function classMap(db: Dexie) {
         db.Table.prototype.add,
         (origFunc: Dexie.Table<any, any>['add']) =>
 
-            function (this: any, item, key?) {
+            function (this: Table, item, key?) {
                 if (this.name.startsWith('_')) return origFunc.call(this, item, key);
 
-                const itemState = serialize(item);
+                const itemState = serialize(this, item);
                 return origFunc.call(this, itemState, key);
             } as typeof origFunc
     );
@@ -42,10 +49,10 @@ export function classMap(db: Dexie) {
         db.Table.prototype.bulkAdd,
         (origFunc: Dexie.Table<any, any>['bulkAdd']) =>
 
-            function (this: any, items: Parameters<typeof origFunc>[0], key?: Parameters<typeof origFunc>[1]) {
+            function (this: Table, items: Parameters<typeof origFunc>[0], key?: Parameters<typeof origFunc>[1]) {
                 if (this.name.startsWith('_')) return origFunc.call(this, items, key);
 
-                const itemStates = items.map(item => serialize(item));
+                const itemStates = items.map(item => serialize(this, item));
                 return origFunc.call(this, itemStates, key);
             } as typeof origFunc
     );
@@ -54,10 +61,10 @@ export function classMap(db: Dexie) {
         db.Table.prototype.put,
         (origFunc: Dexie.Table<any, any>['put']) =>
 
-            function (this: any, item, key?) {
+            function (this: Table, item, key?) {
                 if (this.name.startsWith('_')) return origFunc.call(this, item, key);
 
-                const itemState = serialize(item);
+                const itemState = serialize(this, item);
                 return origFunc.call(this, itemState, key);
             } as typeof origFunc
     );
@@ -66,10 +73,10 @@ export function classMap(db: Dexie) {
         db.Table.prototype.bulkPut,
         (origFunc: Dexie.Table<any, any>['bulkPut']) =>
 
-            function (this: any, items: Parameters<typeof origFunc>[0], key?: Parameters<typeof origFunc>[1]) {
+            function (this: Table, items: Parameters<typeof origFunc>[0], key?: Parameters<typeof origFunc>[1]) {
                 if (this.name.startsWith('_')) return origFunc.call(this, items, key);
 
-                const itemStates = items.map(item => serialize(item));
+                const itemStates = items.map(item => serialize(this, item));
                 return origFunc.call(this, itemStates, key);
             } as typeof origFunc
     );
@@ -78,10 +85,10 @@ export function classMap(db: Dexie) {
         db.Table.prototype.update,
         (origFunc: Dexie.Table<any, any>['update']) =>
 
-            function (this: any, key, changes) {
+            function (this: Table, key, changes) {
                 if (this.name.startsWith('_')) return origFunc.call(this, key, changes);
 
-                const changesState = serialize(changes);
+                const changesState = serialize(this, changes);
                 return origFunc.call(this, key, changesState);
             } as typeof origFunc
     );

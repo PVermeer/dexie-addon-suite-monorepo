@@ -8,6 +8,14 @@ describe('Immutable databases', () => {
             let db: ReturnType<typeof database.db>;
             let serializeSpy: jasmine.Spy;
             let deSerializeSpy: jasmine.Spy;
+            const friendExpectations = (friend: Friend) => {
+                expect(deSerializeSpy).toHaveBeenCalled();
+                expect(friend).toEqual(friend);
+                expect(friend).toBeInstanceOf(Friend);
+                expect(friend?.someMethod).toBeDefined();
+                expect(friend?.date).toBeInstanceOf(Date);
+            };
+
             beforeEach(async () => {
                 spyOn(classMap, 'classMap').and.callThrough();
                 serializeSpy = spyOn(Friend.prototype, 'serialize').and.callThrough();
@@ -33,11 +41,7 @@ describe('Immutable databases', () => {
                         friend.id = id;
 
                         const getFriend = await db.friends.get(id) as Friend;
-                        expect(deSerializeSpy).toHaveBeenCalled();
-                        expect(getFriend).toEqual(friend);
-                        expect(getFriend).toBeInstanceOf(Friend);
-                        expect(getFriend?.someMethod).toBeDefined();
-                        expect(getFriend?.date).toBeInstanceOf(Date);
+                        friendExpectations(getFriend);
                     });
                     it('should be able to bulkAdd() and get() friends', async () => {
                         const friends = mockFriends();
@@ -59,11 +63,7 @@ describe('Immutable databases', () => {
                         friend.id = id;
 
                         const getFriend = await db.friends.get(id) as Friend;
-                        expect(deSerializeSpy).toHaveBeenCalled();
-                        expect(getFriend).toEqual(friend);
-                        expect(getFriend).toBeInstanceOf(Friend);
-                        expect(getFriend?.someMethod).toBeDefined();
-                        expect(getFriend?.date).toBeInstanceOf(Date);
+                        friendExpectations(getFriend);
                     });
                     it('should be able to bulkPut() and get() friends', async () => {
                         const friends = mockFriends();
@@ -91,11 +91,7 @@ describe('Immutable databases', () => {
                         friend.firstName = 'mock name';
 
                         const getFriend = await db.friends.get(id);
-                        expect(deSerializeSpy).toHaveBeenCalled();
-                        expect(getFriend).toEqual(friend);
-                        expect(getFriend).toBeInstanceOf(Friend);
-                        expect(getFriend?.someMethod).toBeDefined();
-                        expect(getFriend?.date).toBeInstanceOf(Date);
+                        friendExpectations(getFriend!);
                     });
                 });
                 describe('Get()', () => {
@@ -108,11 +104,7 @@ describe('Immutable databases', () => {
                     it('should be able to get the document', async () => {
                         friendsRead[4].id = id;
                         const getFriend = await db.friends.get(id);
-                        expect(deSerializeSpy).toHaveBeenCalled();
-                        expect(getFriend).toEqual(friendsRead[4]);
-                        expect(getFriend).toBeInstanceOf(Friend);
-                        expect(getFriend?.someMethod).toBeDefined();
-                        expect(getFriend?.date).toBeInstanceOf(Date);
+                        friendExpectations(getFriend!);
                     });
                 });
                 describe('Where()', () => {
@@ -138,6 +130,16 @@ describe('Immutable databases', () => {
                             expect(friend?.date).toBeInstanceOf(Date);
                         });
                     });
+                });
+            });
+            describe('Fixes', () => {
+                it('should remove an undefined primary index', async () => {
+                    const [friend] = mockFriends(1);
+                    const id = await db.friends.add(friend);
+                    await db.friends.update(id, friend);
+
+                    const getFriend = await db.friends.get(id) as Friend;
+                    friendExpectations(getFriend!);
                 });
             });
         });

@@ -29,6 +29,7 @@ try
 )
 catch || {
     rm -rf $packagePath/dist/*
+    echo "Removed dist files"
     echo "Package $package build failed!"
     exit 1
 }

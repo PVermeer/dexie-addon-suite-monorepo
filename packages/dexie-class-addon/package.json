@@ -1,0 +1,51 @@
+{
+  "name": "@pvermeer/dexie-class-addon",
+  "version": "1.0.0-beta.1",
+  "description": "Addon for Dexie.js database to add true class mapping",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "author": "PVermeer",
+  "license": "MIT",
+  "keywords": [
+    "dexie",
+    "dexie.js",
+    "indexeddb",
+    "database",
+    "class",
+    "class map",
+    "class mapping"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bash ../../scripts/build-package.sh",
+    "lint": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './tsconfig.json'\"} ./src && npm run lint:test",
+    "lint:test": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './test/tsconfig.json'\"} ./test",
+    "test": "npm run lint && npm run build && npm run test:jasmine && npm run test:karma",
+    "test:karma": "karma start ../../karma.conf.js  --context=$PWD",
+    "test:karma:debug": "karma start ../../karma.conf.js --context=$PWD --debug",
+    "test:jasmine": "ts-node ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'",
+    "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
+  },
+  "dependencies": {  },
+  "peerDependencies": {
+    "dexie": "^3.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PVermeer/dexie-addon-suite-monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PVermeer/dexie-addon-suite-monorepo/issues"
+  },
+  "homepage": "https://github.com/PVermeer/dexie-addon-suite-monorepo#readme"
+}

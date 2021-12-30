@@ -445,19 +445,24 @@ export const methodsNegative = [
     }
 ];
 
+let customId = 1000;
 export const mockFriends = (count = 5): Friend[] => {
     const friend = () => new Friend({
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         age: faker.datatype.number({ min: 1, max: 80 }),
         shoeSize: faker.datatype.number({ min: 5, max: 12 }),
-        customId: faker.datatype.number({ min: 1000000, max: 9999999 }),
+        customId,
         hasFriends: [],
         memberOf: [],
         group: null,
         hairColor: null
     });
-    return new Array(count).fill(null).map(() => friend());
+    return new Array(count).fill(null).map(() => {
+        const mockFriend = friend();
+        customId++;
+        return mockFriend;
+    });
 };
 export const mockClubs = (count = 5): Club[] => {
     const club = () => new Club({

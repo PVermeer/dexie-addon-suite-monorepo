@@ -207,7 +207,6 @@ export const mockFriends = (count = 5): Friend[] => {
     });
     return new Array(count).fill(null).map(() => {
         const mockfriend = friend();
-        mockfriend.customId = customId;
         customId++;
         return mockfriend;
     });

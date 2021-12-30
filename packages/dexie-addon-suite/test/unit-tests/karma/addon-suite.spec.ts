@@ -123,19 +123,6 @@ describe('Suite', () => {
 
             if (database.immutable) {
                 describe('Immutable', () => {
-                    it('should override create / mutate methods', async () => {
-                        const overrideMethods = [
-                            'add',
-                            'bulkAdd',
-                            'put',
-                            'bulkPut',
-                            'update'
-                        ];
-                        overrideMethods.forEach(method => {
-                            expect(db.Table.prototype[method].toString())
-                                .toEqual(jasmine.stringMatching('clonedeep'));
-                        });
-                    });
                     it('should not change input object', async () => {
                         const getFriend = await db.friends.get(id) as Friend;
                         expect(friend.id).toBeUndefined();
@@ -149,15 +136,16 @@ describe('Suite', () => {
                     it('should hash id', async () => {
                         const getFriend = await db.friends.get(id) as Friend;
                         if (friend.id) { delete friend.id; }
-                        const hashId = Encryption.hash(friend);
+                        const hashId = Encryption.hash(friend.serialize());
                         expect(getFriend.id).toBe(hashId);
                     });
                     it('should encrypt firstName', async () => {
                         const iDb = db.backendDB();
-                        const hashedId = Encryption.hash(friend);
+                        const hashedId = Encryption.hash(friend.serialize());
                         const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(hashedId);
                         await new Promise(resolve => request.onsuccess = resolve);
                         const friendRaw = request.result;
+                        expect(friendRaw).toBeDefined();
                         expect(Object.keys(friendRaw)).toEqual(jasmine.arrayContaining(Object.keys(friend)));
                         expect(friendRaw!.firstName).not.toBe(friend.firstName);
                     });
@@ -344,7 +332,7 @@ describe('Suite', () => {
                             const method = _method.method(db);
                             const [newFriend] = mockFriends(1);
                             const lastId = await db.friends.add(mockFriends(1)[0]);
-                            const newId = database.encrypted ? Encryption.hash(newFriend) : lastId + 1;
+                            const newId = database.encrypted ? Encryption.hash(newFriend.serialize()) : lastId + 1;
                             let emitCount = 0;
                             let obsFriend!: Populated<Friend, false, string> | undefined;
                             const emitPromise = new Promise<void>(resolve => {
@@ -613,6 +601,26 @@ describe('Suite', () => {
                     });
                 });
             });
+            if (database.class) {
+                describe('Class', () => {
+                    it('should be able to add() and get()', async () => {
+                        const serializeSpy = spyOn(Friend.prototype, 'serialize').and.callThrough();
+                        const deSerializeSpy = spyOn(Friend.prototype, 'deserialize').and.callThrough();
+
+                        const [friend] = mockFriends(1);
+                        const id = await db.friends.add(friend);
+                        expect(serializeSpy).toHaveBeenCalled();
+                        friend.id = id;
+
+                        const getFriend = await db.friends.get(id);
+                        expect(deSerializeSpy).toHaveBeenCalled();
+                        expect(getFriend).toEqual(friend);
+                        expect(getFriend).toBeInstanceOf(Friend);
+                        expect(getFriend?.doSomething).toBeDefined();
+                        expect(getFriend?.date).toBeInstanceOf(Date);
+                    });
+                });
+            }
         });
     });
 });
@@ -625,7 +633,7 @@ describe('Addon-suite function', () => {
         });
         const func = addonSuite.setConfig({ immutable: false });
         func(new Dexie('TestieDb'));
-        expect(addons).toEqual(['rxjs', 'populate']);
+        expect(addons).toEqual(['rxjs', 'populate', 'class']);
     });
     it('should always load default addons', async () => {
         const addons: string[] = [];
@@ -633,7 +641,7 @@ describe('Addon-suite function', () => {
             addons.push(key);
         });
         addonSuite(new Dexie('TestieDb'));
-        expect(addons).toEqual(['immutable', 'rxjs', 'populate']);
+        expect(addons).toEqual(['immutable', 'rxjs', 'populate', 'class']);
     });
     it('should not crash on wrong config', async () => {
         expect(() => addonSuite(new Dexie('TestieDb'), { immutable: 34 } as any)).not.toThrow();
@@ -645,7 +653,7 @@ describe('Addon-suite function', () => {
         });
 
         addonSuite(new Dexie('TestieDb'), { secretKey: 'sdfsdf' });
-        expect(addons).toEqual(['immutable', 'encrypted', 'rxjs', 'populate']);
+        expect(addons).toEqual(['immutable', 'encrypted', 'rxjs', 'populate', 'class']);
     });
     it('should load encrypted and not load immutable with secretKey config', async () => {
         const addons: string[] = [];
@@ -654,7 +662,7 @@ describe('Addon-suite function', () => {
         });
 
         addonSuite(new Dexie('TestieDb'), { secretKey: 'sdfsdf', immutable: false });
-        expect(addons).toEqual(['encrypted', 'rxjs', 'populate']);
+        expect(addons).toEqual(['encrypted', 'rxjs', 'populate', 'class']);
     });
     it('should load encrypted with immutable', async () => {
         const addons: string[] = [];
@@ -663,7 +671,7 @@ describe('Addon-suite function', () => {
         });
 
         addonSuite(new Dexie('TestieDb'), { encrypted: { secretKey: 'sdfsdfsfwefwcv' } });
-        expect(addons).toEqual(['immutable', 'encrypted', 'rxjs', 'populate']);
+        expect(addons).toEqual(['immutable', 'encrypted', 'rxjs', 'populate', 'class']);
     });
     it('should load encrypted without immutable', async () => {
         const addons: string[] = [];
@@ -672,7 +680,7 @@ describe('Addon-suite function', () => {
         });
 
         addonSuite(new Dexie('TestieDb'), { encrypted: { secretKey: 'sdfsdfsfwefwcv', immutable: false } });
-        expect(addons).toEqual(['encrypted', 'rxjs', 'populate']);
+        expect(addons).toEqual(['encrypted', 'rxjs', 'populate', 'class']);
     });
     it('should load default without immutable', async () => {
         const addons: string[] = [];
@@ -681,7 +689,7 @@ describe('Addon-suite function', () => {
         });
 
         addonSuite(new Dexie('TestieDb'), { immutable: false });
-        expect(addons).toEqual(['rxjs', 'populate']);
+        expect(addons).toEqual(['rxjs', 'populate', 'class']);
     });
     it('should overwrite immutable from encrypted', async () => {
         const addons: string[] = [];
@@ -693,7 +701,7 @@ describe('Addon-suite function', () => {
             immutable: false,
             encrypted: { secretKey: 'sdfsdf', immutable: true }
         });
-        expect(addons).toEqual(['immutable', 'encrypted', 'rxjs', 'populate']);
+        expect(addons).toEqual(['immutable', 'encrypted', 'rxjs', 'populate', 'class']);
     });
     it('should not overwrite immutable from encrypted', async () => {
         const addons: string[] = [];
@@ -705,6 +713,6 @@ describe('Addon-suite function', () => {
             immutable: true,
             encrypted: { secretKey: 'sdfsdf', immutable: false }
         });
-        expect(addons).toEqual(['encrypted', 'rxjs', 'populate']);
+        expect(addons).toEqual(['encrypted', 'rxjs', 'populate', 'class']);
     });
 });

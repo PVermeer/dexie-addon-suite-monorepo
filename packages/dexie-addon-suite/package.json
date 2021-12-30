@@ -46,6 +46,7 @@
     "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
     "@pvermeer/dexie-populate-addon": "file:../dexie-populate-addon",
     "@pvermeer/dexie-rxjs-addon": "file:../dexie-rxjs-addon",
+    "@pvermeer/dexie-class-addon": "file:../dexie-class-addon",
     "lodash.isequal": "^4.5.0",
     "tslib": "^2.3.1"
   },

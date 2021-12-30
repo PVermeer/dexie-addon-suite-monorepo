@@ -146,14 +146,14 @@ describe('HTML script tag', () => {
             ]);
 
             friendExpected = new Friend(friend);
-            friendExpected.id = DexieAddonSuite.Encryption.hash(friend);
+            friendExpected.id = DexieAddonSuite.Encryption.hash(friend.serialize());
             friendExpected.hasFriends = ids.slice(1) as any;
             friendExpected.memberOf = clubIds as any;
             friendExpected.group = groupIds[1] as any;
             friendExpected.hairColor = hairColorIds[1] as any;
 
             friendExpectedPop = new Friend(friend) as Populated<Friend, false, string>;
-            friendExpectedPop.id = DexieAddonSuite.Encryption.hash(friend);
+            friendExpectedPop.id = DexieAddonSuite.Encryption.hash(friend.serialize());
             friendExpectedPop.hasFriends = friends.slice(1).map((x, i) => { x.id = ids[i + 1]; return x; }) as any;
             friendExpectedPop.memberOf = clubs.map((x, i) => { x.id = clubIds[i]; return x; }) as any;
             friendExpectedPop.group = groups.map((x, i) => { x.id = groupIds[i]; return x; })[1] as any;

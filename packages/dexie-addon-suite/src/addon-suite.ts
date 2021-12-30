@@ -1,13 +1,15 @@
-import { Dexie } from 'dexie';
+import { classMap } from '@pvermeer/dexie-class-addon';
 import { encrypted, EncryptedOptions } from '@pvermeer/dexie-encrypted-addon';
 import { immutable } from '@pvermeer/dexie-immutable-addon';
 import { populate } from '@pvermeer/dexie-populate-addon';
 import { dexieRxjs } from '@pvermeer/dexie-rxjs-addon';
+import { Dexie } from 'dexie';
 import { getPopulatedObservableTable } from './table-extended.class';
 
 export interface Config {
     encrypted?: EncryptedOptions;
     immutable?: boolean;
+    class?: boolean;
 }
 
 export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
@@ -17,7 +19,8 @@ export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
         immutable: true,
         encrypted: false,
         rxjs: true,
-        populate: true
+        populate: true,
+        class: true
     };
     let secretKey: string | undefined;
 
@@ -62,6 +65,7 @@ export const loadAddon = (
         case 'encrypted': encrypted(db, { immutable: addons.immutable, secretKey }); break;
         case 'rxjs': dexieRxjs(db); break;
         case 'populate': populate(db); break;
+        case 'class': classMap(db); break;
     }
 };
 

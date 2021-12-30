@@ -12,6 +12,8 @@ Dexie Addon Suite combines the Dexie-addons from:
 - **dexie-encrypted-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
 - **dexie-rxjs-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
 - **dexie-populate-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
+- **dexie-class-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
+
 
 Adds new functionality:
 - **populated rxjs observables**.
@@ -45,7 +47,7 @@ Addon is written to be as easy to use as Dexie.js itself.
 ## Added Schema Syntax
 Symbol | Description
 ----- | ------
-$   | Encrypt this value (*does not create an index*)
+\$   | Encrypt this value (*does not create an index*)
 \#  | Only as first key: hash the original document and create an index
 =>  | Relational notation: `group => groups.id`  (*group is indexed*)
 
@@ -57,7 +59,10 @@ For individual documentation check the individual repositories / packages (*link
 By default these addons will be loaded:
 - dexie-immutable-addon;
 - dexie-populate-addon;
-- dexie-rxjs-addon.
+- dexie-rxjs-addon;
+- dexie-class-addon.
+
+*see individual package readme for more info*
 
 ### Config
 ```ts
@@ -69,18 +74,20 @@ interface EncryptedOptions {
 interface Config {
 	encrypted?: EncryptedOptions;
 	immutable?: boolean;
+    class?: boolean;
 }
 
 function addonSuite(db: Dexie, config?: Config | EncryptedOptions);
 
 // It is also possibe to provide the config using:
 new Dexie("FriendDatabase", {
-    addons: [addonSuite.setConfig({ immutable: false })]
+    addons: [addonSuite.setConfig({ immutable: false, class: false })]
 });
 
 ```
 - Provide `secretKey` to enable encryption. (*see below and dexie-encrypted-addon on how to use*)
 - Provide `immutable: false` to disable immutability. (*not recommended in combination with encryption*)
+- Provide `class: false` to disable class mapping. (*class constructor and serializer will not be called anymore*)
 
 Rxjs and Populate are mandatory, could not (yet) figure out conditional typings for these.
 
@@ -383,6 +390,7 @@ class Encryption {
 	 * @param key Secret key to decrypt with.
 	 */
 	decrypt(messageWithNonce: string): any;
+
 	constructor(secret?: string);
 }
 

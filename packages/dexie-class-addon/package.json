@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-class-addon",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Addon for Dexie.js database to add true class mapping",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -36,7 +36,6 @@
     "test:jasmine": "ts-node ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'",
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
-  "dependencies": {  },
   "peerDependencies": {
     "dexie": "^3.0.3"
   },

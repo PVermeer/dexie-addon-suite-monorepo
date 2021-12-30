@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.10](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.9...@pvermeer/dexie-addon-suite@1.0.0-beta.10) (2021-12-30)
+
+
+### Features
+
+* **dexie-addon-suite:** added dexie-class-addon to suite + tests ([6841445](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/68414459ba09802fd81729c3014362cade77c3ef))
+
+
+
+
+
 # [1.0.0-beta.9](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.8...@pvermeer/dexie-addon-suite@1.0.0-beta.9) (2021-12-28)
 
 

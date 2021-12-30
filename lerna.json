@@ -4,6 +4,9 @@
   "packages": [
     "packages/*"
   ],
+  "ignoreChanges": [
+    "**/*.spec.ts"
+  ],
   "command": {
     "version": {
       "allowBranch": [

@@ -60,7 +60,7 @@ const configLib = (packagePath) => {
 
         version: packageJson.version,
 
-        dependencies: Object.keys(packageJson.dependencies),
+        dependencies: Object.keys(packageJson.dependencies || {}),
 
         // If used somehow they must be inlined.
         inlinedLibraries: Object.keys(packageJson.devDependencies || {})

@@ -604,6 +604,7 @@ describe('Suite', () => {
             if (database.class) {
                 describe('Class', () => {
                     it('should be able to add() and get()', async () => {
+                        // Should also fail with `bad nonce size` (encrypted) if readhook is not first initialized
                         const serializeSpy = spyOn(Friend.prototype, 'serialize').and.callThrough();
                         const deSerializeSpy = spyOn(Friend.prototype, 'deserialize').and.callThrough();
 

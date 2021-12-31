@@ -140,21 +140,23 @@ const getDatabase = (
     name: string,
     config?: Config & EncryptedOptions
 ) => new class TestDatabase extends dexie {
+
     public friends: Dexie.Table<Friend, string>;
     public clubs: Dexie.Table<Club, number>;
     public themes: Dexie.Table<Theme, number>;
     public groups: Dexie.Table<Group, number>;
     public styles: Dexie.Table<Style, number>;
     public hairColors: Dexie.Table<HairColor, number>;
+
     constructor(_name: string) {
         super(_name);
         addonSuite(this, config);
         this.on('blocked', () => false);
         this.version(1).stores({
             friends: config?.secretKey || config?.encrypted?.secretKey ?
-                '#id, &customId, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]' :
+                '#id, &customId, $date, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]' :
 
-                '++id, &customId, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]',
+                '++id, &customId, date, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]',
 
             clubs: '++id, $name, theme => themes.id',
             themes: '++id, $name, style => styles.id',
@@ -162,6 +164,7 @@ const getDatabase = (
             groups: '++id, $name',
             hairColors: '++id, $name'
         });
+        
         this.friends.mapToClass(Friend);
         this.clubs.mapToClass(Club);
         this.themes.mapToClass(Theme);

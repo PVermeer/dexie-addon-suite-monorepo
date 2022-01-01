@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.12](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.11...@pvermeer/dexie-addon-suite@1.0.0-beta.12) (2021-12-31)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** make sure this readhook is called first ([c652d3b](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c652d3b298ffb53e2ebc6b2b1180f651f25e6d83))
+
+
+
+
+
 # [1.0.0-beta.11](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.10...@pvermeer/dexie-addon-suite@1.0.0-beta.11) (2021-12-30)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

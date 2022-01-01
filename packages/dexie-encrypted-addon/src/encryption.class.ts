@@ -37,7 +37,7 @@ export class Encryption {
      * @param json Any non-circulair value.
      */
     public encrypt(json: any): string {
-        if (!json) { return json; }
+        if (json === undefined) { return json; }
 
         const nonce = randomBytes(secretbox.nonceLength);
         const messageUint8 = encodeUtf8(JSON.stringify(json));

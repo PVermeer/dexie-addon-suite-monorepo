@@ -1,7 +1,7 @@
 import faker from 'faker';
 import { Encryption } from '../../../src/encryption.class';
 import * as hooks from '../../../src/hooks';
-import { databasesNegative, databasesPositive, Friend, mockFriends, TestDatabaseNotImmutable, TestDatabase } from '../../mocks/mocks.spec';
+import { databasesNegative, databasesPositive, Friend, mockFriends, TestDatabase } from '../../mocks/mocks.spec';
 
 describe('Encrypted databases', () => {
     // Should work for each positive database
@@ -357,16 +357,6 @@ describe('Encrypted databases', () => {
                     });
                 });
             });
-        });
-        it('should not override create methods if immutable is set to false', async () => {
-            // spyOn(immutableSpy, 'immutable').and.callThrough();
-            const db = new TestDatabaseNotImmutable('TestDatabaseNotImmutable');
-            const [friend] = mockFriends(1);
-
-            await db.open();
-            await db.friends.add(friend);
-            // expect(immutableSpy.immutable).not.toHaveBeenCalled();
-            await db.delete();
         });
     });
 });

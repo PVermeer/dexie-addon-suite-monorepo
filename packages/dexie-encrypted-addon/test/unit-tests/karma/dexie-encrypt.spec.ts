@@ -1,4 +1,6 @@
+import { Dexie } from 'dexie';
 import faker from 'faker';
+import { encrypted } from '../../../src';
 import { Encryption } from '../../../src/encryption.class';
 import * as hooks from '../../../src/hooks';
 import { databasesNegative, databasesPositive, Friend, mockFriends, TestDatabase } from '../../mocks/mocks.spec';
@@ -357,6 +359,116 @@ describe('Encrypted databases', () => {
                     });
                 });
             });
+        });
+    });
+    describe('Falsy values', () => {
+        it('should encrypt falsy values on creation', async () => {
+            class Friend6577dfg {
+                id?: string;
+                age = 0;
+                isCool = false;
+                encryptedString = 'should be encrypted';
+                notEncrypted = 0;
+            }
+
+            const db = new class TestDatabase extends Dexie {
+                public friends: Dexie.Table<Friend6577dfg, string>;
+                constructor(_name: string) {
+                    super(_name);
+                    encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
+                    this.on('blocked', () => false);
+                    this.version(1).stores({
+                        friends: '#id, $age, $isCool, $encryptedString, notEncrypted'
+                    });
+                    this.friends.mapToClass(Friend6577dfg);
+                }
+            }('testie');
+            await db.open();
+            const iDb = db.backendDB();
+
+            const friend = new Friend6577dfg();
+
+            const id = await db.friends.add(friend);
+            const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+            await new Promise(resolve => request.onsuccess = resolve);
+            const friendRaw = request.result;
+
+            expect(friendRaw).toBeDefined();
+            expect(typeof friendRaw.age === 'string').toBeTrue();
+            expect(friendRaw.age.length > 0).toBeTrue();
+
+            expect(friendRaw.notEncrypted).toBe(friend.notEncrypted);
+            expect(friendRaw.encryptedString).not.toBe(friend.encryptedString);
+
+            const getFriend = await db.friends.get(id);
+            expect(getFriend).toEqual(jasmine.objectContaining(friend));
+
+            await db.delete();
+        });
+        it('should encrypt falsy values on updating', async () => {
+            class Friend6577dfg {
+                id?: string;
+                age = 2;
+                isCool = true;
+                encryptedString = 'should be encrypted';
+                notEncrypted = 3;
+            }
+
+            const db = new class TestDatabase extends Dexie {
+                public friends: Dexie.Table<Friend6577dfg, string>;
+                constructor(_name: string) {
+                    super(_name);
+                    encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
+                    this.on('blocked', () => false);
+                    this.version(1).stores({
+                        friends: '#id, $age, $isCool, $encryptedString, notEncrypted'
+                    });
+                }
+            }('testie');
+            await db.open();
+            const iDb = db.backendDB();
+
+            const friend = new Friend6577dfg();
+
+            const id = await db.friends.add(friend);
+            const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+            await new Promise(resolve => request.onsuccess = resolve);
+            const friendRaw = request.result;
+
+            expect(friendRaw).toBeDefined();
+            expect(typeof friendRaw.age === 'string').toBeTrue();
+            expect(friendRaw.age.length > 0).toBeTrue();
+
+            expect(friendRaw.notEncrypted).toBe(friend.notEncrypted);
+            expect(friendRaw.encryptedString).not.toBe(friend.encryptedString);
+
+            const getFriend = await db.friends.get(id);
+            expect(getFriend).toEqual(jasmine.objectContaining(friend));
+
+            // Updating
+            const updatedFriend = {
+                age: 0,
+                isCool: false,
+                encryptedString: 'should be encrypted again',
+                notEncrypted: 0
+            };
+            await db.friends.update(id, updatedFriend);
+
+            const request2 = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+            await new Promise(resolve => request2.onsuccess = resolve);
+            const friendRaw2 = request2.result;
+
+            expect(friendRaw2).toBeDefined();
+            expect(typeof friendRaw2.age === 'string').toBeTrue();
+            expect(friendRaw2.age.length > 0).toBeTrue();
+
+            expect(friendRaw2.notEncrypted).toBe(updatedFriend.notEncrypted);
+            expect(friendRaw2.encryptedString).not.toBe(updatedFriend.encryptedString);
+
+            const getFriend2 = await db.friends.get(id);
+            expect(getFriend2).toEqual(jasmine.objectContaining(updatedFriend));
+
+            await db.delete();
         });
     });
 });

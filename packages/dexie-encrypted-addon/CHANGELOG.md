@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-beta.10](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.9...@pvermeer/dexie-encrypted-addon@2.0.0-beta.10) (2022-01-02)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** falsy values are now encrypted again ([9c7a977](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/9c7a977fd13258d62754c3e66e509b44ff85b152))
+
+
+
+
+
 # [2.0.0-beta.9](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.8...@pvermeer/dexie-encrypted-addon@2.0.0-beta.9) (2022-01-01)
 
 

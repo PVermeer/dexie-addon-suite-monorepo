@@ -15,6 +15,7 @@ Dexie Addons for Dexie.js v3: [![NPM Version](https://img.shields.io/npm/v/dexie
 - **dexie-encrypted-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
 - **dexie-rxjs-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
 - **dexie-populate-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
+- **dexie-class-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
 
 ---------------------------------------------------
 

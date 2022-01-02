@@ -15,7 +15,7 @@ export function encryptOnCreation(
 
     // Encrypted the selected keys
     keysObj.keys.forEach(key => {
-        if (document[key]) { document[key] = encryption.encrypt(document[key]); }
+        if (document[key] !== undefined) document[key] = encryption.encrypt(document[key]);
     });
 
     // Set the hash on the id
@@ -44,7 +44,7 @@ export function decryptOnReading(
 ) {
     if (!document) { return document; }
     keysObj.keys.forEach(key => {
-        if (document[key]) { document[key] = encryption.decrypt(document[key]); }
+        if (document[key] !== undefined) { document[key] = encryption.decrypt(document[key]); }
     });
     return document;
 }

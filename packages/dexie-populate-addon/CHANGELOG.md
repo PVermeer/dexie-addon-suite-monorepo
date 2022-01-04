@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.13](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.12...@pvermeer/dexie-populate-addon@1.0.0-beta.13) (2022-01-04)
+
+
+### Bug Fixes
+
+* **dexie-populate-addon:** ref type can't be null anymore with arrays ([cbd32ef](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/cbd32ef099761336d5b6939a8e4438b65005e0d0))
+
+
+
+
+
 # [1.0.0-beta.12](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.11...@pvermeer/dexie-populate-addon@1.0.0-beta.12) (2021-12-30)
 
 **Note:** Version bump only for package @pvermeer/dexie-populate-addon

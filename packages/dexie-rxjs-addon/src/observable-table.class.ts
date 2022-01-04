@@ -14,7 +14,7 @@ export class ObservableTable<T, TKey> {
         startWith([]),
         mergeMap(() => this._table.toArray()),
         distinctUntilChanged(isEqual),
-        shareReplay(1)
+        shareReplay({ bufferSize: 1, refCount: true })
     );
 
     /**

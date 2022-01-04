@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.22](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.21...@pvermeer/dexie-rxjs-addon@1.0.0-beta.22) (2022-01-04)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** shareReplay now uses refCount to clear memory ([50bf84f](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/50bf84fdd6151b64da7b4d9f3ed0bf1996d568ee))
+
+
+
+
+
 # [1.0.0-beta.21](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.20...@pvermeer/dexie-rxjs-addon@1.0.0-beta.21) (2021-12-30)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

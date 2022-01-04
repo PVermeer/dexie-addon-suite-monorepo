@@ -3,6 +3,57 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.16](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.15...@pvermeer/dexie-addon-suite@1.0.0-beta.16) (2022-01-04)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.15](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.14...@pvermeer/dexie-addon-suite@1.0.0-beta.15) (2022-01-04)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.14](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.13...@pvermeer/dexie-addon-suite@1.0.0-beta.14) (2022-01-02)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.13](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.12...@pvermeer/dexie-addon-suite@1.0.0-beta.13) (2022-01-01)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.12](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.11...@pvermeer/dexie-addon-suite@1.0.0-beta.12) (2021-12-31)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** make sure this readhook is called first ([c652d3b](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c652d3b298ffb53e2ebc6b2b1180f651f25e6d83))
+
+
+
+
+
+# [1.0.0-beta.11](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.10...@pvermeer/dexie-addon-suite@1.0.0-beta.11) (2021-12-30)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
 # [1.0.0-beta.10](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.9...@pvermeer/dexie-addon-suite@1.0.0-beta.10) (2021-12-30)
 
 

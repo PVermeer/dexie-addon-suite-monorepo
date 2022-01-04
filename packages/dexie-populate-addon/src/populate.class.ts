@@ -123,7 +123,8 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
                 if (!acc[targetTable]) { acc[targetTable] = {}; }
                 if (!acc[targetTable][targetKey]) { acc[targetTable][targetKey] = []; }
 
-                const ids = Array.isArray(entry) ? entry : [entry];
+                const ids = (Array.isArray(entry) ? entry : [entry])
+                    .filter(id => id !== undefined && id !== null);
                 const mappedIdEntries = ids.map(id => ({ id, key, ref: record }));
 
                 acc[targetTable][targetKey] = [...acc[targetTable][targetKey], ...mappedIdEntries];

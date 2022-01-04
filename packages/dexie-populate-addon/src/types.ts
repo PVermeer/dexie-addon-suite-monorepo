@@ -48,7 +48,7 @@ export type Populated<T, B extends boolean, O extends string> = {
 };
 
 type NominalRef<T, R extends string = 'Ref'> = Nominal<T, R>;
-type NominalT<T> = T extends any[] ? { [P in keyof T]: NominalRef<T[P]> | null } : NominalRef<T> | null;
+type NominalT<T> = T extends any[] ? { [P in keyof T]: NominalRef<T[P]> } : NominalRef<T> | null;
 
 type RecursivePopulate<B extends boolean, X, O extends string> =
     // Check if shallow is true:

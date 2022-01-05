@@ -28,7 +28,7 @@ export type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = Nominal
  * B = boolean if shallow populate;
  * O = union type of object keys to populate or the string type to populate all.
  */
-export type Populated<T, B extends boolean, O extends string> = {
+export type Populated<T, B extends boolean = false, O extends string = string> = {
 
     // Check for nominal Ref on properties:
     [P in keyof T]: T[P] extends Ref<infer X, infer Y, infer N> ?

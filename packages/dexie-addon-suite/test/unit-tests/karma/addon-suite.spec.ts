@@ -89,8 +89,6 @@ describe('Suite', () => {
                     })
                 ]);
 
-                await new Promise(r => setTimeout(r, 2000));
-
                 friendExpected = new Friend(friend);
                 friendExpected.id = id;
                 friendExpected.hasFriends = ids.slice(1) as any;
@@ -211,8 +209,15 @@ describe('Suite', () => {
                     describe(_method.desc, () => {
                         it('should be an observable', async () => {
                             const method = _method.method(db);
+
                             const obs$ = method.get(id);
                             expect(obs$ instanceof Observable).toBeTrue();
+
+                            const obs2$ = method.toArray();
+                            expect(obs2$ instanceof Observable).toBeTrue();
+
+                            const obs3$ = method.orderBy('age').toArray();
+                            expect(obs3$ instanceof Observable).toBeTrue();
                         });
                         it('should be open', async () => {
                             const method = _method.method(db);
@@ -234,9 +239,10 @@ describe('Suite', () => {
 
                             const [newFriend] = mockFriends(1);
                             const newId = await db.friends.add(newFriend);
+                            newFriend.id = newId;
                             const getNewFriend = await firstValueFrom(method.get(newId).pipe(take(1)));
-                            expect({ ...getNewFriend }).toEqual(
-                                { ...newFriend, id: newId } as Populated<Friend, false, string>
+                            expect({ ...getNewFriend as Populated<Friend> }).toEqual(
+                                { ...newFriend as Populated<Friend> }
                             );
 
                             const getOldFriend = await firstValueFrom(method.get(id).pipe(take(1)));
@@ -334,7 +340,7 @@ describe('Suite', () => {
                             const lastId = await db.friends.add(mockFriends(1)[0]);
                             const newId = database.encrypted ? Encryption.hash(newFriend.serialize()) : lastId + 1;
                             let emitCount = 0;
-                            let obsFriend!: Populated<Friend, false, string> | undefined;
+                            let obsFriend!: Populated<Friend> | undefined;
                             const emitPromise = new Promise<void>(resolve => {
                                 subs.add(method.get(newId).subscribe(
                                     friendEmit => {
@@ -344,9 +350,10 @@ describe('Suite', () => {
                                     }
                                 ));
                             });
-                            await db.friends.add(newFriend);
+                            const newId2 = await db.friends.add(newFriend);
+                            newFriend.id = newId2;
                             await emitPromise;
-                            expect({ ...obsFriend }).toEqual({ ...newFriend, id: newId } as Populated<Friend, false, string>);
+                            expect(obsFriend).toEqual(newFriend as Populated<Friend>);
                         });
                         it('should not emit when no changes', async () => {
                             const method = _method.method(db);
@@ -545,11 +552,10 @@ describe('Suite', () => {
 
                                     expect(getFriends.some(x => x.hasFriends.length)).toBeTrue();
                                     expect(getFriends.some(x => x.memberOf.length)).toBeTrue();
-                                    expect(getFriends.some(x => x.group instanceof Group));
+                                    expect(getFriends.some(x => x.group instanceof Group)).toBeTrue();
                                     getFriends.forEach(x => {
                                         expect(x.hasFriends.every(y => y instanceof Friend)).toBeTrue();
                                         expect(x.memberOf.every(y => y instanceof Club)).toBeTrue();
-                                        expect(x.hasFriends.some(z => z?.hasFriends.length));
                                         x.hasFriends.forEach(y => expect(y?.hasFriends.every(z => z instanceof Friend)).toBeTrue());
                                     });
                                 });

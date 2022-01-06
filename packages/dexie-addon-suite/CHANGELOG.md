@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.17](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.16...@pvermeer/dexie-addon-suite@1.0.0-beta.17) (2022-01-06)
+
+
+### Features
+
+* **dexie-addon-suite:** orderBy for populated observables ([ab4caf9](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/ab4caf9bd1bf7c7e4be59c07d99bd9830c9f8cc7))
+
+
+
+
+
 # [1.0.0-beta.16](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.15...@pvermeer/dexie-addon-suite@1.0.0-beta.16) (2022-01-04)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

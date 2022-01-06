@@ -578,7 +578,7 @@ describe('Suite', () => {
                             });
                             it('should order by age and populate', async () => {
                                 const method = _method.method(db);
-                                const orderedFriends = await firstValueFrom(method.orderBy('age').toArray());
+                                const orderedFriends = await firstValueFrom(method.orderBy('age').toArray().pipe(take(1)));
 
                                 expect(orderedFriends.every((friend, i) => i > 0 ? friend.age >= orderedFriends[i - 1].age : true));
                                 const friendPop = orderedFriends.find(x => x.id === id)!;

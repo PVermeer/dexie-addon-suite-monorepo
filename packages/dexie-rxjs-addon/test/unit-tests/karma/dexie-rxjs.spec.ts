@@ -358,7 +358,7 @@ describe('Rxjs', () => {
                                     ));
                                     expect(collection!.length).toBe(9);
                                 });
-                                if (method.orderedBy) {
+                                if (method.orderedBy && !method.reversed) {
                                     it('should emit ordered data', async () => {
                                         const friends = mockFriends(20);
                                         await db.friends.bulkAdd(friends);
@@ -370,7 +370,19 @@ describe('Rxjs', () => {
                                         ).toBeTrue();
                                     });
                                 }
+                                if (method.orderedBy && method.reversed) {
+                                    it('should emit reversed ordered data', async () => {
+                                        const friends = mockFriends(20);
+                                        await db.friends.bulkAdd(friends);
 
+                                        const collection$ = method$(id, customId, { emitFull: true });
+                                        const friendsOrdered = await firstValueFrom(collection$) as Friend[];
+                                        const friendsOrderedReversed = friendsOrdered.reverse();
+                                        expect(friendsOrderedReversed.every((friend, i) =>
+                                            i > 0 ? friend.age >= friendsOrdered[i - 1].age : true)
+                                        ).toBeTrue();
+                                    });
+                                }
                             }
                         }
 

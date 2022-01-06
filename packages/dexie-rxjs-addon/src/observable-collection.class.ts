@@ -20,6 +20,9 @@ export class ObservableCollection<T, TKey> {
      */
     public toArray() { return this._collection$; }
 
+    // Can be exposed because returns this on original Collection
+    public reverse: () => ObservableCollection<T, TKey>;
+
     constructor(
         protected _db: Dexie,
         protected _table: Table<T, TKey>,

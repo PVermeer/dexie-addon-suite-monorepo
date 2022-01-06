@@ -106,6 +106,20 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
     }
 
+    public orderBy(index: string | string[]): CollectionPopulated<T, TKey, B, K> {
+        const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
+        const whereClause = this._table.where('');
+        const CollectionPopulatedClass = getCollectionPopulated<T, TKey, B, K>(
+            whereClause,
+            this._keysOrOptions,
+            this._db,
+            this._table,
+            this._relationalSchema
+        );
+        const collectionPop = new CollectionPopulatedClass(whereClause, undefined, collection) as CollectionPopulated<T, TKey, B, K>;
+        return collectionPop;
+    }
+
     /**
      * @warning Potentially very slow.
      */

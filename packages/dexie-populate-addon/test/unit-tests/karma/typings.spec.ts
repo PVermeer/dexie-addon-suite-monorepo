@@ -139,7 +139,10 @@ export const typings = async () => {
     const populatedPartial = await Promise.all([
         db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).get(1).then(x => x),
         db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).where(':id').equals(1).first().then(x => x),
+        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).where({id: 0, age: 10}).first().then(x => x),
         db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).toArray().then(x => x[0]),
+        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).orderBy('age').toArray().then(x => x[0]),
+        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).orderBy(['age', 'id']).toArray().then(x => x[0]),
     ]);
     populatedPartial.forEach(async test => {
 

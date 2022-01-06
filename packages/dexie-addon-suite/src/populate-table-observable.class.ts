@@ -1,7 +1,8 @@
 import { PopulateOptions } from '@pvermeer/dexie-populate-addon';
-import { ObservableTable, ObservableWhereClause } from '@pvermeer/dexie-rxjs-addon';
+import { ObservableCollection, ObservableTable, ObservableWhereClause } from '@pvermeer/dexie-rxjs-addon';
 import { Dexie, Table } from 'dexie';
 import { Observable } from 'rxjs';
+import { PopulateObservableCollection } from './populate-observable-collection.class';
 import { PopulateObservableWhereClause } from './populate-observable-where-clause.class';
 import { populateObservable } from './populate-observable.service';
 
@@ -26,13 +27,23 @@ export class PopulateTableObservable<T, TKey, B extends boolean, K extends strin
 
                 const returnValue = super[name](...args);
 
-                if (returnValue instanceof Observable) { return populateObservable(returnValue, _table, _keysOrOptions); }
+                if (returnValue instanceof Observable) {
+
+                    return populateObservable(returnValue, _table, _keysOrOptions);
+
+                }
 
                 if (returnValue instanceof ObservableWhereClause) {
 
                     const observableWhereClause = returnValue;
-
                     return new PopulateObservableWhereClause(this._db, this._table, _keysOrOptions, observableWhereClause);
+
+                }
+
+                if (returnValue instanceof ObservableCollection) {
+
+                    const observableCollection = returnValue;
+                    return new PopulateObservableCollection(this._db, this._table, observableCollection._collection, _keysOrOptions);
 
                 }
 

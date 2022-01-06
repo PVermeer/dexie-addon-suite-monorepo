@@ -8,7 +8,7 @@ export interface WhereClauseExtended<T, TKey> {
     Collection: new (whereClause?: WhereClause<any, TKey> | null, keyRangeGenerator?: () => DBCoreKeyRange) => Collection<T, TKey>;
 }
 
-export interface CollectionPopulated<T, TKey> extends Collection<T, TKey> { }
+export interface CollectionPopulated<T, TKey, B extends boolean, K extends string> extends Collection<Populated<T, B, K>, TKey> { }
 
 /**
  * Dexie.js is actively hiding classes and only exports interfaces

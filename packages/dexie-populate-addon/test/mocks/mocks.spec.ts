@@ -413,6 +413,14 @@ export const methodsPositive = [
         method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
             new Promise((res: (value: Friend) => void) =>
                 db.friends.where(':id').equals(_id).each(x => res(x)))
+    },
+
+    // ======== orderBy(age) =========
+    {
+        desc: 'Table.populate().orderBy(age).toArray()',
+        populated: true,
+        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
+            db.friends.populate({ shallow: _shallow }).orderBy('age').toArray().then(x => x.find(y => y.id === _id))
     }
 ];
 

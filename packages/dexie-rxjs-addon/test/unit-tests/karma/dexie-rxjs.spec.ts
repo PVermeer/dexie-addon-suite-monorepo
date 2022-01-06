@@ -358,6 +358,19 @@ describe('Rxjs', () => {
                                     ));
                                     expect(collection!.length).toBe(9);
                                 });
+                                if (method.orderedBy) {
+                                    it('should emit ordered data', async () => {
+                                        const friends = mockFriends(20);
+                                        await db.friends.bulkAdd(friends);
+
+                                        const collection$ = method$(id, customId, { emitFull: true });
+                                        const friendsOrdered = await firstValueFrom(collection$) as Friend[];
+                                        expect(friendsOrdered.every((friend, i) =>
+                                            i > 0 ? friend.age >= friendsOrdered[i - 1].age : true)
+                                        ).toBeTrue();
+                                    });
+                                }
+
                             }
                         }
 

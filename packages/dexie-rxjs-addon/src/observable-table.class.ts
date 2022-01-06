@@ -97,6 +97,12 @@ export class ObservableTable<T, TKey> {
 
     }
 
+    public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
+        const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
+        const observableCollection = new ObservableCollection(this._db, this._table, collection);
+        return observableCollection;
+    }
+
     constructor(
         protected _db: Dexie,
         protected _table: Table<T, TKey>

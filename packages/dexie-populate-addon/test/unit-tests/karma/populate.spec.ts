@@ -309,6 +309,13 @@ describe('Populate', () => {
                     });
                 });
             });
+            describe('Ordering', () => {
+                it('should order by age', async () => {
+                    await db.friends.bulkAdd(mockFriends(20));
+                    const orderedFriends = await db.friends.populate().orderBy('age').toArray();
+                    expect(orderedFriends.every((friend, i) => i > 0 ? friend.age >= orderedFriends[i - 1].age : true));
+                });
+            });
         });
     });
     describe('No relational keys provided', () => {

@@ -121,10 +121,9 @@ export class Friend {
             group: this.group,
             hairColor: this.hairColor
         };
-        console.log(serialized);
         return serialized;
     }
-
+    
     deserialize(input: OmitMethods<Friend>) {
         Object.entries(input).forEach(([prop, value]) => this[prop] = value);
         this.date = new Date(input.date);

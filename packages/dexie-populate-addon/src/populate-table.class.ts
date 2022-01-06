@@ -58,7 +58,7 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
 
     where(index: string | string[]): WhereClause<Populated<T, B, K>, TKey>;
-    where(equalityCriterias: { [key: string]: IndexableType; }): CollectionPopulated<T, TKey>;
+    where(equalityCriterias: { [key: string]: IndexableType; }): CollectionPopulated<T, TKey, B, K>;
 
     public where(
         indexOrequalityCriterias: string | string[] | { [key: string]: any; }
@@ -104,6 +104,20 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
         return whereClause;
 
+    }
+
+    public orderBy(index: string | string[]): CollectionPopulated<T, TKey, B, K> {
+        const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
+        const whereClause = this._table.where('') as unknown as WhereClause<Populated<T, B, K>, TKey>;
+        const CollectionPopulatedClass = getCollectionPopulated<T, TKey, B, K>(
+            whereClause,
+            this._keysOrOptions,
+            this._db,
+            this._table,
+            this._relationalSchema
+        );
+        const collectionPop = new CollectionPopulatedClass(whereClause, undefined, collection) as CollectionPopulated<T, TKey, B, K>;
+        return collectionPop;
     }
 
     /**

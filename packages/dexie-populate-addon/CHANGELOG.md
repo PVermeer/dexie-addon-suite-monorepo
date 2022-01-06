@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.15](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.14...@pvermeer/dexie-populate-addon@1.0.0-beta.15) (2022-01-06)
+
+
+### Bug Fixes
+
+* **dexie-populate-addon:** collection types are now correct ([95183dd](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/95183ddfb141999cb2eeef904af18f5641b67dd6))
+* **dexie-populate-addon:** populated type no longer requires parameters ([b13e8e8](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/b13e8e8c90d45d6d9af2d2d8cfcdbd815f1c1639))
+
+
+### Features
+
+* **dexie-populate-addon:** added orderBy method on table ([0c9e3c0](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/0c9e3c02aaddb3dafa251770cad9e5b7101a9fd6))
+
+
+
+
+
 # [1.0.0-beta.14](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.13...@pvermeer/dexie-populate-addon@1.0.0-beta.14) (2022-01-04)
 
 

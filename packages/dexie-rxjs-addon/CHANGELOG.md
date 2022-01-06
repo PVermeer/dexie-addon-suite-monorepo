@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.24](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.23...@pvermeer/dexie-rxjs-addon@1.0.0-beta.24) (2022-01-06)
+
+
+### Features
+
+* **dexie-addon-suite:** orderBy for populated observables ([ab4caf9](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/ab4caf9bd1bf7c7e4be59c07d99bd9830c9f8cc7))
+* **dexie-rxjs-addon:** added orderBy method on table ([fff4aa2](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff4aa222b6c0579e42987437791a456f7bfc95c))
+
+
+
+
+
 # [1.0.0-beta.23](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.22...@pvermeer/dexie-rxjs-addon@1.0.0-beta.23) (2022-01-04)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

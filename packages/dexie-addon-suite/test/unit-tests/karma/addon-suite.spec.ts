@@ -576,6 +576,15 @@ describe('Suite', () => {
                                 await emitPromise;
                                 expect(obsFriend).toEqual([]);
                             });
+                            it('should order by age and populate', async () => {
+                                const method = _method.method(db);
+                                const orderedFriends = await firstValueFrom(method.orderBy('age').toArray());
+
+                                expect(orderedFriends.every((friend, i) => i > 0 ? friend.age >= orderedFriends[i - 1].age : true));
+                                const friendPop = orderedFriends.find(x => x.id === id)!;
+                                expect(friendPop.group instanceof Group).toBeTrue();
+                                expect(friendPop).toEqual(friendExpectedPop);
+                            });
                         });
                         describe('Indices', () => {
                             it('should index memberOf', async () => {

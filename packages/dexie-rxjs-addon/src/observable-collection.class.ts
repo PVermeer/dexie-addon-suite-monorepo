@@ -23,10 +23,10 @@ export class ObservableCollection<T, TKey> {
     constructor(
         protected _db: Dexie,
         protected _table: Table<T, TKey>,
-        protected _collection: Collection<T, TKey>
+        public _collection: Collection<T, TKey>
     ) {
 
-        // Mixin with WhereClause
+        // Mixin with Collection
         Object.keys(_collection).forEach(key => {
             if (key === 'constructor' || this[key] !== undefined) { return; }
             this[key] = _collection[key];

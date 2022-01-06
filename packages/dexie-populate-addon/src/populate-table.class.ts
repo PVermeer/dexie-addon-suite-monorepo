@@ -58,7 +58,7 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
 
     where(index: string | string[]): WhereClause<Populated<T, B, K>, TKey>;
-    where(equalityCriterias: { [key: string]: IndexableType; }): CollectionPopulated<T, TKey>;
+    where(equalityCriterias: { [key: string]: IndexableType; }): CollectionPopulated<T, TKey, B, K>;
 
     public where(
         indexOrequalityCriterias: string | string[] | { [key: string]: any; }

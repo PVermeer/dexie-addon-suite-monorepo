@@ -21,11 +21,19 @@ describe('Rxjs', () => {
         describe(database.desc, () => {
             let db: ReturnType<typeof database.db>;
             let subs: Subscription;
+            let friend: Friend;
+            let id: number;
+            let customId: number;
+
             beforeEach(async () => {
                 subs = new Subscription();
                 db = database.db(Dexie);
                 await db.open();
                 expect(db.isOpen()).toBeTrue();
+
+                [friend] = mockFriends(1);
+                id = await db.friends.add(friend);
+                customId = friend.customId;
             });
             afterEach(async () => {
                 subs.unsubscribe();
@@ -66,17 +74,11 @@ describe('Rxjs', () => {
             describe('Methods', () => {
                 methods.forEach((method, _j) => {
                     // if (_j !== 0) { return; }
-                    let friend: Friend;
-                    let id: number;
-                    let customId: number;
                     let method$: ReturnType<typeof method.method>;
                     let obs$: ReturnType<ReturnType<typeof method.method>>;
 
                     describe(method.desc, () => {
                         beforeEach(async () => {
-                            [friend] = mockFriends(1);
-                            id = await db.friends.add(friend);
-                            customId = friend.customId;
                             method$ = method.method(db);
                             obs$ = method$(id, customId);
                         });
@@ -107,6 +109,81 @@ describe('Rxjs', () => {
                             const obsOld$ = method$(id, customId);
                             const getOldFriend = await firstValueFrom(obsOld$.pipe(take(1)));
                             expect(getOldFriend).toEqual(friend);
+                        });
+                        it('should always emit on new subscribers', async () => {
+                            let obsFriend1: Friend | undefined;
+                            let obsFriend2: Friend | undefined;
+                            let obsFriend3: Friend | undefined;
+
+                            const obs$ = method$(id, customId, { emitUndefined: true });
+
+                            const waits = new Array(1).fill(null).map(() => flatPromise());
+                            subs.add(obs$.subscribe(
+                                friendEmit => {
+                                    obsFriend1 = friendEmit as Friend;
+                                    waits[0].resolve();
+                                }));
+
+                            const waits2 = new Array(1).fill(null).map(() => flatPromise());
+                            subs.add(obs$.subscribe(
+                                friendEmit => {
+                                    obsFriend2 = friendEmit as Friend;
+                                    waits2[0].resolve();
+                                }));
+
+                            // New instance
+                            const waits3 = new Array(1).fill(null).map(() => flatPromise());
+                            subs.add(method$(id, customId, { emitUndefined: true }).subscribe(
+                                friendEmit => {
+                                    obsFriend3 = friendEmit as Friend;
+                                    waits3[0].resolve();
+                                }));
+
+
+                            await waits[0].promise;
+                            expect(obsFriend1).toEqual(friend);
+                            await waits2[0].promise;
+                            expect(obsFriend2).toEqual(friend);
+                            await waits3[0].promise;
+                            expect(obsFriend3).toEqual(friend);
+                        });
+                        it('should always emit on new subscribers after unsubscribe', async () => {
+                            let obsFriend1: Friend | undefined;
+                            let obsFriend2: Friend | undefined;
+                            let obsFriend3: Friend | undefined;
+
+                            const obs$ = method$(id, customId, { emitUndefined: true });
+
+                            const waits = new Array(1).fill(null).map(() => flatPromise());
+                            const sub1 = obs$.subscribe(
+                                friendEmit => {
+                                    obsFriend1 = friendEmit as Friend;
+                                    waits[0].resolve();
+                                });
+
+                            await waits[0].promise;
+                            expect(obsFriend1).toEqual(friend);
+                            sub1.unsubscribe();
+
+                            const waits2 = new Array(1).fill(null).map(() => flatPromise());
+                            subs.add(obs$.subscribe(
+                                friendEmit => {
+                                    obsFriend2 = friendEmit as Friend;
+                                    waits2[0].resolve();
+                                }));
+
+                            await waits2[0].promise;
+                            expect(obsFriend2).toEqual(friend);
+
+                            const waits3 = new Array(1).fill(null).map(() => flatPromise());
+                            subs.add(obs$.subscribe(
+                                friendEmit => {
+                                    obsFriend3 = friendEmit as Friend;
+                                    waits3[0].resolve();
+                                }));
+
+                            await waits3[0].promise;
+                            expect(obsFriend3).toEqual(friend);
                         });
                         it('should emit on record update', async () => {
                             let emitCount = 0;
@@ -394,9 +471,115 @@ describe('Rxjs', () => {
                                 expect(a).toBe(b);
                             });
                         }
+                        if (!method.singelton) {
+                            it('should be a new Observable instance', () => {
+                                const a = method$(id, customId, { singelton: true });
+                                const b = method$(id, customId, { singelton: true });
+                                expect(a && b).toBeTruthy();
+                                expect(a).not.toBe(b);
+                            });
+                        }
                     });
                 });
             });
+            describe('count()', () => {
+                it('should emit the correct count on Table', async () => {
+                    const count$ = db.friends.$.count();
+                    let count: number | undefined;
+                    let emitCount = 0;
+                    const waits = new Array(2).fill(null).map(() => flatPromise());
+                    subs.add(count$.subscribe(_count => {
+                        count = _count;
+                        emitCount++;
+                        switch (emitCount) {
+                            case 1: waits[0].resolve(); break;
+                            case 2: waits[1].resolve(); break;
+                        }
+                    }));
+
+                    await waits[0].promise;
+                    expect(emitCount).toBe(1);
+                    expect(count!).toEqual(1);
+
+                    await db.friends.bulkAdd(mockFriends(5));
+                    await waits[1].promise;
+                    expect(emitCount).toBe(2);
+                    expect(count!).toBe(6);
+                });
+                it('should emit the correct count on Collection', async () => {
+                    const count$ = db.friends.$.where(':id').above(0).count();
+                    let count: number | undefined;
+                    let emitCount = 0;
+                    const waits = new Array(2).fill(null).map(() => flatPromise());
+                    subs.add(count$.subscribe(_count => {
+                        count = _count;
+                        emitCount++;
+                        switch (emitCount) {
+                            case 1: waits[0].resolve(); break;
+                            case 2: waits[1].resolve(); break;
+                        }
+                    }));
+
+                    await waits[0].promise;
+                    expect(emitCount).toBe(1);
+                    expect(count!).toEqual(1);
+
+                    await db.friends.bulkAdd(mockFriends(5));
+                    await waits[1].promise;
+                    expect(emitCount).toBe(2);
+                    expect(count!).toBe(6);
+                });
+            });
+            describe('limit()', () => {
+                it('should emit the correct limit on Table', async () => {
+                    const count$ = db.friends.$.limit(4).count();
+                    let count: number | undefined;
+                    let emitCount = 0;
+                    const waits = new Array(2).fill(null).map(() => flatPromise());
+                    subs.add(count$.subscribe(_count => {
+                        count = _count;
+                        emitCount++;
+                        switch (emitCount) {
+                            case 1: waits[0].resolve(); break;
+                            case 2: waits[1].resolve(); break;
+                        }
+                    }));
+
+                    await waits[0].promise;
+                    expect(emitCount).toBe(1);
+                    expect(count!).toEqual(1);
+
+                    await db.friends.bulkAdd(mockFriends(5));
+                    await waits[1].promise;
+                    expect(emitCount).toBe(2);
+                    expect(count!).toBe(4);
+                });
+                it('should emit the correct limit on Collection', async () => {
+                    const count$ = db.friends.$.where(':id').above(0).limit(4).count();
+                    let count: number | undefined;
+                    let emitCount = 0;
+                    const waits = new Array(2).fill(null).map(() => flatPromise());
+                    subs.add(count$.subscribe(_count => {
+                        count = _count;
+                        emitCount++;
+                        switch (emitCount) {
+                            case 1: waits[0].resolve(); break;
+                            case 2: waits[1].resolve(); break;
+                        }
+                    }));
+
+                    await waits[0].promise;
+                    expect(emitCount).toBe(1);
+                    expect(count!).toEqual(1);
+
+                    await db.friends.bulkAdd(mockFriends(5));
+                    await waits[1].promise;
+                    expect(emitCount).toBe(2);
+                    expect(count!).toBe(4);
+                });
+            });
+
+
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             describe('Fixes', () => {
             });

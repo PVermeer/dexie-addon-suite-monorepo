@@ -1,4 +1,5 @@
-import { Dexie, Collection, IndexableType, Table, WhereClause } from 'dexie';
+import { Collection, Dexie, IndexableType, Table, WhereClause } from 'dexie';
+import { IDatabaseChange } from 'dexie-observable/api';
 import isEqual from 'lodash.isequal';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
@@ -6,16 +7,31 @@ import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
 
-export class ObservableTable<T, TKey> {
+// Type check for when dexie would update the Table interface
+type TableMap = Omit<
+    Record<keyof Table, (...args: any[]) => any>,
+    // Only to observe so omit:
+    'db' | 'name' | 'schema' | 'hook' | 'core' | 'each' | 'mapToClass' | 'add' | 'update' | 'put' | 'delete' | 'clear' | 'bulkAdd' | 'bulkGet' | 'bulkPut' | 'bulkDelete' | '$' | 'populate'
+>;
 
-    private _table$: Observable<T[]> = this._db.changes$.pipe(
+export class ObservableTable<T, TKey> implements TableMap {
+
+    private _tableChanges$: Observable<IDatabaseChange[]> = this._db.changes$.pipe(
         filter(x => x.some(y => y.table === this._table.name)),
-        debounceTime(50),
+        debounceTime(50), // Only checking if there are any changes on the table so only trigger on last in debounce window
         startWith([]),
+        share()
+    );
+
+    private _table$: Observable<T[]> = this._tableChanges$.pipe(
         mergeMap(() => this._table.toArray()),
         distinctUntilChanged(isEqual),
         shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    public toCollection(): ObservableCollection<T, TKey> {
+        return new ObservableCollection(this._db, this._table, this._table.toCollection());
+    }
 
     /**
      * Observable stream of the complete Table.
@@ -58,7 +74,7 @@ export class ObservableTable<T, TKey> {
             startWith(null),
             mergeMap(() => this._table.get(keyOrequalityCriterias)),
             distinctUntilChanged(isEqual),
-            share()
+            shareReplay({ bufferSize: 1, refCount: true })
         );
     }
 
@@ -103,9 +119,37 @@ export class ObservableTable<T, TKey> {
         return observableCollection;
     }
 
+    public count(): Observable<number> {
+        const count$ = this.toCollection().count();
+        return count$;
+    }
+
+    // Can be exposed because returns `this.toCollection()`
+    public filter: (...args: Parameters<Collection['filter']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Collection['offset']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Collection['limit']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Collection['reverse']>) => ObservableCollection<T, TKey>;
+
+
     constructor(
         protected _db: Dexie,
         protected _table: Table<T, TKey>
-    ) { }
+    ) {
+        // Mixin with Table
+        Object.keys(_table).forEach(key => {
+            if (key === 'constructor' || this[key] !== undefined) { return; }
+            this[key] = _table[key];
+        });
+
+        const prototype = Object.getPrototypeOf(Object.getPrototypeOf(_db.Table.prototype));
+        Object.getOwnPropertyNames(prototype).forEach(name => {
+            if (this[name] !== undefined) { return; }
+            Object.defineProperty(
+                ObservableTable.prototype,
+                name,
+                Object.getOwnPropertyDescriptor(prototype, name) as any
+            );
+        });
+    }
 
 }

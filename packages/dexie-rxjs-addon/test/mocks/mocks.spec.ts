@@ -1,7 +1,7 @@
 import type { Dexie as DexieType } from 'dexie';
 import faker from 'faker/locale/nl';
 import { EMPTY, of } from 'rxjs';
-import { mergeMap, map } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { dexieRxjs } from '../../src';
 
 export interface Friend {
@@ -153,7 +153,7 @@ export const methods = [
                 )
     },
     {
-        desc: 'where()',
+        desc: 'where(id).equals(id)',
         singelton: false,
         array: true,
         alwaysEmit: false,
@@ -187,7 +187,7 @@ export const methods = [
             )
     },
     {
-        desc: 'where().anyOf()',
+        desc: 'where(id).anyOf([id])',
         singelton: false,
         array: true,
         alwaysEmit: false,

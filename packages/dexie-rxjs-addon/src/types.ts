@@ -1,4 +1,4 @@
-import { Dexie, Collection, DBCoreKeyRange, Table, TableSchema, Transaction, WhereClause } from 'dexie';
+import { Collection, DBCoreKeyRange, Dexie, Table, TableSchema, Transaction, WhereClause } from 'dexie';
 
 export interface DexieExtended extends Dexie {
 
@@ -8,6 +8,6 @@ export interface DexieExtended extends Dexie {
 
     Collection: new <T, TKey>(whereClause: WhereClause | null, keyRangeGenerator?: () => DBCoreKeyRange) => Collection<T, TKey>;
 
-    WhereClause: new <T, TKey>(table: Table, index?: string, orCollection?: Collection) => WhereClause<T, TKey>;
+    WhereClause: new <T, TKey>(table: Table<T, TKey>, index?: string, orCollection?: Collection<T, TKey>) => WhereClause<T, TKey>;
 
 }

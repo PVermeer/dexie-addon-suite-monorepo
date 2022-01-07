@@ -3,7 +3,7 @@ import { ObservableCollection } from '../../../src';
 import { databasesPositive } from '../../mocks/mocks.spec';
 
 describe('ObservableCollection class', () => {
-    it('should be mixed in with WhereClause', async () => {
+    it('should be mixed in with Collection', async () => {
         const db = databasesPositive[0].db(Dexie);
         await db.open();
         const collection = db.friends.where(':id').anyOf();

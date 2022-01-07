@@ -1,7 +1,7 @@
 import type { Dexie as DexieType } from 'dexie';
 import faker from 'faker/locale/nl';
 import { EMPTY, of } from 'rxjs';
-import { mergeMap, map } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { dexieRxjs } from '../../src';
 
 export interface Friend {
@@ -153,7 +153,7 @@ export const methods = [
                 )
     },
     {
-        desc: 'where()',
+        desc: 'where(id).equals(id)',
         singelton: false,
         array: true,
         alwaysEmit: false,
@@ -187,7 +187,7 @@ export const methods = [
             )
     },
     {
-        desc: 'where().anyOf()',
+        desc: 'where(id).anyOf([id])',
         singelton: false,
         array: true,
         alwaysEmit: false,
@@ -207,6 +207,29 @@ export const methods = [
         ) => _options.singelton ?
                 db.friends.$.orderBy('age').toArray() :
                 db.friends.$.orderBy('age').toArray().pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
+    },
+    {
+        desc: 'orderBy(age).reverse().toArray()',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        orderedBy: 'age',
+        reversed: true,
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.orderBy('age').reverse().toArray() :
+                db.friends.$.orderBy('age').reverse().toArray().pipe(
                     mergeMap(x => {
                         if (_options.emitFull) { return of(x); }
                         /** The general method tests rely on returning undefined when not found. */

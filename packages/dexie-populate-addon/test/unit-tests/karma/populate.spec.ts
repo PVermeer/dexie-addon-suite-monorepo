@@ -315,6 +315,15 @@ describe('Populate', () => {
                     const orderedFriends = await db.friends.populate().orderBy('age').toArray();
                     expect(orderedFriends.every((friend, i) => i > 0 ? friend.age >= orderedFriends[i - 1].age : true));
                 });
+                it('should reverse order by age', async () => {
+                    await db.friends.bulkAdd(mockFriends(20));
+                    const orderedFriends = await db.friends.populate().orderBy('age').reverse().toArray();
+                    const reversedOrderedFriends = orderedFriends.reverse();
+                    expect(reversedOrderedFriends.every((friend, i) => i > 0 ?
+                        friend.age >= reversedOrderedFriends[i - 1].age :
+                        true
+                    ));
+                });
             });
         });
     });

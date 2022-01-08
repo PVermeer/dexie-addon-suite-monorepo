@@ -130,7 +130,7 @@ export class ObservableTable<T, TKey> implements TableMap {
     public limit: (...args: Parameters<Collection['limit']>) => ObservableCollection<T, TKey>;
     public reverse: (...args: Parameters<Collection['reverse']>) => ObservableCollection<T, TKey>;
 
-
+    
     constructor(
         protected _db: Dexie,
         protected _table: Table<T, TKey>

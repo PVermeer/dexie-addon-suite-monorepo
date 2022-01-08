@@ -238,6 +238,170 @@ export const methods = [
                         return of(find);
                     })
                 )
+    },
+    {
+        desc: 'toCollection.sortBy(age)',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        orderedBy: 'age',
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.toCollection().sortBy('age') :
+                db.friends.$.toCollection().sortBy('age').pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
+    },
+    {
+        desc: 'toCollection.distinct().toArray()',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.toCollection().distinct().toArray() :
+                db.friends.$.toCollection().distinct().toArray().pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
+    },
+    {
+        desc: 'offSet(0).toArray()',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.offset(0).toArray() :
+                db.friends.$.offset(0).toArray().pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
+    },
+    {
+        desc: 'first()',
+        singelton: false,
+        array: false,
+        alwaysEmit: false,
+        first: true,
+        method: (db: TestDatabaseType) => (
+            _id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => db.friends.$.toCollection().first()
+    },
+    {
+        desc: 'last()',
+        singelton: false,
+        array: false,
+        alwaysEmit: false,
+        last: true,
+        method: (db: TestDatabaseType) => (
+            _id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => db.friends.$.toCollection().last()
+    },
+    {
+        desc: 'limit()',
+        singelton: false,
+        array: false,
+        alwaysEmit: false,
+        limit: 5,
+        last: true,
+        method: (db: TestDatabaseType) => (
+            _id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => db.friends.$.limit(5).toArray().pipe(map(friends => friends[friends.length - 1]))
+    },
+    {
+        desc: 'or()',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.where('shoeSize').above(-1).or('age').below(200).toArray() :
+                db.friends.$.where('shoeSize').above(-1).or('age').below(200).toArray().pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
+    },
+    {
+        desc: 'filter()',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.filter(x => x.age > 0).toArray() :
+                db.friends.$.filter(x => x.age > 0).toArray().pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
+    },
+    {
+        desc: 'reverse()',
+        singelton: false,
+        array: true,
+        alwaysEmit: true,
+        method: (db: TestDatabaseType) => (
+            id: number,
+            _customId: number,
+            _options: MethodOptions = {}
+        ) => _options.singelton ?
+                db.friends.$.reverse().toArray() :
+                db.friends.$.reverse().toArray().pipe(
+                    mergeMap(x => {
+                        if (_options.emitFull) { return of(x); }
+                        /** The general method tests rely on returning undefined when not found. */
+                        const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
+                        if (!find && !_options.emitUndefined) { return EMPTY; }
+                        return of(find);
+                    })
+                )
     }
 ];
 

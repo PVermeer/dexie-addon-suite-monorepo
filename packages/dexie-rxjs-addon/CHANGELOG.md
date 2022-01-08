@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.26](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.25...@pvermeer/dexie-rxjs-addon@1.0.0-beta.26) (2022-01-08)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** fix + tests for mapped table / collection methods ([41192d6](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/41192d676becf98c223d6d63cacf7957f8fc2f60))
+
+
+
+
+
+# [1.0.0-beta.25](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.24...@pvermeer/dexie-rxjs-addon@1.0.0-beta.25) (2022-01-07)
+
+
+### Features
+
+* **dexie-rxjs-addon:** all table and collection methods as observers ([17f0600](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/17f060075b2257ed9cb57c7632c899360e768b15))
+* **dexie-rxjs-addon:** exposed reverse() on observable collection ([5472e3f](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/5472e3f0ead7c8a76ec2b5b91bcd6902c5c4e3b1))
+
+
+
+
+
 # [1.0.0-beta.24](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.23...@pvermeer/dexie-rxjs-addon@1.0.0-beta.24) (2022-01-06)
 
 

@@ -142,8 +142,7 @@ module.exports = function (config) {
         ...configOptions,
 
         browsers: [
-            'ChromeHeadless_no_sandbox',
-            'FirefoxHeadless'
+            'ChromeHeadless_no_sandbox'
         ]
     }
 

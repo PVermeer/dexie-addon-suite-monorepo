@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.28](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.27...@pvermeer/dexie-rxjs-addon@1.0.0-beta.28) (2022-01-09)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** debounce now emits first immediately ([6bd1476](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/6bd147647c1e403b6c232126deba18889ccef57a))
+
+
+
+
+
 # [1.0.0-beta.27](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.26...@pvermeer/dexie-rxjs-addon@1.0.0-beta.27) (2022-01-09)
 
 

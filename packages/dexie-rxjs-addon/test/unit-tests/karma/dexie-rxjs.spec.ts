@@ -201,7 +201,6 @@ describe('Rxjs', () => {
                                     }
                                 ));
                             });
-                            if (method.debounce) await new Promise(r => setTimeout(r, method.debounce));
                             await db.friends.update(id, { firstName: 'TestieUpdate' });
                             await emitPromise;
                             expect(emitCount).toBe(2);
@@ -287,7 +286,6 @@ describe('Rxjs', () => {
                                     if (emitCount === 2) { resolve(); }
                                 }));
                             });
-                            if (method.debounce) await new Promise(r => setTimeout(r, method.debounce));
                             await Promise.all(friends.map(async x => db.friends.add(x)));
                             await emitPromise;
 

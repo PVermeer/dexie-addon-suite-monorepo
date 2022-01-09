@@ -2,8 +2,8 @@ import { Collection, Dexie, IndexableTypeArray, Table } from 'dexie';
 import { IDatabaseChange } from 'dexie-observable/api';
 import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
-import { Observable, OperatorFunction } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
+import { merge, Observable, OperatorFunction } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
 
@@ -21,7 +21,10 @@ interface Options {
 // Custom pipe operator
 function debounceTimeWhen<T>(value?: number): OperatorFunction<T, T> {
     return function (source: Observable<T>): Observable<T> {
-        return value ? source.pipe(debounceTime(value)) : source;
+        return value ? merge(
+            source.pipe(first()),
+            source.pipe(skip(1), debounceTime(value))
+        ) : source;
     };
 }
 

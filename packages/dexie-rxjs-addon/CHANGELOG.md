@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.27](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.26...@pvermeer/dexie-rxjs-addon@1.0.0-beta.27) (2022-01-09)
+
+
+### Features
+
+* **dexie-rxjs-addon:** debounceTime can now be set on collections ([79028fc](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/79028fc9802cec7325d13023ccdef04b299b9776))
+
+
+
+
+
 # [1.0.0-beta.26](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.25...@pvermeer/dexie-rxjs-addon@1.0.0-beta.26) (2022-01-08)
 
 

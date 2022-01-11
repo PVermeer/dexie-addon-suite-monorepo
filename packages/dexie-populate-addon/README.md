@@ -260,7 +260,6 @@ Addon is export as namespace DexiePopulateAddon
 
 API
 ---
-The packet exposes two main exports:
 
 #### populate - addon function
 ```ts
@@ -274,6 +273,17 @@ function populate(db: Dexie): void;
  * TS does not support nominal types. Fake implementation so the type system can match.
  */
 type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = NominalT<O> | K;
+```
+
+### Populated - type
+```ts
+/**
+ * Overwrite the return type to the type as given in the Ref type after refs are populated.
+ * T = object type;
+ * B = boolean if shallow populate;
+ * O = union type of object keys to populate or the string type to populate all.
+ */
+type Populated<T, B extends boolean = false, O extends string = string>;
 ```
 
 Also exports some other classes and types to support further extension. See declaration or source.

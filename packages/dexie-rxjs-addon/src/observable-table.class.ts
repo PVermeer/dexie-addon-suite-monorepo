@@ -29,6 +29,9 @@ export class ObservableTable<T, TKey> implements TableMap {
         shareReplay({ bufferSize: 1, refCount: true })
     );
 
+    /**
+     * Create an Observable Collection of this table.
+     */
     public toCollection(): ObservableCollection<T, TKey> {
         return new ObservableCollection(this._db, this._table, this._table.toCollection());
     }
@@ -82,7 +85,6 @@ export class ObservableTable<T, TKey> implements TableMap {
      * Observable stream of a where query.
      * Emits updated values on changes, including new or updated records that are in range.
      * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
-     * ObservableCollection has one method: `toArray()`, since RxJs operators can be used.
      * @note Stays open so unsubscribe.
      */
     where(index: string | string[]): ObservableWhereClause<T, TKey>;
@@ -113,24 +115,34 @@ export class ObservableTable<T, TKey> implements TableMap {
 
     }
 
+    /**
+     * Observable stream of the complete Table orderd by indexed key.
+     * Emits updated Table array on changes.
+     * @note Stays open so unsubscribe.
+     */
     public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
         const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
         const observableCollection = new ObservableCollection(this._db, this._table, collection);
         return observableCollection;
     }
 
+    /**
+     * Observable stream of the complete Table count.
+     * Emits updated new number on changes.
+     * @note Stays open so unsubscribe.
+     */
     public count(): Observable<number> {
         const count$ = this.toCollection().count();
         return count$;
     }
 
     // Can be exposed because returns `this.toCollection()`
-    public filter: (...args: Parameters<Collection['filter']>) => ObservableCollection<T, TKey>;
-    public offset: (...args: Parameters<Collection['offset']>) => ObservableCollection<T, TKey>;
-    public limit: (...args: Parameters<Collection['limit']>) => ObservableCollection<T, TKey>;
-    public reverse: (...args: Parameters<Collection['reverse']>) => ObservableCollection<T, TKey>;
+    public filter: (...args: Parameters<Table['filter']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Table['offset']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Table['limit']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Table['reverse']>) => ObservableCollection<T, TKey>;
 
-    
+
     constructor(
         protected _db: Dexie,
         protected _table: Table<T, TKey>

@@ -8,11 +8,11 @@ Dexie Addon Suite
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Dexie Addon Suite combines the Dexie-addons from:
-- **dexie-immutable-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
-- **dexie-encrypted-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
-- **dexie-rxjs-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
-- **dexie-populate-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
-- **dexie-class-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
+- **[dexie-immutable-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-immutable-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
+- **[dexie-encrypted-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-encrypted-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
+- **[dexie-rxjs-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-rxjs-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
+- **[dexie-populate-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-populate-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
+- **[dexie-class-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-class-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
 
 
 Adds new functionality:
@@ -230,6 +230,25 @@ class Friend {
     group: Ref<Group, number>;
 
     doSomething() { return 'done'; }
+
+    // For dexie-class-addon (will call constructor/serialize on read/write)
+    serialize() {
+        return {
+            id: this.id,
+            name: this.name,
+            memberOf: this.memberOf.map(club => club instanceof Club ? club.id : club),
+            group: this.group instanceof Group ? this.group.id : group,
+        };
+    }
+
+    deserialize(input: OmitMethods<Friend>) {
+        Object.entries(input).forEach(([prop, value]) => this[prop] = value);
+        this.date = new Date(input.date);
+    }
+
+    constructor(input: OmitMethods<Friend>) {
+        this.deserialize(input);
+    }
 }
 
 // Declare Database
@@ -360,6 +379,14 @@ namespace addonSuite {
  * TS does not support nominal types. Fake implementation so the type system can match.
  */
 type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = NominalT<O> | K;
+
+/**
+ * Overwrite the return type to the type as given in the Ref type after refs are populated.
+ * T = object type;
+ * B = boolean if shallow populate;
+ * O = union type of object keys to populate or the string type to populate all.
+ */
+type Populated<T, B extends boolean = false, O extends string = string>;
 
 /**
  * Class with cryptic methods

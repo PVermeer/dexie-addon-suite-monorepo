@@ -169,7 +169,7 @@ describe('Populate', () => {
                                         it('should throw when circulair references are found', async () => {
                                             await db.friends.update(updateId, { hasFriends: [id] });
                                             await expectAsync(method(id) as Promise<any>)
-                                                .toBeRejectedWithError('DEXIE POPULATE: Circular reference detected on \'hasFriends\'. \'hasFriends\' Probably contains a reference to itself.');
+                                                .toBeRejectedWithError('DEXIE POPULATE ADDON: Circular reference detected on \'hasFriends\'. \'hasFriends\' Probably contains a reference to itself.');
                                         });
                                     }
                                     if (_method.populatedPartial) {
@@ -199,23 +199,26 @@ describe('Populate', () => {
                                         });
                                     }
                                     describe('Shallow', () => {
-                                        // Partial population cannot have shallow for now
-                                        if (!_method.populatedPartial) {
-                                            it('should not be populated with friends deep', async () => {
+                                        it('should not be populated with friends deep', async () => {
+                                            const getFriend = await method(id, true);
+                                            expect(
+                                                (getFriend?.hasFriends as Friend[])
+                                                    .every(x => x.hasFriends
+                                                        // @ts-ignore
+                                                        .every((y: any) => typeof y === 'number'))
+                                            ).toBeTrue();
+                                        });
+                                        it('should not be populated with clubs deep', async () => {
+                                            const getFriend = await method(id, true);
+                                            expect(
+                                                (getFriend?.memberOf as Club[])
+                                                    .every((x: any) => !(x.theme instanceof Theme))
+                                            ).toBeTrue();
+                                        });
+                                        if (_method.populatedPartial) {
+                                            it('should not be populated with group', async () => {
                                                 const getFriend = await method(id, true);
-                                                expect(
-                                                    (getFriend?.hasFriends as Friend[])
-                                                        .every(x => x.hasFriends
-                                                            // @ts-ignore
-                                                            .every((y: any) => typeof y === 'number'))
-                                                ).toBeTrue();
-                                            });
-                                            it('should not be populated with clubs deep', async () => {
-                                                const getFriend = await method(id, true);
-                                                expect(
-                                                    (getFriend?.memberOf as Club[])
-                                                        .every((x: any) => !(x.theme instanceof Theme))
-                                                ).toBeTrue();
+                                                expect(typeof getFriend!.group! === 'number').toBeTrue();
                                             });
                                         }
                                     });
@@ -265,7 +268,7 @@ describe('Populate', () => {
                         describe('Provided populate key does not match with schema', () => {
                             it('should be rejected', async () => {
                                 await expectAsync(method(id))
-                                    .toBeRejectedWithError(`DEXIE POPULATE: Provided key 'sdfsdf' doesn't match with schema`);
+                                    .toBeRejectedWithError(`DEXIE POPULATE ADDON: Provided key 'sdfsdf' doesn't match with schema`);
                             });
                         });
                     });
@@ -332,13 +335,13 @@ describe('Populate', () => {
             spyOn(console, 'warn').and.callFake(() => void 0);
             const db = testDatabaseNoRelationalKeys(Dexie);
             await db.open();
-            expect(console.warn).toHaveBeenCalledWith('DEXIE POPULATE: No relational keys are set');
+            expect(console.warn).toHaveBeenCalledWith('DEXIE POPULATE ADDON: No relational keys are set');
         });
     });
     describe('No matching tables for relational keys provided', () => {
         it('should throw', async () => {
             const db = testDatabaseNoTableForRelationalKeys(Dexie);
-            await expectAsync(db.open()).toBeRejectedWithError('DEXIE POPULATE: Relation schema does not match the db tables, now closing database');
+            await expectAsync(db.open()).toBeRejectedWithError('DEXIE POPULATE ADDON: Relation schema does not match the db tables, now closing database');
             expect(db.isOpen()).toBeFalse();
         });
     });

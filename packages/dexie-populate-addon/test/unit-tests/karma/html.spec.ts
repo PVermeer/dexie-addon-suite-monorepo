@@ -8,7 +8,7 @@ declare interface DexiePopulateAddon { populate: typeof populate; }
 declare const Dexie: typeof DexieType;
 declare const DexiePopulateAddon: DexiePopulateAddon;
 
-describe('HTML script tag (Still using dexie@next HTML import)', () => {
+describe('HTML script tag', () => {
     beforeAll(async () => {
         await Promise.all([
             await new Promise<void>(resolve => {

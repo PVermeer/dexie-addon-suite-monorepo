@@ -19,13 +19,8 @@ declare module 'dexie' {
     interface Table<T, TKey> {
         $: ObservableTablePopulated<T, TKey>;
         populate<B extends boolean = false, K extends string = string>(
-            keys: K[],
+            keysOrOptions?: K[] | PopulateOptions<B>,
             options?: PopulateOptions<B>
         ): PopulatedTableObservable<T, TKey, B, K>;
-        populate<B extends boolean = false>(options?: PopulateOptions<B>): PopulatedTableObservable<T, TKey, B, string>;
-        populate<B extends boolean = false, K extends string = string>(
-            keysOrOptions?: K[] | PopulateOptions<B>
-        ): PopulatedTableObservable<T, TKey, B, K>;
     }
-
 }

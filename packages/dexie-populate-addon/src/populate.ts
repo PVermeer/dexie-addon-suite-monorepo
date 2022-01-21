@@ -38,11 +38,11 @@ export function populate(db: Dexie) {
     db.on('ready', () => {
 
         if (!dbExt._relationalSchema || !Object.keys(dbExt._relationalSchema).length) {
-            console.warn('DEXIE POPULATE: No relational keys are set');
+            console.warn('DEXIE POPULATE ADDON: No relational keys are set');
         }
 
         if (Object.values(dbExt._relationalSchema).some(table => Object.values(table).some(x => !db[x.targetTable]))) {
-            throw new Error('DEXIE POPULATE: Relation schema does not match the db tables, now closing database');
+            throw new Error('DEXIE POPULATE ADDON: Relation schema does not match the db tables, now closing database');
         }
 
     });

@@ -7,7 +7,7 @@ describe('PopulateTableObservable', () => {
     it('should only hijack methods that return an observable', async () => {
         const db = databasesPositive[0].db(Dexie);
         (ObservableTable.prototype as any).test = () => 'something';
-        const popTableObsClass = new PopulateTableObservable(db, db.friends, undefined);
+        const popTableObsClass = new PopulateTableObservable(db, db.friends, undefined, undefined);
         expect((popTableObsClass as any).test()).toBe('something');
         await db.delete();
     });

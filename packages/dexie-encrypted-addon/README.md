@@ -241,7 +241,17 @@ class Encryption {
      * @param input Any non-circulair value.
      */
     static hash(input: any): string;
-    
+    /**
+     * Encrypt any value.
+     * @param json Any non-circulair value.
+     */
+    public encrypt(json: any): string;
+    /**
+     * Decrypt values.
+     * @param json Any non-circulair value.
+     */
+    public decrypt(messageWithNonce: string): any;
+
     constructor(secret?: string);
 }
 ```

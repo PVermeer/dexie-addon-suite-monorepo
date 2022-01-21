@@ -137,12 +137,12 @@ export const typings = async () => {
     // ========= Partial populate ========
 
     const populatedPartial = await Promise.all([
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).get(1).then(x => x),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).where(':id').equals(1).first().then(x => x),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).where({id: 0, age: 10}).first().then(x => x),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).toArray().then(x => x[0]),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).orderBy('age').toArray().then(x => x[0]),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).orderBy(['age', 'id']).toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style']).get(1).then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style']).where(':id').equals(1).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style']).where({ id: 0, age: 10 }).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style']).toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style']).orderBy('age').toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style']).orderBy(['age', 'id']).toArray().then(x => x[0]),
     ]);
     populatedPartial.forEach(async test => {
 
@@ -165,7 +165,49 @@ export const typings = async () => {
         isMemberOf = null;
 
         test.group = 2;
+        test.memberOf.every(x => x);
+        // @ts-expect-error
+        test.hairColor.every(x => x);
     });
+
+    const populatedPartialShallow = await Promise.all([
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style'], { shallow: true }).get(1).then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style'], { shallow: true }).where(':id').equals(1).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style'], { shallow: true }).where({ id: 0, age: 10 }).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style'], { shallow: true }).toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style'], { shallow: true }).orderBy('age').toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf', 'theme', 'style'], { shallow: true }).orderBy(['age', 'id']).toArray().then(x => x[0]),
+    ]);
+    populatedPartialShallow.forEach(async test => {
+
+        if (test === undefined) { return; }
+
+        const hasFriends = test!.hasFriends;
+        let hasFriend = hasFriends[0];
+        if (hasFriend === null) { return; }
+        hasFriend.doSomething();
+        hasFriend.age = 56;
+        // @ts-expect-error // Array.every() known issues
+        hasFriend.hasFriends.every(x => x);
+        hasFriend = null;
+
+        const memberOf = test!.memberOf;
+        let isMemberOf = memberOf![1];
+        if (isMemberOf === null) { return; }
+        isMemberOf.doSomething();
+        isMemberOf.name = 'fsdfdf';
+        // @ts-expect-error
+        isMemberOf.theme!.name = 'vsvsdv';
+        // @ts-expect-error
+        isMemberOf.theme!.style!.color = 'asdasd';
+        isMemberOf = null;
+
+        test.group = 2;
+        test.memberOf.every(x => x);
+        // @ts-expect-error
+        test.hairColor.every(x => x);
+    });
+
 
     // ======= Not Populated =======
 

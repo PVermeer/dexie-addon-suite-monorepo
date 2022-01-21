@@ -8,11 +8,11 @@ Dexie Addon Suite
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Dexie Addon Suite combines the Dexie-addons from:
-- **dexie-immutable-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
-- **dexie-encrypted-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
-- **dexie-rxjs-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
-- **dexie-populate-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
-- **dexie-class-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
+- **[dexie-immutable-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-immutable-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
+- **[dexie-encrypted-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-encrypted-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
+- **[dexie-rxjs-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-rxjs-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
+- **[dexie-populate-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-populate-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
+- **[dexie-class-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-class-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
 
 
 Adds new functionality:
@@ -91,66 +91,11 @@ new Dexie("FriendDatabase", {
 
 Rxjs and Populate are mandatory, could not (yet) figure out conditional typings for these.
 
-### Highlights of addons
-
-#### Dexie RxJs Addon
-For now only `toArray()` is usable on a returned `Collection` from a `where()` query:
-```ts
-class ObservableCollection {
-    /**
-     * Get an array of the query results.
-     * @note For now RxJs operators can be used to achieve the same functionality of Dexie.Collection.
-     */
-    public toArray() { return this._collection$; }
-}
-```
-
-#### Dexie Populate Addon
-##### Ref type
-```ts
-import { Ref } from '@pvermeer/dexie-addon-suite';
-
-export class Friend {
-    id?: number;
-    firstName: string;
-    lastName: string;
-    memberOf: Ref<Club[], number[]>;
-
-    doSomething() { }
-}
-```
-With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number[]`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]`.
-
-The ref type is a (fake) nominal type so the type system can differentiate this type from other assignable types.
-
-#### Dexie Encrypted Addon
-##### Encryption class
-```ts
-/**
- * Class with cryptic methods
- */
-class Encryption {
-    readonly secret: string;
-    readonly secretUint8Array: Uint8Array;
-    /**
-     * Create a random key.
-     */
-    static createRandomEncryptionKey(): string;
-    /**
-     * Create a base64 hash string of the provided input.
-     * @param input Any non-circulair value.
-     */
-    static hash(input: any): string;
-    
-    constructor(secret?: string);
-}
-```
-
 ### Examples
 
 #### Populated RxJs observables:
 
-To get populated RxJs observables that emit on changes use:
+To get a populated RxJs observable that emit on changes use:
 ```ts
 db.friends.populate().$.get(id);
 ```
@@ -159,27 +104,16 @@ or
 db.friends.$.populate().get(id);
 ```
 These methods are interchangeable and also detect changes in the populated records and emit accordingly.
-For now, only toArray() is available on a `Collection`. (*see above*)
+See dexie-populate-addon and dexie-rxjs-addon for all query options.
 
-##### Options
-```ts
-db.friends.populate().$.get(1); // Fully populated;
-db.friends.populate({ shallow: true }).$.get(1); // Only the record itself is populated, no deeper;
-db.friends.populate(['memberOf', 'group']).$.get(1); // Only 'memberOf' and 'group' are deep populated;
-```
 ##### Array methods
 ```ts
 db.friends.$.populate().where(':id').anyOf([1]).toArray();
 db.friends.$.populate().toArray();
 ```
-##### Compound
-```ts
-db.friends.populate().$.where('[id+group]').equals([1, 2]).toArray();
-db.friends.populate().$.where({ id: 1, group: 2 }).toArray()
-```
-And more... see https://dexie.org
+And more... see rxjs / populate addon and https://dexie.org
 
-##### Can be used with RxJs methods:
+##### RxJs usage:
 
 ```ts
 const friends$ = db.friends.populate().$.where(':id').anyOf([1, 2]).toArray().pipe(map(x => x));
@@ -230,6 +164,25 @@ class Friend {
     group: Ref<Group, number>;
 
     doSomething() { return 'done'; }
+
+    // For dexie-class-addon (will call constructor/serialize on read/write)
+    serialize() {
+        return {
+            id: this.id,
+            name: this.name,
+            memberOf: this.memberOf.map(club => club instanceof Club ? club.id : club),
+            group: this.group instanceof Group ? this.group.id : group,
+        };
+    }
+
+    deserialize(input: OmitMethods<Friend>) {
+        Object.entries(input).forEach(([prop, value]) => this[prop] = value);
+        this.date = new Date(input.date);
+    }
+
+    constructor(input: OmitMethods<Friend>) {
+        this.deserialize(input);
+    }
 }
 
 // Declare Database
@@ -279,7 +232,7 @@ db.open()
 import Dexie from 'dexie';
 import { addonSuite, Encryption } from '@pvermeer/dexie-addon-suite';
 
-const secretKey = Encryption.createRandomEncryptionKey(); // Might wanna save this somewhere
+const secretKey = Encryption.createRandomEncryptionKey(); // Might wanna store this somewhere
 
 // Declare Database
 const db = new Dexie("FriendDatabase", {
@@ -362,37 +315,17 @@ namespace addonSuite {
 type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = NominalT<O> | K;
 
 /**
+ * Overwrite the return type to the type as given in the Ref type after refs are populated.
+ * T = object type;
+ * B = boolean if shallow populate;
+ * O = union type of object keys to populate or the string type to populate all.
+ */
+type Populated<T, B extends boolean = false, O extends string = string>;
+
+/**
  * Class with cryptic methods
  */
-class Encryption {
-	private readonly _secret;
-	get secret(): string;
-	private readonly _keyUint8Array;
-	get secretUint8Array(): Uint8Array;
-	/**
-	 * Create a random key.
-	 */
-	static createRandomEncryptionKey(): string;
-	/**
-	 * Create a base64 hash string of the provided input.
-	 * @param input Any non-circulair value.
-	 */
-	static hash(input: any): string;
-	/**
-	 * Encrypt any value.
-	 * @param json Any non-circulair value.
-	 * @param key Secret key to encrypt with.
-	 */
-	encrypt(json: any): string;
-	/**
-	 * Decrypt values.
-	 * @param json Any non-circulair value.
-	 * @param key Secret key to decrypt with.
-	 */
-	decrypt(messageWithNonce: string): any;
-
-	constructor(secret?: string);
-}
+class Encryption { } // See dexie-encrypted-addon
 
 export as namespace DexieAddonSuite;
 ```

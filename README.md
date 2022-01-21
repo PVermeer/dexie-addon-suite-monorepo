@@ -11,11 +11,12 @@ Dexie Addons - Monorepo
 
 Dexie Addons for Dexie.js v3: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
-- **dexie-immutable-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
-- **dexie-encrypted-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
-- **dexie-rxjs-addon**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
-- **dexie-populate-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
-- **dexie-class-addon**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
+- **[dexie-addon-suite](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-addon-suite)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
+- **[dexie-immutable-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-immutable-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
+- **[dexie-encrypted-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-encrypted-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
+- **[dexie-rxjs-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-rxjs-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
+- **[dexie-populate-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-populate-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
+- **[dexie-class-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-class-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
 
 ---------------------------------------------------
 

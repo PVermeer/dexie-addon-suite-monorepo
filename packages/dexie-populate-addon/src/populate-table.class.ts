@@ -24,7 +24,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
             .then(result => {
                 const populatedClass = new Populate<T, TKey, B, K>(
                     result,
-                    this._keysOrOptions,
+                    this._keys,
+                    this._options,
                     this._db, this._table,
                     this._relationalSchema
                 );
@@ -46,7 +47,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
             .then(result => {
                 const populatedClass = new Populate<T, TKey, B, K>(
                     result,
-                    this._keysOrOptions,
+                    this._keys,
+                    this._options,
                     this._db,
                     this._table,
                     this._relationalSchema
@@ -86,7 +88,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
         const CollectionPopulatedClass = getCollectionPopulated<T, TKey, B, K>(
             whereClause,
-            this._keysOrOptions,
+            this._keys,
+            this._options,
             this._db,
             this._table,
             this._relationalSchema
@@ -111,7 +114,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
         const whereClause = this._table.where('') as unknown as WhereClause<Populated<T, B, K>, TKey>;
         const CollectionPopulatedClass = getCollectionPopulated<T, TKey, B, K>(
             whereClause,
-            this._keysOrOptions,
+            this._keys,
+            this._options,
             this._db,
             this._table,
             this._relationalSchema
@@ -132,7 +136,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
             .then(async () => {
                 const populatedClass = new Populate<T, TKey, B, K>(
                     records,
-                    this._keysOrOptions,
+                    this._keys,
+                    this._options,
                     this._db,
                     this._table,
                     this._relationalSchema
@@ -144,7 +149,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
     }
 
     constructor(
-        protected _keysOrOptions: K[] | PopulateOptions<B> | undefined,
+        protected _keys: K[] | undefined,
+        protected _options: PopulateOptions<B> | undefined,
         protected _db: Dexie,
         protected _table: Table<T, TKey>,
         protected _relationalSchema: RelationalDbSchema

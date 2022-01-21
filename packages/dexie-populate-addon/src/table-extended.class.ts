@@ -8,9 +8,10 @@ export interface TableExtended<T, TKey> {
      *
      * Uses Table.methods with populate options.
      */
-    populate<B extends boolean = false, K extends string = string>(keys: K[], options?: PopulateOptions<B>): PopulateTable<T, TKey, B, K>;
-    populate<B extends boolean = false>(options?: PopulateOptions<B>): PopulateTable<T, TKey, B, string>;
-    populate<B extends boolean = false, K extends string = string>(keysOrOptions?: K[] | PopulateOptions<B>): PopulateTable<T, TKey, B, K>;
+    populate<B extends boolean = false, K extends string = string>(
+        keysOrOptions?: K[] | PopulateOptions<B>,
+        options?: PopulateOptions<B>
+    ): PopulateTable<T, TKey, B, K>;
 }
 
 export function getTableExtended<T, TKey>(db: Dexie) {
@@ -23,9 +24,12 @@ export function getTableExtended<T, TKey>(db: Dexie) {
         public _relationalSchema = dbExt._relationalSchema;
 
         public populate<B extends boolean = false, K extends string = string>(
-            keysOrOptions?: K[] | PopulateOptions<B>
+            keysOrOptions?: K[] | PopulateOptions<B>,
+            options?: PopulateOptions<B>
         ): any {
-            return new PopulateTable<T, TKey, B, K>(keysOrOptions, db, this as any, this._relationalSchema);
+            const _keys = Array.isArray(keysOrOptions) ? keysOrOptions : undefined;
+            const _options = options || (keysOrOptions && 'shallow' in keysOrOptions ? keysOrOptions : undefined);
+            return new PopulateTable<T, TKey, B, K>(_keys, _options, db, this as any, this._relationalSchema);
         }
 
         constructor(

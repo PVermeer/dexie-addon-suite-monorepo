@@ -18,7 +18,8 @@ export interface CollectionPopulated<T, TKey, B extends boolean, K extends strin
  */
 export function getCollectionPopulated<T, TKey, B extends boolean, K extends string>(
     whereClause: WhereClause<Populated<T, B, K>, TKey> | null | undefined,
-    keysOrOptions: string[] | PopulateOptions<B> | undefined,
+    keys: string[] | undefined,
+    options: PopulateOptions<B> | undefined,
     db: Dexie,
     table: Table<T, TKey>,
     relationalSchema: RelationalDbSchema
@@ -37,7 +38,7 @@ export function getCollectionPopulated<T, TKey, B extends boolean, K extends str
             // Not using async / await so PromiseExtended is returned
             return super.toArray()
                 .then(results => {
-                    const populatedClass = new Populate<T, TKey, B, K>(results, keysOrOptions, db, table, relationalSchema);
+                    const populatedClass = new Populate<T, TKey, B, K>(results, keys, options, db, table, relationalSchema);
                     return populatedClass.populated;
                 })
                 .then(popResults => thenShortcut(popResults));
@@ -53,7 +54,7 @@ export function getCollectionPopulated<T, TKey, B extends boolean, K extends str
             const cursors: { key: IndexableType; primaryKey: TKey; }[] = [];
             return super.each((x, y) => records.push(x) && cursors.push(y))
                 .then(async () => {
-                    const populatedClass = new Populate<T, TKey, B, K>(records, keysOrOptions, db, table, relationalSchema);
+                    const populatedClass = new Populate<T, TKey, B, K>(records, keys, options, db, table, relationalSchema);
                     const recordsPop = await populatedClass.populated;
                     recordsPop.forEach((x, i) => callback(x, cursors[i]));
                     return;

@@ -23,9 +23,12 @@ export function getTableExtended<T, TKey>(db: Dexie) {
         public _relationalSchema = dbExt._relationalSchema;
 
         public populate<B extends boolean = false, K extends string = string>(
-            keysOrOptions?: K[] | PopulateOptions<B>
+            keysOrOptions?: K[] | PopulateOptions<B>,
+            options?: PopulateOptions<B>
         ): any {
-            return new PopulateTable<T, TKey, B, K>(keysOrOptions, db, this as any, this._relationalSchema);
+            const _keys = Array.isArray(keysOrOptions) ? keysOrOptions : undefined;
+            const _options = options || (keysOrOptions && 'shallow' in keysOrOptions ? keysOrOptions : undefined);
+            return new PopulateTable<T, TKey, B, K>(_keys, _options, db, this as any, this._relationalSchema);
         }
 
         constructor(

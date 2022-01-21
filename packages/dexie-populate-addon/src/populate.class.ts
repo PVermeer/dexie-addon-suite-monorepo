@@ -77,7 +77,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
         // Match schema with provided keys
         (this._keysToPopulate || []).forEach(key => {
             if (!Object.values(this._relationalSchema).some(x => Object.keys(x).some(y => y === key))) {
-                throw new Error(`DEXIE POPULATE: Provided key '${key}' doesn't match with schema`);
+                throw new Error(`DEXIE POPULATE ADDON: Provided key '${key}' doesn't match with schema`);
             }
         });
 
@@ -168,7 +168,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
                                 isEqual(newRefKey[key], ref[key]);
 
                             if (isCircular) {
-                                throw new Error(`DEXIE POPULATE: Circular reference detected on '${key}'. ` +
+                                throw new Error(`DEXIE POPULATE ADDON: Circular reference detected on '${key}'. ` +
                                     `'${key}' Probably contains a reference to itself.`
                                 );
                             }
@@ -195,8 +195,6 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
         if (Object.keys(deepRefsToPopulate).length) {
             await Promise.all(
                 Object.entries(deepRefsToPopulate)
-                    /* Using lodash flatten (instead of Array.flat())
-                     because Edge just updated to support Array.flat() and MS updates slow */
                     .map(([table, refs]) => this._recursivePopulate(table, flatten(refs)))
             );
         }
@@ -204,20 +202,15 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
 
     constructor(
         _records: T[] | T | undefined,
-        keysOrOptions: string[] | PopulateOptions<B> | undefined,
+        keys: string[] | undefined,
+        options: PopulateOptions<B> | undefined,
         private _db: Dexie,
         private _table: Table<T, TKey>,
         private _relationalSchema: RelationalDbSchema
     ) {
         this._records = _records ? Array.isArray(_records) ? _records : [_records] : [];
-
-        if (keysOrOptions) {
-            if (Array.isArray(keysOrOptions)) {
-                this._keysToPopulate = keysOrOptions;
-            } else if ('shallow' in keysOrOptions) {
-                this._options = keysOrOptions;
-            }
-        }
+        this._keysToPopulate = keys;
+        this._options = options;
     }
 
 }

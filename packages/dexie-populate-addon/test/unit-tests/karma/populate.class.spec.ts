@@ -71,6 +71,7 @@ describe('Populate class', () => {
 
         populatedClass = new Populate<Friend, number, false, string>(
             [friend],
+            undefined,
             { shallow: false },
             db as unknown as DexieExtended,
             db.friends,
@@ -136,6 +137,7 @@ describe('Populate class', () => {
     it('should return [] when input === undefined || [] on populated getter', async () => {
         const populateC = new Populate<Friend, number, false, string>(
             undefined,
+            undefined,
             { shallow: false },
             db as unknown as DexieExtended,
             db.friends,
@@ -146,6 +148,7 @@ describe('Populate class', () => {
     });
     it('should return {} when input === undefined || [] on Tree getter', async () => {
         const populateC = new Populate<Friend, number, false, string>(
+            undefined,
             undefined,
             { shallow: false },
             db as unknown as DexieExtended,

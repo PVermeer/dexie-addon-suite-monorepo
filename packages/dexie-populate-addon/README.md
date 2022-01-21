@@ -294,3 +294,8 @@ Dexie.js
 ========
 
 Dexie.js is a wrapper library for indexedDB - the standard database in the browser. https://dexie.org
+
+
+Known issues
+========
+- Array.every does not work on array Ref types because of a weird type in the es5 library. TypeScript bug?

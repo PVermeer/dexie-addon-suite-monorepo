@@ -19,6 +19,9 @@ export interface PopulateOptions<B extends boolean = false> {
  * TS does not support nominal types. Fake implementation so the type system can match.
  * O = object type after populate;
  * K = key type before populate (see Dexie IndexableType).
+ * 
+ * @note Array.every doesn't work because of some weird type in the es5 library. All other Array methods doe work..
+ *      Typescript bug?
  */
 export type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = NominalT<O> | K;
 

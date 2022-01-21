@@ -8,9 +8,10 @@ export interface TableExtended<T, TKey> {
      *
      * Uses Table.methods with populate options.
      */
-    populate<B extends boolean = false, K extends string = string>(keys: K[], options?: PopulateOptions<B>): PopulateTable<T, TKey, B, K>;
-    populate<B extends boolean = false>(options?: PopulateOptions<B>): PopulateTable<T, TKey, B, string>;
-    populate<B extends boolean = false, K extends string = string>(keysOrOptions?: K[] | PopulateOptions<B>): PopulateTable<T, TKey, B, K>;
+    populate<B extends boolean = false, K extends string = string>(
+        keysOrOptions?: K[] | PopulateOptions<B>,
+        options?: PopulateOptions<B>
+    ): PopulateTable<T, TKey, B, K>;
 }
 
 export function getTableExtended<T, TKey>(db: Dexie) {

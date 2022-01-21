@@ -14,7 +14,8 @@ export class PopulateTableObservable<T, TKey, B extends boolean, K extends strin
     constructor(
         _db: Dexie,
         _table: Table<any, TKey>,
-        _keysOrOptions: K[] | PopulateOptions<B> | undefined,
+        _keys: K[] | undefined,
+        _options: PopulateOptions<B> | undefined
     ) {
         super(_db, _table as any);
 
@@ -29,21 +30,21 @@ export class PopulateTableObservable<T, TKey, B extends boolean, K extends strin
 
                 if (returnValue instanceof Observable) {
 
-                    return populateObservable(returnValue, _table, _keysOrOptions);
+                    return populateObservable(returnValue, _table, _keys, _options);
 
                 }
 
                 if (returnValue instanceof ObservableWhereClause) {
 
                     const observableWhereClause = returnValue;
-                    return new PopulateObservableWhereClause(this._db, this._table, _keysOrOptions, observableWhereClause);
+                    return new PopulateObservableWhereClause(this._db, this._table, _keys, _options, observableWhereClause);
 
                 }
 
                 if (returnValue instanceof ObservableCollection) {
 
                     const observableCollection = returnValue;
-                    return new PopulateObservableCollection(this._db, this._table, observableCollection._collection, _keysOrOptions);
+                    return new PopulateObservableCollection(this._db, this._table, observableCollection._collection, _keys, _options);
 
                 }
 

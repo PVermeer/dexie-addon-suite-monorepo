@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.16](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.15...@pvermeer/dexie-populate-addon@1.0.0-beta.16) (2022-01-21)
+
+
+### Features
+
+* **dexie-populate-addon:** partial population with shallow option ([00c256a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/00c256a812b96876e7ab983c6132f9694db4fc11))
+
+
+
+
+
 # [1.0.0-beta.15](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.14...@pvermeer/dexie-populate-addon@1.0.0-beta.15) (2022-01-06)
 
 

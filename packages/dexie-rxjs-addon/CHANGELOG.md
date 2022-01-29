@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.30](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.29...@pvermeer/dexie-rxjs-addon@1.0.0-beta.30) (2022-01-29)
+
+
+### Features
+
+* **dexie-rxjs-addon:** strong type observable methods ([9c185e4](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/9c185e4668ac07a5d3b81a66bbb1b87eba9bac4c))
+
+
+
+
+
+# [1.0.0-beta.29](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.28...@pvermeer/dexie-rxjs-addon@1.0.0-beta.29) (2022-01-21)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.28](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.27...@pvermeer/dexie-rxjs-addon@1.0.0-beta.28) (2022-01-09)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** debounce now emits first immediately ([6bd1476](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/6bd147647c1e403b6c232126deba18889ccef57a))
+
+
+
+
+
+# [1.0.0-beta.27](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.26...@pvermeer/dexie-rxjs-addon@1.0.0-beta.27) (2022-01-09)
+
+
+### Features
+
+* **dexie-rxjs-addon:** debounceTime can now be set on collections ([79028fc](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/79028fc9802cec7325d13023ccdef04b299b9776))
+
+
+
+
+
 # [1.0.0-beta.26](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.25...@pvermeer/dexie-rxjs-addon@1.0.0-beta.26) (2022-01-08)
 
 

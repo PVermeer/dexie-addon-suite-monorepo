@@ -3,20 +3,20 @@ import { CollectionPopulated, getCollectionPopulated } from './populate-collecti
 import { Populate } from './populate.class';
 import { RelationalDbSchema } from './schema-parser.class';
 import { DexieExtended, Populated, PopulateOptions } from './types';
-import { OmitMethods } from './_utils/utility-types';
+import { OmitMethodsPopulate } from './_utils/utility-types';
 
 export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
     get(key: TKey): PromiseExtended<Populated<T, B, K> | undefined>;
     get<R>(key: TKey, thenShortcut: ThenShortcut<Populated<T, B, K> | undefined, R>): PromiseExtended<R>;
-    get(equalityCriterias: Partial<OmitMethods<T>>): PromiseExtended<Populated<T, B, K> | undefined>;
+    get(equalityCriterias: Partial<OmitMethodsPopulate<T>>): PromiseExtended<Populated<T, B, K> | undefined>;
     get<R>(
-        equalityCriterias: Partial<OmitMethods<T>>,
+        equalityCriterias: Partial<OmitMethodsPopulate<T>>,
         thenShortcut: ThenShortcut<Populated<T, B, K> | undefined, R>
     ): PromiseExtended<R>;
 
     public get<R>(
-        keyOrequalityCriterias: TKey | Partial<OmitMethods<T>>,
+        keyOrequalityCriterias: TKey | Partial<OmitMethodsPopulate<T>>,
         thenShortcut: ThenShortcut<Populated<T, B, K> | undefined, R> = (value: any) => value
     ): PromiseExtended<R | undefined> {
 
@@ -60,11 +60,11 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
     }
 
 
-    where(index: keyof OmitMethods<T> | ':id' | (keyof OmitMethods<T> | ':id')[]): WhereClause<Populated<T, B, K>, TKey>;
-    where(equalityCriterias: Partial<OmitMethods<T>>): CollectionPopulated<T, TKey, B, K>;
+    where(index: keyof OmitMethodsPopulate<T> | ':id' | (keyof OmitMethodsPopulate<T> | ':id')[]): WhereClause<Populated<T, B, K>, TKey>;
+    where(equalityCriterias: Partial<OmitMethodsPopulate<T>>): CollectionPopulated<T, TKey, B, K>;
 
     public where(
-        indexOrequalityCriterias: keyof OmitMethods<T> | ':id' | (keyof OmitMethods<T> | ':id')[] | Partial<OmitMethods<T>>
+        indexOrequalityCriterias: keyof OmitMethodsPopulate<T> | ':id' | (keyof OmitMethodsPopulate<T> | ':id')[] | Partial<OmitMethodsPopulate<T>>
     ) {
 
         const dbExt = this._db as DexieExtended;
@@ -110,7 +110,7 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
     }
 
-    public orderBy(index: keyof OmitMethods<T> | ':id' | (keyof OmitMethods<T> | ':id')[]): CollectionPopulated<T, TKey, B, K> {
+    public orderBy(index: keyof OmitMethodsPopulate<T> | ':id' | (keyof OmitMethodsPopulate<T> | ':id')[]): CollectionPopulated<T, TKey, B, K> {
         // @ts-expect-error // strong typing now, dexie doesnt like this
         const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
         const whereClause = this._table.where('') as unknown as WhereClause<Populated<T, B, K>, TKey>;

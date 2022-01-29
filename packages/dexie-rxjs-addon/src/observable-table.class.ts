@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
 import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
-import { DexieExtended, OmitMethods } from './types';
+import { DexieExtended, OmitMethodsObservable } from './types';
 
 // Type check for when dexie would update the Table interface
 type TableMap = Omit<
@@ -49,10 +49,10 @@ export class ObservableTable<T, TKey> implements TableMap {
      * @note Stays open so unsubscribe.
      */
     get(key: TKey): Observable<T | undefined>;
-    get(equalityCriterias: Partial<OmitMethods<T>>): Observable<T | undefined>;
-    get(keyOrequalityCriterias: TKey | Partial<OmitMethods<T>>): Observable<T | undefined>;
+    get(equalityCriterias: Partial<OmitMethodsObservable<T>>): Observable<T | undefined>;
+    get(keyOrequalityCriterias: TKey | Partial<OmitMethodsObservable<T>>): Observable<T | undefined>;
 
-    public get(keyOrequalityCriterias: TKey | Partial<OmitMethods<T>>) {
+    public get(keyOrequalityCriterias: TKey | Partial<OmitMethodsObservable<T>>) {
 
         return this._db.changes$.pipe(
             filter(x => x.some(y => y.table === this._table.name)),
@@ -86,11 +86,11 @@ export class ObservableTable<T, TKey> implements TableMap {
      * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
      * @note Stays open so unsubscribe.
      */
-    where(index: keyof OmitMethods<T> | ':id' | (keyof OmitMethods<T> | ':id')[]): ObservableWhereClause<T, TKey>;
-    where(equalityCriterias: Partial<OmitMethods<T>>): ObservableCollection<T, TKey>;
+    where(index: keyof OmitMethodsObservable<T> | ':id' | (keyof OmitMethodsObservable<T> | ':id')[]): ObservableWhereClause<T, TKey>;
+    where(equalityCriterias: Partial<OmitMethodsObservable<T>>): ObservableCollection<T, TKey>;
 
     public where(
-        indexOrequalityCriterias: keyof OmitMethods<T> | ':id' | (keyof OmitMethods<T> | ':id')[] | Partial<OmitMethods<T>>
+        indexOrequalityCriterias: keyof OmitMethodsObservable<T> | ':id' | (keyof OmitMethodsObservable<T> | ':id')[] | Partial<OmitMethodsObservable<T>>
     ): ObservableWhereClause<T, TKey> | ObservableCollection<T, TKey> {
 
         const CollectionExt = this._db.Collection as DexieExtended['Collection'];
@@ -119,7 +119,7 @@ export class ObservableTable<T, TKey> implements TableMap {
      * Emits updated Table array on changes.
      * @note Stays open so unsubscribe.
      */
-    public orderBy(index: keyof OmitMethods<T> | ':id' | (keyof OmitMethods<T> | ':id')[]): ObservableCollection<T, TKey> {
+    public orderBy(index: keyof OmitMethodsObservable<T> | ':id' | (keyof OmitMethodsObservable<T> | ':id')[]): ObservableCollection<T, TKey> {
         // @ts-expect-error // strong typing now, dexie doesnt like this
         const collection = this._table.orderBy((Array.isArray(index) ? `[${index.join('+')}]` : index));
         const observableCollection = new ObservableCollection(this._db, this._table, collection);

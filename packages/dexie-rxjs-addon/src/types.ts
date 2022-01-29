@@ -1,6 +1,6 @@
 import { Collection, DBCoreKeyRange, Dexie, Table, TableSchema, Transaction, WhereClause } from 'dexie';
 
-export type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
+export type OmitMethodsObservable<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
 export interface DexieExtended extends Dexie {
 

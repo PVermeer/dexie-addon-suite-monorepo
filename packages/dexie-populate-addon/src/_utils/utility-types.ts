@@ -5,7 +5,7 @@ export type Unpacked<T> =
     T extends Promise<infer W> ? W :
     never;
 
-export type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
+export type OmitMethodsPopulate<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 export type PickMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? P : never; }[keyof T]>;
 
 export type IsUnion<T> = [T] extends [UnionToIntersection<T>] ? false : true;

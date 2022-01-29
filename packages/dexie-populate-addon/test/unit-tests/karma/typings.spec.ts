@@ -1,4 +1,4 @@
-import { Dexie } from 'dexie';
+import { Dexie, Table } from 'dexie';
 import cloneDeep from 'lodash.clonedeep';
 import { populate } from '../../../src';
 import { Populated } from '../../../src/types';
@@ -273,6 +273,89 @@ export const typings = async () => {
         db.friends.populate(['group', 'theme']).where(':id').equals(1).each(x => res(x.group!)));
 
 
+
+    await db.delete();
+};
+
+interface FriendStrong {
+    id?: number;
+    testProp?: string;
+    age: number;
+    hasAge?: boolean;
+    firstName: string;
+    lastName: string;
+    shoeSize: number;
+    customId: number;
+    some?: { id: number; };
+
+    someMethod: () => void;
+}
+
+export const typingsStrong = async () => {
+    const db = new class TestDatabase extends Dexie {
+        public friends: Table<FriendStrong, number>;
+        constructor(name: string) {
+            super(name);
+            populate(this);
+            this.on('blocked', () => false);
+            this.version(1).stores({
+                friends: '++id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
+            });
+        }
+    }('TestDatabase');
+
+    await db.open();
+    expect(db.isOpen()).toBeTrue();
+    // Just some type matching, should not error in IDE / compilation or test
+
+    const friend = await db.friends.get(1);
+    friend!.someMethod();
+
+    // Table
+
+    db.friends.populate().get(12);
+    // @ts-expect-error
+    db.friends.populate().get('id');
+    db.friends.populate().get({ firstName: 'someName' });
+    // @ts-expect-error
+    db.friends.populate().get({ nonExistent: 'what' });
+    // @ts-expect-error
+    db.friends.populate().get({ someMethod: 'fiets' });
+
+    db.friends.populate().where('id');
+    db.friends.populate().where(':id');
+    db.friends.populate().where(['id', 'age']);
+    // @ts-expect-error
+    db.friends.populate().where(['id', 'nonExistent']);
+    // @ts-expect-error
+    db.friends.populate().where(['id', 'someMethod']);
+    db.friends.populate().where({ firstName: 'name' });
+    // @ts-expect-error
+    db.friends.populate().where('nonExistent');
+    // @ts-expect-error
+    db.friends.populate().where({ nonExistent: 'what' });
+    // @ts-expect-error
+    db.friends.populate().where('someMethod');
+    // @ts-expect-error
+    db.friends.populate().where({ someMethod: 'name' });
+
+    db.friends.populate().orderBy('id');
+    db.friends.populate().orderBy(':id');
+    db.friends.populate().orderBy(['id', 'age']);
+    // @ts-expect-error
+    db.friends.populate().orderBy(['id', 'nonExistent']);
+    // @ts-expect-error
+    db.friends.populate().orderBy(['id', 'someMethod']);
+    // @ts-expect-error
+    db.friends.populate().orderBy({ firstName: 'name' });
+    // @ts-expect-error
+    db.friends.populate().orderBy('nonExistent');
+    // @ts-expect-error
+    db.friends.populate().orderBy({ nonExistent: 'what' });
+    // @ts-expect-error
+    db.friends.populate().orderBy('someMethod');
+    // @ts-expect-error
+    db.friends.populate().orderBy({ someMethod: 'name' });
 
     await db.delete();
 };

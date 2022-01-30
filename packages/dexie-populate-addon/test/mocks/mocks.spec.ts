@@ -99,10 +99,11 @@ export class Friend {
     shoeSize: number;
     customId: number;
     some?: { id: number; other: string; };
-    hasFriends: Ref<Friend[], number[]>;
-    memberOf: Ref<Club[], number[]>;
+    hasFriends: Ref<Friend, number>[];
+    memberOf: Ref<Club, number>[];
     group: Ref<Group, number>;
     hairColor: Ref<HairColor, number>;
+    testArray: string[];
 
     doSomething() {
         return 'done';
@@ -464,7 +465,8 @@ export const mockFriends = (count = 5): Friend[] => {
         hasFriends: [],
         memberOf: [],
         group: null,
-        hairColor: null
+        hairColor: null,
+        testArray: []
     });
     return new Array(count).fill(null).map(() => {
         const mockFriend = friend();

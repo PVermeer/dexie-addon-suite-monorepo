@@ -187,8 +187,12 @@ export const typings = async () => {
         if (hasFriend === null) { return; }
         hasFriend.doSomething();
         hasFriend.age = 56;
-        // @ts-expect-error // Array.every() known issues
         hasFriend.hasFriends.every(x => x);
+        hasFriend.hasFriends.some(x => x);
+        hasFriend.hasFriends.forEach(x => x);
+        hasFriend.hasFriends.map(x => x);
+        hasFriend.hasFriends.reduce(x => x);
+
         hasFriend = null;
 
         const memberOf = test!.memberOf;

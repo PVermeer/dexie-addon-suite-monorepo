@@ -41,38 +41,24 @@ export const typings = async () => {
     // @ts-expect-error
     db.friends.$.get('id');
     db.friends.$.get({ firstName: 'someName' });
-    // @ts-expect-error
     db.friends.$.get({ nonExistent: 'what' });
-    // @ts-expect-error
     db.friends.$.get({ someMethod: 'fiets' });
 
     db.friends.$.where('id');
     db.friends.$.where(':id');
     db.friends.$.where(['id', 'age']);
     db.friends.$.where({ firstName: 'name' });
-    // @ts-expect-error
     db.friends.$.where({ nonExistent: 'what' });
-    // @ts-expect-error
     db.friends.$.where({ someMethod: 'name' });
 
     db.friends.$.orderBy('id');
     db.friends.$.orderBy(':id');
     db.friends.$.orderBy(['id', 'age']);
-    // @ts-expect-error
-    db.friends.$.orderBy({ firstName: 'name' });
-    // @ts-expect-error
-    db.friends.$.orderBy({ nonExistent: 'what' });
-    // @ts-expect-error
-    db.friends.$.orderBy({ someMethod: 'name' });
 
     // Collection
 
     db.friends.$.toCollection().sortBy('id');
     db.friends.$.toCollection().sortBy(':id');
-    // @ts-expect-error
-    db.friends.$.toCollection().sortBy(['id', 'age']);
-    // @ts-expect-error
-    db.friends.$.toCollection().sortBy({ firstName: 'name' });
 
     await db.delete();
 };

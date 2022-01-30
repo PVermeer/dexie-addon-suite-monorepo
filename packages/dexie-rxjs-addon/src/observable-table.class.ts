@@ -1,11 +1,11 @@
-import { Collection, Dexie, Table, WhereClause } from 'dexie';
+import { Collection, Dexie, IndexableType, Table, WhereClause } from 'dexie';
 import { IDatabaseChange } from 'dexie-observable/api';
 import isEqual from 'lodash.isequal';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
 import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
-import { DexieExtended, IndexStrongObservable, OmitMethodsObservable } from './types';
+import { DexieExtended } from './types';
 
 // Type check for when dexie would update the Table interface
 type TableMap = Omit<
@@ -49,10 +49,10 @@ export class ObservableTable<T, TKey> implements TableMap {
      * @note Stays open so unsubscribe.
      */
     get(key: TKey): Observable<T | undefined>;
-    get(equalityCriterias: Partial<OmitMethodsObservable<T>>): Observable<T | undefined>;
-    get(keyOrequalityCriterias: TKey | Partial<OmitMethodsObservable<T>>): Observable<T | undefined>;
+    get(equalityCriterias: { [key: string]: any; }): Observable<T | undefined>;
+    get(keyOrequalityCriterias: TKey | { [key: string]: any; }): Observable<T | undefined>;
 
-    public get(keyOrequalityCriterias: TKey | Partial<OmitMethodsObservable<T>>) {
+    public get(keyOrequalityCriterias: TKey | { [key: string]: any; }) {
 
         return this._db.changes$.pipe(
             filter(x => x.some(y => y.table === this._table.name)),
@@ -86,11 +86,11 @@ export class ObservableTable<T, TKey> implements TableMap {
      * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
      * @note Stays open so unsubscribe.
      */
-    where(index: IndexStrongObservable<T> | IndexStrongObservable<T>[]): ObservableWhereClause<T, TKey>;
-    where(equalityCriterias: Partial<OmitMethodsObservable<T>>): ObservableCollection<T, TKey>;
+    where(index: string | string[]): ObservableWhereClause<T, TKey>;
+    where(equalityCriterias: { [key: string]: IndexableType; }): ObservableCollection<T, TKey>;
 
     public where(
-        indexOrequalityCriterias: IndexStrongObservable<T> | IndexStrongObservable<T>[] | Partial<OmitMethodsObservable<T>>
+        indexOrequalityCriterias: string | string[] | { [key: string]: any; }
     ): ObservableWhereClause<T, TKey> | ObservableCollection<T, TKey> {
 
         const CollectionExt = this._db.Collection as DexieExtended['Collection'];
@@ -119,8 +119,7 @@ export class ObservableTable<T, TKey> implements TableMap {
      * Emits updated Table array on changes.
      * @note Stays open so unsubscribe.
      */
-    public orderBy(index: IndexStrongObservable<T> | IndexStrongObservable<T>[]): ObservableCollection<T, TKey> {
-        // @ts-expect-error // strong typing now, dexie doesnt like this
+    public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
         const collection = this._table.orderBy((Array.isArray(index) ? `[${index.join('+')}]` : index));
         const observableCollection = new ObservableCollection(this._db, this._table, collection);
         return observableCollection;

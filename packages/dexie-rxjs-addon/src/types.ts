@@ -1,10 +1,5 @@
 import { Collection, DBCoreKeyRange, Dexie, Table, TableSchema, Transaction, WhereClause } from 'dexie';
 
-export type OmitMethodsObservable<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
-
-export type IndexStrongObservable<T> = keyof OmitMethodsObservable<T> |
-    ':id' | string;
-
 export interface DexieExtended extends Dexie {
 
     pVermeerAddonsRegistered?: { [addon: string]: boolean; };

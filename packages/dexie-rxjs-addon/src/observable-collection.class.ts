@@ -5,7 +5,7 @@ import isEqual from 'lodash.isequal';
 import { merge, Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
 import { ObservableWhereClause } from './observable-where-clause.class';
-import { DexieExtended, OmitMethodsObservable } from './types';
+import { DexieExtended, IndexStrongObservable } from './types';
 
 // Type check for when dexie would update the Collection interface
 type CollectionMap = Omit<
@@ -53,7 +53,7 @@ export class ObservableCollection<T, TKey> implements CollectionMap {
         return _collection$;
     }
 
-    public sortBy(keyPath: keyof OmitMethodsObservable<T> | ':id', options?: Options): Observable<T[]> {
+    public sortBy(keyPath: IndexStrongObservable<T>, options?: Options): Observable<T[]> {
         const sortBy$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             // @ts-expect-error // strong typing now, dexie doesnt like this
@@ -134,7 +134,7 @@ export class ObservableCollection<T, TKey> implements CollectionMap {
     public until: (...args: Parameters<Collection['until']>) => ObservableCollection<T, TKey>;
 
     // Remap
-    public or(indexOrPrimaryKey: keyof T | ':id'): ObservableWhereClause<T, TKey> {
+    public or(indexOrPrimaryKey: IndexStrongObservable<T>): ObservableWhereClause<T, TKey> {
         const collection = this.cloneAsCollection();
         const whereClause = new (this._db.WhereClause as DexieExtended['WhereClause'])(
             this._table,

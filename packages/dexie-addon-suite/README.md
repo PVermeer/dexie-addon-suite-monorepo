@@ -160,7 +160,7 @@ class Group {
 class Friend {
     id?: number;
     name: string;
-    memberOf: Ref<Club[], number[]>;
+    memberOf: Ref<Club, number>[];
     group: Ref<Group, number>;
 
     doSomething() { return 'done'; }
@@ -312,7 +312,7 @@ namespace addonSuite {
  * Ref nominal type.
  * TS does not support nominal types. Fake implementation so the type system can match.
  */
-type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = NominalT<O> | K;
+export declare type Ref<O extends object, K extends IndexTypes, _N = "Ref"> = NominalRef<O> | K | null;
 
 /**
  * Overwrite the return type to the type as given in the Ref type after refs are populated.

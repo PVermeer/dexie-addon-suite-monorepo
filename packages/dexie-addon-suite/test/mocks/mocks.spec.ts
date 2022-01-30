@@ -98,8 +98,8 @@ export class Friend {
     shoeSize: number;
     customId: number;
     date: Date;
-    hasFriends: Ref<Friend[], number[]>;
-    memberOf: Ref<Club[], number[]>;
+    hasFriends: Ref<Friend, number>[];
+    memberOf: Ref<Club, number>[];
     group: Ref<Group, number>;
     hairColor: Ref<HairColor, number>;
 

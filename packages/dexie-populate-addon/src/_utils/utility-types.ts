@@ -5,7 +5,6 @@ export type Unpacked<T> =
     T extends Promise<infer W> ? W :
     never;
 
-export type OmitMethodsPopulate<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 export type PickMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? P : never; }[keyof T]>;
 
 export type IsUnion<T> = [T] extends [UnionToIntersection<T>] ? false : true;
@@ -64,7 +63,7 @@ type Primitive = string | number | boolean;
 
 type FlattenPairs<T, KeepOriginal> = {
     [K in keyof T]: T[K] extends Primitive ?
-    [K, T[K]] & KeepOriginal extends true ? T : never:
+    [K, T[K]] & KeepOriginal extends true ? T : never :
     FlattenPairs<T[K], KeepOriginal> & KeepOriginal extends true ? T : never
 }[keyof T] & [PropertyKey, Primitive];
 

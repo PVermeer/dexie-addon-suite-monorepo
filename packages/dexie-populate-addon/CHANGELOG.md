@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.18](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.17...@pvermeer/dexie-populate-addon@1.0.0-beta.18) (2022-01-30)
+
+
+### Bug Fixes
+
+* **dexie-populate-addon:** allow compound queries in strong types ([2fbc6e7](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/2fbc6e7812148e39e3a0b1e54d5ca7e2eab68e93))
+
+
+* fix(dexie-populate-addon)!: ref type array issues ([69ac66a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/69ac66a1fde9790b9f574ec5f6b41dc516a896fe))
+
+
+### Reverts
+
+* **dexie-populate-addon:** removed strong typing ([32f6cdd](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/32f6cddadb304dedcfd4d9f0348e96f87cbd12ea))
+
+
+### BREAKING CHANGES
+
+* 'ref' arrays must now specify an array with ref types.
+
+
+
+
+
 # [1.0.0-beta.17](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.16...@pvermeer/dexie-populate-addon@1.0.0-beta.17) (2022-01-29)
 
 

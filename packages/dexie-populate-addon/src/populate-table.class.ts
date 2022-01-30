@@ -5,6 +5,9 @@ import { RelationalDbSchema } from './schema-parser.class';
 import { DexieExtended, Populated, PopulateOptions } from './types';
 import { OmitMethodsPopulate } from './_utils/utility-types';
 
+type IndexStrongPopulate<T> = keyof OmitMethodsPopulate<T> |
+    ':id' | string;
+
 export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
     get(key: TKey): PromiseExtended<Populated<T, B, K> | undefined>;
@@ -59,12 +62,12 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
             .then(popResult => thenShortcut(popResult));
     }
 
-
-    where(index: keyof OmitMethodsPopulate<T> | ':id' | (keyof OmitMethodsPopulate<T> | ':id')[]): WhereClause<Populated<T, B, K>, TKey>;
+    where(index: IndexStrongPopulate<T> | IndexStrongPopulate<T>[]
+    ): WhereClause<Populated<T, B, K>, TKey>;
     where(equalityCriterias: Partial<OmitMethodsPopulate<T>>): CollectionPopulated<T, TKey, B, K>;
 
     public where(
-        indexOrequalityCriterias: keyof OmitMethodsPopulate<T> | ':id' | (keyof OmitMethodsPopulate<T> | ':id')[] | Partial<OmitMethodsPopulate<T>>
+        indexOrequalityCriterias: IndexStrongPopulate<T> | IndexStrongPopulate<T>[] | Partial<OmitMethodsPopulate<T>>
     ) {
 
         const dbExt = this._db as DexieExtended;
@@ -110,7 +113,7 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> {
 
     }
 
-    public orderBy(index: keyof OmitMethodsPopulate<T> | ':id' | (keyof OmitMethodsPopulate<T> | ':id')[]): CollectionPopulated<T, TKey, B, K> {
+    public orderBy(index: IndexStrongPopulate<T> | IndexStrongPopulate<T>[]): CollectionPopulated<T, TKey, B, K> {
         // @ts-expect-error // strong typing now, dexie doesnt like this
         const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
         const whereClause = this._table.where('') as unknown as WhereClause<Populated<T, B, K>, TKey>;

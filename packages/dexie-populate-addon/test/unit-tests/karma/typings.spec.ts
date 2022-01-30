@@ -325,17 +325,9 @@ export const typingsStrong = async () => {
     db.friends.populate().where('id');
     db.friends.populate().where(':id');
     db.friends.populate().where(['id', 'age']);
-    // @ts-expect-error
-    db.friends.populate().where(['id', 'nonExistent']);
-    // @ts-expect-error
-    db.friends.populate().where(['id', 'someMethod']);
     db.friends.populate().where({ firstName: 'name' });
     // @ts-expect-error
-    db.friends.populate().where('nonExistent');
-    // @ts-expect-error
     db.friends.populate().where({ nonExistent: 'what' });
-    // @ts-expect-error
-    db.friends.populate().where('someMethod');
     // @ts-expect-error
     db.friends.populate().where({ someMethod: 'name' });
 
@@ -343,17 +335,9 @@ export const typingsStrong = async () => {
     db.friends.populate().orderBy(':id');
     db.friends.populate().orderBy(['id', 'age']);
     // @ts-expect-error
-    db.friends.populate().orderBy(['id', 'nonExistent']);
-    // @ts-expect-error
-    db.friends.populate().orderBy(['id', 'someMethod']);
-    // @ts-expect-error
     db.friends.populate().orderBy({ firstName: 'name' });
     // @ts-expect-error
-    db.friends.populate().orderBy('nonExistent');
-    // @ts-expect-error
     db.friends.populate().orderBy({ nonExistent: 'what' });
-    // @ts-expect-error
-    db.friends.populate().orderBy('someMethod');
     // @ts-expect-error
     db.friends.populate().orderBy({ someMethod: 'name' });
 

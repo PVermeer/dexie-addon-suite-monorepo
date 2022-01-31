@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.24](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.23...@pvermeer/dexie-addon-suite@1.0.0-beta.24) (2022-01-30)
+
+
+* fix(dexie-addon-suite)!: ref type issues from dexie-populate-addon ([5757b12](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/5757b12bb6b36f4396808a738f14be185c5a05c1))
+
+
+### BREAKING CHANGES
+
+* 'ref' arrays must now specify an array with ref types.
+
+Spec has changed.
+
+
+
+
+
 # [1.0.0-beta.23](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.22...@pvermeer/dexie-addon-suite@1.0.0-beta.23) (2022-01-29)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

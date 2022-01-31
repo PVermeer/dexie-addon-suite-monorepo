@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.31](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.30...@pvermeer/dexie-rxjs-addon@1.0.0-beta.31) (2022-01-30)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** allow compound queries in strong types ([bed9421](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/bed942175403802d2c9078808eabaee0bf16c69b))
+
+
+### Reverts
+
+* **dexie-rxjs-addon:** removed strong typing ([039b5f9](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/039b5f9159cfee633abc66dcf3565966c621bbd1))
+
+
+
+
+
 # [1.0.0-beta.30](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.29...@pvermeer/dexie-rxjs-addon@1.0.0-beta.30) (2022-01-29)
 
 

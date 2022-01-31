@@ -34,12 +34,7 @@ jobs:
       - name: Install
         run: npm run bootstrap:ci
 
-      - name: Test beta
-        if: $BRANCH == 'beta'
-        run: npm run test:beta
-
       - name: Test
-        if: $BRANCH != 'beta'
         run: npm run test
 
       - name: Configure git user

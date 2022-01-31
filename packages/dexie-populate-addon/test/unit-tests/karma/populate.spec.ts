@@ -174,12 +174,12 @@ describe('Populate', () => {
                                     }
                                     if (_method.populatedPartial) {
                                         it('should be populated with theme', async () => {
-                                            const getFriend = await method(id);
-                                            expect((getFriend!.memberOf![1]! as Club).theme instanceof Theme).toBeTrue();
+                                            const getFriend = await method(id) as Populated<Friend>;
+                                            expect(getFriend.memberOf[1]?.theme instanceof Theme).toBeTrue();
                                         });
                                         it('should be populated with style', async () => {
-                                            const getFriend = await method(id);
-                                            expect(((getFriend!.memberOf![1]! as Club).theme as Theme).style instanceof Style).toBeTrue();
+                                            const getFriend = await method(id) as Populated<Friend>;
+                                            expect(getFriend!.memberOf[1]?.theme?.style instanceof Style).toBeTrue();
                                         });
                                         it('should not be populated with group', async () => {
                                             const getFriend = await method(id);

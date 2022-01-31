@@ -11,8 +11,10 @@
     "bootstrap:ci": "lerna bootstrap --ci || npx lerna bootstrap --ci",
     "init": "semantic-release-cli setup",
     "lint": "lerna run lint",
-    "build": "lerna run build",
-    "test": "lerna run test",
+    "build": "git fetch origin master && lerna run build --include-dependencies --since",
+    "build:beta": "git fetch origin beta && lerna run build --include-dependencies --since beta",
+    "test": "npm run build && lerna run test --stream --since",
+    "test:beta": "npm run build:beta && lerna run test --stream --since beta",
     "version": "bash ./scripts/version.sh",
     "release": "bash ./scripts/release.sh",
     "prepare": "husky install && patch-package"

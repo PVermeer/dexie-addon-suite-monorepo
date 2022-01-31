@@ -321,19 +321,11 @@ export const typingsStrong = async () => {
     // @ts-expect-error
     db.friends.populate().get('id');
     db.friends.populate().get({ firstName: 'someName' });
-    // @ts-expect-error
-    db.friends.populate().get({ nonExistent: 'what' });
-    // @ts-expect-error
-    db.friends.populate().get({ someMethod: 'fiets' });
 
     db.friends.populate().where('id');
     db.friends.populate().where(':id');
     db.friends.populate().where(['id', 'age']);
     db.friends.populate().where({ firstName: 'name' });
-    // @ts-expect-error
-    db.friends.populate().where({ nonExistent: 'what' });
-    // @ts-expect-error
-    db.friends.populate().where({ someMethod: 'name' });
 
     db.friends.populate().orderBy('id');
     db.friends.populate().orderBy(':id');

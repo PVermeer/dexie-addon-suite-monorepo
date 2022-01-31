@@ -618,13 +618,13 @@ describe('Suite', () => {
                 it('should be shallow', async () => {
                     const friend = await firstValueFrom(db.friends.populate({ shallow: true }).$.get(id));
                     expect(friend?.hasFriends.every(x => x instanceof Friend)).toBeTrue();
-                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some(y => !( y instanceof Friend)))).toBeTrue();
+                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some((y: any) => !( y instanceof Friend)))).toBeTrue();
                     expect(friend?.group instanceof Group).toBeTrue();
                 });
                 it('should be partially shallow', async () => {
                     const friend = await firstValueFrom(db.friends.populate(['hasFriends'], { shallow: true }).$.get(id));
                     expect(friend?.hasFriends.every(x => x instanceof Friend)).toBeTrue();
-                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some(y => !( y instanceof Friend)))).toBeTrue();
+                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some((y: any) => !( y instanceof Friend)))).toBeTrue();
                     expect(typeof friend?.group === 'number').toBeTrue();
                 });
             });

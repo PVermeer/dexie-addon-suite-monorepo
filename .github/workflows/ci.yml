@@ -35,11 +35,11 @@ jobs:
         run: npm run bootstrap:ci
 
       - name: Test beta
-        if: $BRANCH == 'beta'
+        if: ${{ github.ref_name == 'beta' }}
         run: npm run test:beta
 
       - name: Test
-        if: $BRANCH != 'beta'
+        if: ${{ github.ref_name != 'beta' }}
         run: npm run test
 
       - name: Configure git user

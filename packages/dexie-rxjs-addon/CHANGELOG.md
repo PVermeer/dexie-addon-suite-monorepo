@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.34](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.33...@pvermeer/dexie-rxjs-addon@1.0.0-beta.34) (2022-02-02)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** mixin classes with recursive prototype chain ([c8dcb8d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c8dcb8ddb68afa670bb737f71eb4d01e1ab469d9))
+* **dexie-rxjs-addon:** passing types to exposed methods ([df0ab3e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/df0ab3e57873bcfd24e6ba6af2b60cd3578024a9))
+
+
+
+
+
 # [1.0.0-beta.33](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.32...@pvermeer/dexie-rxjs-addon@1.0.0-beta.33) (2022-01-31)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

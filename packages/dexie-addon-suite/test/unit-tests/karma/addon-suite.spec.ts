@@ -218,6 +218,18 @@ describe('Suite', () => {
 
                             const obs3$ = method.orderBy('age').toArray();
                             expect(obs3$ instanceof Observable).toBeTrue();
+
+                            const obs4$ = method.filter(x => !!x).toArray();
+                            expect(obs4$ instanceof Observable).toBeTrue();
+
+                            const obs5$ = method.offset(0).toArray();
+                            expect(obs5$ instanceof Observable).toBeTrue();
+
+                            const obs6$ = method.limit(999999).toArray();
+                            expect(obs6$ instanceof Observable).toBeTrue();
+
+                            const obs7$ = method.reverse().toArray();
+                            expect(obs7$ instanceof Observable).toBeTrue();
                         });
                         it('should be open', async () => {
                             const method = _method.method(db);

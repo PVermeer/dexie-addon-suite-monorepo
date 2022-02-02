@@ -124,16 +124,16 @@ export class ObservableCollection<T, TKey> implements CollectionMap {
     }
 
     // Can be exposed because returns `this`
-    public and: (...args: Parameters<Collection['and']>) => ObservableCollection<T, TKey>;
-    public distinct: (...args: Parameters<Collection['distinct']>) => ObservableCollection<T, TKey>;
-    public filter: (...args: Parameters<Collection['filter']>) => ObservableCollection<T, TKey>;
-    public limit: (...args: Parameters<Collection['limit']>) => ObservableCollection<T, TKey>;
-    public offset: (...args: Parameters<Collection['offset']>) => ObservableCollection<T, TKey>;
-    public reverse: (...args: Parameters<Collection['reverse']>) => ObservableCollection<T, TKey>;
-    public until: (...args: Parameters<Collection['until']>) => ObservableCollection<T, TKey>;
+    public and: (...args: Parameters<Collection<T, TKey>['and']>) => ObservableCollection<T, TKey>;
+    public distinct: (...args: Parameters<Collection<T, TKey>['distinct']>) => ObservableCollection<T, TKey>;
+    public filter: (...args: Parameters<Collection<T, TKey>['filter']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Collection<T, TKey>['limit']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Collection<T, TKey>['offset']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Collection<T, TKey>['reverse']>) => ObservableCollection<T, TKey>;
+    public until: (...args: Parameters<Collection<T, TKey>['until']>) => ObservableCollection<T, TKey>;
 
     // Remap
-    public or(...args: Parameters<Collection['or']>): ObservableWhereClause<T, TKey> {
+    public or(...args: Parameters<Collection<T, TKey>['or']>): ObservableWhereClause<T, TKey> {
         const collection = this.cloneAsCollection();
         const whereClause = new (this._db.WhereClause as DexieExtended['WhereClause'])(
             this._table,

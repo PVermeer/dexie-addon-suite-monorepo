@@ -136,10 +136,10 @@ export class ObservableTable<T, TKey> implements TableMap {
     }
 
     // Can be exposed because returns `this.toCollection()`
-    public filter: (...args: Parameters<Table['filter']>) => ObservableCollection<T, TKey>;
-    public offset: (...args: Parameters<Table['offset']>) => ObservableCollection<T, TKey>;
-    public limit: (...args: Parameters<Table['limit']>) => ObservableCollection<T, TKey>;
-    public reverse: (...args: Parameters<Table['reverse']>) => ObservableCollection<T, TKey>;
+    public filter: (...args: Parameters<Table<T, TKey>['filter']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Table<T, TKey>['offset']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Table<T, TKey>['limit']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Table<T, TKey>['reverse']>) => ObservableCollection<T, TKey>;
 
 
     constructor(

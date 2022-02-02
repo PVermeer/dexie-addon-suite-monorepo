@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareRepla
 import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
+import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Table interface
 type TableMap = Omit<
@@ -136,10 +137,10 @@ export class ObservableTable<T, TKey> implements TableMap {
     }
 
     // Can be exposed because returns `this.toCollection()`
-    public filter: (...args: Parameters<Table['filter']>) => ObservableCollection<T, TKey>;
-    public offset: (...args: Parameters<Table['offset']>) => ObservableCollection<T, TKey>;
-    public limit: (...args: Parameters<Table['limit']>) => ObservableCollection<T, TKey>;
-    public reverse: (...args: Parameters<Table['reverse']>) => ObservableCollection<T, TKey>;
+    public filter: (...args: Parameters<Table<T, TKey>['filter']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Table<T, TKey>['offset']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Table<T, TKey>['limit']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Table<T, TKey>['reverse']>) => ObservableCollection<T, TKey>;
 
 
     constructor(
@@ -147,20 +148,7 @@ export class ObservableTable<T, TKey> implements TableMap {
         protected _table: Table<T, TKey>
     ) {
         // Mixin with Table
-        Object.keys(_table).forEach(key => {
-            if (key === 'constructor' || this[key] !== undefined) { return; }
-            this[key] = _table[key];
-        });
-
-        const prototype = Object.getPrototypeOf(Object.getPrototypeOf(_db.Table.prototype));
-        Object.getOwnPropertyNames(prototype).forEach(name => {
-            if (this[name] !== undefined) { return; }
-            Object.defineProperty(
-                ObservableTable.prototype,
-                name,
-                Object.getOwnPropertyDescriptor(prototype, name) as any
-            );
-        });
+        mixinClass(this, this._table);
     }
 
 }

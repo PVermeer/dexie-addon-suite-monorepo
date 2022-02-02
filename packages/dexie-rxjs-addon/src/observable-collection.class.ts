@@ -6,6 +6,7 @@ import { merge, Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
+import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Collection interface
 type CollectionMap = Omit<
@@ -124,16 +125,16 @@ export class ObservableCollection<T, TKey> implements CollectionMap {
     }
 
     // Can be exposed because returns `this`
-    public and: (...args: Parameters<Collection['and']>) => ObservableCollection<T, TKey>;
-    public distinct: (...args: Parameters<Collection['distinct']>) => ObservableCollection<T, TKey>;
-    public filter: (...args: Parameters<Collection['filter']>) => ObservableCollection<T, TKey>;
-    public limit: (...args: Parameters<Collection['limit']>) => ObservableCollection<T, TKey>;
-    public offset: (...args: Parameters<Collection['offset']>) => ObservableCollection<T, TKey>;
-    public reverse: (...args: Parameters<Collection['reverse']>) => ObservableCollection<T, TKey>;
-    public until: (...args: Parameters<Collection['until']>) => ObservableCollection<T, TKey>;
+    public and: (...args: Parameters<Collection<T, TKey>['and']>) => ObservableCollection<T, TKey>;
+    public distinct: (...args: Parameters<Collection<T, TKey>['distinct']>) => ObservableCollection<T, TKey>;
+    public filter: (...args: Parameters<Collection<T, TKey>['filter']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Collection<T, TKey>['limit']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Collection<T, TKey>['offset']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Collection<T, TKey>['reverse']>) => ObservableCollection<T, TKey>;
+    public until: (...args: Parameters<Collection<T, TKey>['until']>) => ObservableCollection<T, TKey>;
 
     // Remap
-    public or(...args: Parameters<Collection['or']>): ObservableWhereClause<T, TKey> {
+    public or(...args: Parameters<Collection<T, TKey>['or']>): ObservableWhereClause<T, TKey> {
         const collection = this.cloneAsCollection();
         const whereClause = new (this._db.WhereClause as DexieExtended['WhereClause'])(
             this._table,
@@ -150,20 +151,7 @@ export class ObservableCollection<T, TKey> implements CollectionMap {
         public _collection: Collection<T, TKey>,
     ) {
         // Mixin with Collection
-        Object.keys(_collection).forEach(key => {
-            if (key === 'constructor' || this[key] !== undefined) { return; }
-            this[key] = _collection[key];
-        });
-
-        const prototype = Object.getPrototypeOf(_db.Collection.prototype);
-        Object.getOwnPropertyNames(prototype).forEach(name => {
-            if (this[name] !== undefined) { return; }
-            Object.defineProperty(
-                ObservableCollection.prototype,
-                name,
-                Object.getOwnPropertyDescriptor(prototype, name) as any
-            );
-        });
+        mixinClass(this, this._collection);
     }
 
 }

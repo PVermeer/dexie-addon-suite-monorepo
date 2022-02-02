@@ -6,6 +6,7 @@ import { merge, Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
+import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Collection interface
 type CollectionMap = Omit<
@@ -150,20 +151,7 @@ export class ObservableCollection<T, TKey> implements CollectionMap {
         public _collection: Collection<T, TKey>,
     ) {
         // Mixin with Collection
-        Object.keys(_collection).forEach(key => {
-            if (key === 'constructor' || this[key] !== undefined) { return; }
-            this[key] = _collection[key];
-        });
-
-        const prototype = Object.getPrototypeOf(_db.Collection.prototype);
-        Object.getOwnPropertyNames(prototype).forEach(name => {
-            if (this[name] !== undefined) { return; }
-            Object.defineProperty(
-                ObservableCollection.prototype,
-                name,
-                Object.getOwnPropertyDescriptor(prototype, name) as any
-            );
-        });
+        mixinClass(this, this._collection);
     }
 
 }

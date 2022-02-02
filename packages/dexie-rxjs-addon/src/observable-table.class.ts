@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareRepla
 import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
+import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Table interface
 type TableMap = Omit<
@@ -147,20 +148,7 @@ export class ObservableTable<T, TKey> implements TableMap {
         protected _table: Table<T, TKey>
     ) {
         // Mixin with Table
-        Object.keys(_table).forEach(key => {
-            if (key === 'constructor' || this[key] !== undefined) { return; }
-            this[key] = _table[key];
-        });
-
-        const prototype = Object.getPrototypeOf(Object.getPrototypeOf(_db.Table.prototype));
-        Object.getOwnPropertyNames(prototype).forEach(name => {
-            if (this[name] !== undefined) { return; }
-            Object.defineProperty(
-                ObservableTable.prototype,
-                name,
-                Object.getOwnPropertyDescriptor(prototype, name) as any
-            );
-        });
+        mixinClass(this, this._table);
     }
 
 }

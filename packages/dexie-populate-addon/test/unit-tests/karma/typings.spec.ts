@@ -1,8 +1,8 @@
-import { Dexie, Table } from 'dexie';
+import { Dexie } from 'dexie';
 import cloneDeep from 'lodash.clonedeep';
 import { populate } from '../../../src';
 import { Populated } from '../../../src/types';
-import { databasesPositive, Friend, Group, mockClubs, mockFriends, mockGroups, mockStyles, mockThemes } from '../../mocks/mocks.spec';
+import { databasesPositive, Friend, mockClubs, mockFriends, mockGroups, mockStyles, mockThemes } from '../../mocks/mocks.spec';
 
 export const typings = async () => {
     const db = databasesPositive[0].db(Dexie, populate);
@@ -223,119 +223,8 @@ export const typings = async () => {
         test!.hasFriends![0] = 1;
     });
 
-    // ===== Callbacks (thenSchortcuts) =====
-
-    await db.friends.get(1, value => {
-        value!.hasFriends = [2];
-        return value;
-    });
-
-    await db.friends.populate({ shallow: true }).get(1, value => {
-        value!.hasFriends = [friends[1]];
-        return value;
-    });
-
-    await db.friends.where(':id').equals(1).first(value => {
-        value!.hasFriends = [2];
-        return value;
-    });
-
-    await db.friends.populate({ shallow: true }).where(':id').equals(1).first(value => {
-        value!.hasFriends = [friends[1]];
-        return value;
-    });
-
-    await db.friends.toArray(value => {
-        value[0].hasFriends = [2];
-        return value;
-    });
-
-    await db.friends.populate({ shallow: true }).toArray(value => {
-        value![0].hasFriends = [friends[1]];
-        return value;
-    });
-
-
-    // ===== Each =====
-
-    await new Promise((res: (value: Friend) => void) =>
-        db.friends.each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Friend, true, string>) => void) =>
-        db.friends.populate({ shallow: true }).each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Group, false, string>) => void) =>
-        db.friends.populate(['group', 'theme']).each(x => res(x.group!)));
-
-    await new Promise((res: (value: Friend) => void) =>
-        db.friends.where(':id').equals(1).each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Friend, true, string>) => void) =>
-        db.friends.populate({ shallow: true }).where(':id').equals(1).each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Group, false, string>) => void) =>
-        db.friends.populate(['group', 'theme']).where(':id').equals(1).each(x => res(x.group!)));
-
-
-
-    await db.delete();
-};
-
-interface FriendStrong {
-    id?: number;
-    testProp?: string;
-    age: number;
-    hasAge?: boolean;
-    firstName: string;
-    lastName: string;
-    shoeSize: number;
-    customId: number;
-    some?: { id: number; };
-
-    someMethod: () => void;
-}
-
-export const typingsStrong = async () => {
-    const db = new class TestDatabase extends Dexie {
-        public friends: Table<FriendStrong, number>;
-        constructor(name: string) {
-            super(name);
-            populate(this);
-            this.on('blocked', () => false);
-            this.version(1).stores({
-                friends: '++id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
-            });
-        }
-    }('TestDatabase');
-
-    await db.open();
-    expect(db.isOpen()).toBeTrue();
-    // Just some type matching, should not error in IDE / compilation or test
-
-    const friend = await db.friends.get(1);
-    friend!.someMethod();
-
-    // Table
-
-    db.friends.populate().get(12);
-    // @ts-expect-error
-    db.friends.populate().get('id');
-    db.friends.populate().get({ firstName: 'someName' });
-
-    db.friends.populate().where('id');
-    db.friends.populate().where(':id');
-    db.friends.populate().where(['id', 'age']);
-    db.friends.populate().where({ firstName: 'name' });
-
-    db.friends.populate().orderBy('id');
-    db.friends.populate().orderBy(':id');
-    db.friends.populate().orderBy(['id', 'age']);
-    // @ts-expect-error
-    db.friends.populate().orderBy({ firstName: 'name' });
-    // @ts-expect-error
-    db.friends.populate().orderBy({ nonExistent: 'what' });
-    // @ts-expect-error
-    db.friends.populate().orderBy({ someMethod: 'name' });
+    // ===== Filter =====
+    await db.friends.populate().filter(x => !!x).toArray();
 
     await db.delete();
 };

@@ -9,13 +9,13 @@ import { DexieExtended } from './types';
 import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Table interface
-type TableMap = Omit<
+type TableMapObservable = Omit<
     Record<keyof Table, (...args: any[]) => any>,
     // Only to observe so omit:
     'db' | 'name' | 'schema' | 'hook' | 'core' | 'each' | 'mapToClass' | 'add' | 'update' | 'put' | 'delete' | 'clear' | 'bulkAdd' | 'bulkGet' | 'bulkPut' | 'bulkDelete' | '$' | 'populate'
 >;
 
-export class ObservableTable<T, TKey> implements TableMap {
+export class ObservableTable<T, TKey> implements TableMapObservable {
 
     private _tableChanges$: Observable<IDatabaseChange[]> = this._db.changes$.pipe(
         filter(x => x.some(y => y.table === this._table.name)),

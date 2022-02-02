@@ -9,7 +9,7 @@ import { DexieExtended } from './types';
 import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Collection interface
-type CollectionMap = Omit<
+type CollectionMapObservable = Omit<
     Record<keyof Collection, (...args: any[]) => any>,
     // Only to observe so omit:
     'each' | 'eachKey' | 'eachPrimaryKey' | 'eachUniqueKey' | 'clone' | 'raw' | 'delete' | 'modify'
@@ -29,7 +29,7 @@ function debounceTimeWhen<T>(value?: number): OperatorFunction<T, T> {
     };
 }
 
-export class ObservableCollection<T, TKey> implements CollectionMap {
+export class ObservableCollection<T, TKey> implements CollectionMapObservable {
 
     private _tableChanges$: Observable<IDatabaseChange[]> = this._db.changes$.pipe(
         filter(x => x.some(y => y.table === this._table.name)),

@@ -3,9 +3,9 @@ import cloneDeep from 'lodash.clonedeep';
 import flatten from 'lodash.flatten';
 import isEqual from 'lodash.isequal';
 import uniqBy from 'lodash.uniqby';
-
 import { RelationalDbSchema } from './schema-parser.class';
-import { Populated, PopulateOptions } from './types';
+import { DexieExtended, Populated, PopulateOptions } from './types';
+
 
 interface MappedIds {
     [targetTable: string]: {
@@ -26,6 +26,33 @@ export interface PopulateTree {
 }
 
 export class Populate<T, TKey, B extends boolean, K extends string> {
+
+    public static async populateResult<T, TKey, B extends boolean, K extends string>(
+        result: T | T[],
+        table: Table<T, TKey>,
+        keys: K[] | undefined,
+        options: PopulateOptions<B> | undefined
+    ): Promise<Populated<T, B, K>[]> {
+        const dbExt = table.db as DexieExtended;
+        const relationalSchema = dbExt._relationalSchema;
+        const populate = new Populate<T, TKey, B, K>(result, keys, options, dbExt, table, relationalSchema);
+        return populate.populated;
+    }
+
+    public static async populateResultWithTree<T, TKey, B extends boolean, K extends string>(
+        result: T,
+        table: Table<T, TKey>,
+        keys: K[] | undefined,
+        options: PopulateOptions<B> | undefined
+    ) {
+        const dbExt = table.db as DexieExtended;
+        const relationalSchema = dbExt._relationalSchema;
+        const populate = new Populate(result, keys, options, dbExt, table, relationalSchema);
+        const getPopulated = await populate.populated;
+        const populated = Array.isArray(result) ? getPopulated : (getPopulated.length ? getPopulated[0] : undefined);
+        const populatedTree = await populate.populatedTree;
+        return { populated, populatedTree };
+    }
 
     private _records: T[];
 

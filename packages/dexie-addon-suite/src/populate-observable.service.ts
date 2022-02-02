@@ -5,21 +5,6 @@ import { Observable } from 'rxjs';
 import { distinctUntilChanged, filter, mergeMap, share, startWith, switchMap } from 'rxjs/operators';
 import { DexieExtended } from './typings';
 
-async function populateResult<T, TKey, B extends boolean, K extends string>(
-    result: T,
-    table: Table<T, TKey>,
-    keys: K[] | undefined,
-    options: PopulateOptions<B> | undefined
-) {
-    const dbExt = table.db as DexieExtended;
-    const relationalSchema = dbExt._relationalSchema;
-    const populate = new Populate(result, keys, options, dbExt, table, relationalSchema);
-    const getPopulated = await populate.populated;
-    const populated = Array.isArray(result) ? getPopulated : (getPopulated.length ? getPopulated[0] : undefined);
-    const populatedTree = await populate.populatedTree;
-    return { populated, populatedTree };
-}
-
 export function populateObservable<T, TKey, B extends boolean, K extends string>(
     observable: Observable<T>,
     table: Table<T, TKey>,
@@ -35,7 +20,7 @@ export function populateObservable<T, TKey, B extends boolean, K extends string>
 
     return observable.pipe(
         mergeMap(async (result) => {
-            popResult = await populateResult<T, TKey, B, K>(result, table, keys, options);
+            popResult = await Populate.populateResultWithTree<T, TKey, B, K>(result, table, keys, options);
             return result;
         }),
         switchMap(result => dbExt.changes$.pipe(
@@ -48,7 +33,7 @@ export function populateObservable<T, TKey, B extends boolean, K extends string>
             })),
             startWith(null),
             mergeMap(async (_, i) => {
-                if (i > 0) { popResult = await populateResult<T, TKey, B, K>(result, table, keys, options); }
+                if (i > 0) { popResult = await Populate.populateResultWithTree<T, TKey, B, K>(result, table, keys, options); }
                 return popResult.populated;
             }),
             distinctUntilChanged<Populated<T, B, string> | Populated<T, B, string>[] | undefined>(isEqual),

@@ -9,14 +9,14 @@ interface ObservableWhereClauseI {
     Collection: any;
 }
 
-type WhereClauseRecord<T, TKey, U = Omit<WhereClause, keyof ObservableWhereClauseI>> = {
+type WhereClauseRecordObservable<T, TKey, U = Omit<WhereClause, keyof ObservableWhereClauseI>> = {
     [P in keyof U]: U[P] extends (...args: infer A) => any ?
     (...args: A) => ObservableCollection<T, TKey> : U[P]
 };
 
 // Cannot extend directly because Dexie does not export the classes, only interfaces
 // So interface and mixin is used
-export interface ObservableWhereClause<T, TKey> extends WhereClauseRecord<T, TKey> { }
+export interface ObservableWhereClause<T, TKey> extends WhereClauseRecordObservable<T, TKey> { }
 export class ObservableWhereClause<T, TKey> implements ObservableWhereClauseI {
 
     get Collection() {

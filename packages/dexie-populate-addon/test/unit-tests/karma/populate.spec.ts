@@ -278,40 +278,6 @@ describe('Populate', () => {
                     expect(testFriend instanceof Friend).toBeTrue();
                 });
             });
-            describe('ThenSchortcut', () => {
-                describe('Table.populate().get', () => {
-                    it('should return the correct value', async () => {
-                        const testCb = await db.friends.populate().get(id, value => value!);
-                        expect(testCb instanceof Friend).toBeTrue();
-                    });
-                    it('should return the changed value', async () => {
-                        const testCb = await db.friends.populate().get(id, () => 'string');
-                        expect(testCb).toBe('string');
-
-                        const testCb2 = await db.friends.populate().get(id, value => {
-                            value!.firstName = 'testieTest';
-                            return value;
-                        });
-                        expect(testCb2!.firstName).toBe('testieTest');
-                    });
-                });
-                describe('Table.populate().where()', () => {
-                    it('should return the correct value', async () => {
-                        const testCb = await db.friends.populate().where(':id').equals(id).first(value => value!);
-                        expect(testCb instanceof Friend).toBeTrue();
-                    });
-                    it('should return the changed value', async () => {
-                        const testCb = await db.friends.populate().where(':id').equals(id).first(() => 'string');
-                        expect(testCb).toBe('string');
-
-                        const testCb2 = await db.friends.populate().where(':id').equals(id).first(value => {
-                            value!.firstName = 'testieTest';
-                            return value;
-                        });
-                        expect(testCb2!.firstName).toBe('testieTest');
-                    });
-                });
-            });
             describe('Ordering', () => {
                 it('should order by age', async () => {
                     await db.friends.bulkAdd(mockFriends(20));

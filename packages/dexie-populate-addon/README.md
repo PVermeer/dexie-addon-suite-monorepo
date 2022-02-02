@@ -98,7 +98,6 @@ Array methods:
 ```ts
 db.friends.populate().where(':id').equals(1).first();
 db.friends.populate().toArray();
-db.friends.populate().each(x => x); // Not recommendend, can be very slow
 ```
 Compound:
 ```ts

@@ -1,3 +1,4 @@
+import { Transaction } from 'dexie';
 import { Encryption } from './encryption.class';
 import { ModifiedKeys } from './schema-parser';
 
@@ -40,9 +41,10 @@ export function encryptOnUpdating(
 export function decryptOnReading(
     document: any,
     keysObj: ModifiedKeys,
-    encryption: Encryption
+    encryption: Encryption,
+    transaction?: Transaction | null
 ) {
-    if (!document) { return document; }
+    if (!document || transaction?.disableEncryption) { return document; }
     keysObj.keys.forEach(key => {
         if (document[key] !== undefined) { document[key] = encryption.decrypt(document[key]); }
     });

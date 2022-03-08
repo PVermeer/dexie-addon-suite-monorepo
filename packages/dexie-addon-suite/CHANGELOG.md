@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.30](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.29...@pvermeer/dexie-addon-suite@1.0.0-beta.30) (2022-03-08)
+
+
+### Features
+
+* support to get a raw document in a transaction ([613a99a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/613a99a331e145b7a9867b77978f4d365c01c8d9))
+
+
+
+
+
 # [1.0.0-beta.29](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.28...@pvermeer/dexie-addon-suite@1.0.0-beta.29) (2022-03-03)
 
 

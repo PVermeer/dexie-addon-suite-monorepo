@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-beta.15](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.14...@pvermeer/dexie-encrypted-addon@2.0.0-beta.15) (2022-03-08)
+
+
+### Features
+
+* **dexie-encrypted-addon:** optionally disable encryption in transaction ([c46fecd](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c46fecded5616bd27126d02aaf5d91c2dd01647a))
+* support to get a raw document in a transaction ([613a99a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/613a99a331e145b7a9867b77978f4d365c01c8d9))
+
+
+
+
+
 # [2.0.0-beta.14](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.13...@pvermeer/dexie-encrypted-addon@2.0.0-beta.14) (2022-01-31)
 
 **Note:** Version bump only for package @pvermeer/dexie-encrypted-addon

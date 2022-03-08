@@ -32,4 +32,12 @@ declare module 'dexie' {
             options?: PopulateOptions<B>
         ): PopulatedTableObservable<T, TKey, B, K>;
     }
+
+    /**
+     * Extend Transaction interface
+     */
+    interface Transaction {
+        getRaw?: boolean;
+    }
+
 }

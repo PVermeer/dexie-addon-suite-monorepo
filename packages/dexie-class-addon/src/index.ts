@@ -10,4 +10,11 @@ declare module 'dexie' {
      */
     interface Table<T, TKey> extends TableExtended { }
 
+    /**
+     * Extend Transaction interface
+     */
+    interface Transaction {
+        getRaw?: boolean;
+    }
+
 }

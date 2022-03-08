@@ -110,7 +110,11 @@ export function encrypted(db: Dexie, options?: EncryptedOptions) {
                 // Make sure reading always encrypts first
                 const readHook = (obj: any) => {
                     const transaction = Dexie.currentTransaction;
-                    const document = decryptOnReading(obj, keysObj, encryption, transaction);
+
+                    const document = transaction?.getRaw ?
+                        obj :
+                        decryptOnReading(obj, keysObj, encryption);
+
                     if (originalReadHook) return originalReadHook(document);
                     return document;
                 };

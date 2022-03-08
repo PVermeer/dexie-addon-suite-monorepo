@@ -21,7 +21,9 @@ export function getTableExtended<T, TKey>(db: Dexie) {
 
             // Override the readhook and just call the constructor
             const readHook = (obj: any) => {
-                if (!obj) return obj;
+                const transaction = Dexie.currentTransaction;
+                if (!obj || transaction.getRaw) return obj;
+
                 const res = new constructor(obj);
                 return res;
             };

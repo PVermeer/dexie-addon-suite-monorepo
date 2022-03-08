@@ -340,7 +340,7 @@ describe('Encrypted databases', () => {
                     });
                     expect(friendTransaction).toEqual({ ...friendsRead[4], id });
                 });
-                it('should be able to get not decrypted documents', async () => {
+                it('should be able to get raw documents', async () => {
                     const iDb = db.backendDB();
                     const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
                     await new Promise(resolve => request.onsuccess = resolve);
@@ -348,7 +348,7 @@ describe('Encrypted databases', () => {
                     let friendTransaction: Friend | undefined;
 
                     await db.transaction('readonly', db.friends, async (transaction) => {
-                        transaction.disableEncryption = true;
+                        transaction.getRaw = true;
                         friendTransaction = await db.friends.get(id);
                     });
 

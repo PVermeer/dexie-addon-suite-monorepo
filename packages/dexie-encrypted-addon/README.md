@@ -99,6 +99,16 @@ interface EncryptedOptions {
 ```
 *Setting this to false can lead to unexpected / weird behavior in your application*
 
+#### Getting a raw document
+To get a raw document, unaltered by reading hooks, a transaction can be used while setting `getRaw` to `true` on the `transaction` object:
+```ts
+await db.transaction('readonly', db.friends, async (transaction) => {
+    transaction.getRaw = true;
+    const friendRaw = await db.friends.get(id) as RawFriend;
+});
+```
+All read actions in the transaction will return a raw document as saved in the db. So no Class mapping or decrecyption will be performed on the document. Typing might also be not correct anymore.
+
 #### Example (ESM)
 ```js
 import Dexie from 'dexie';

@@ -325,6 +325,36 @@ describe('Encrypted databases', () => {
                     expect(friends).toEqual(jasmine.arrayContaining(friendsWithIds));
                 });
             });
+            describe('Transaction', () => {
+                let friendsRead: Friend[];
+                let id: string;
+                beforeEach(async () => {
+                    friendsRead = mockFriends();
+                    id = await db.friends.bulkAdd(friendsRead);
+                });
+                it('should be able to get decrypted documents', async () => {
+                    let friendTransaction: Friend | undefined;
+
+                    await db.transaction('readonly', db.friends, async () => {
+                        friendTransaction = await db.friends.get(id);
+                    });
+                    expect(friendTransaction).toEqual({ ...friendsRead[4], id });
+                });
+                it('should be able to get raw documents', async () => {
+                    const iDb = db.backendDB();
+                    const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+                    await new Promise(resolve => request.onsuccess = resolve);
+                    const friendRaw = request.result as Friend;
+                    let friendTransaction: Friend | undefined;
+
+                    await db.transaction('readonly', db.friends, async (transaction) => {
+                        transaction.getRaw = true;
+                        friendTransaction = await db.friends.get(id);
+                    });
+
+                    expect(friendTransaction).toEqual(friendRaw);
+                });
+            });
         });
     });
     it('should encrypt lastName', async () => {

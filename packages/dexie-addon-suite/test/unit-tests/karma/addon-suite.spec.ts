@@ -1,3 +1,4 @@
+import { Encryption } from '@pvermeer/dexie-encrypted-addon';
 import { Populated } from '@pvermeer/dexie-populate-addon';
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
@@ -7,7 +8,6 @@ import * as addonSuiteModule from '../../../src/addon-suite';
 import { addonSuite } from '../../../src/index';
 import { PopulateTableObservable } from '../../../src/populate-table-observable.class';
 import { Club, databasesPositive, Friend, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
-import { Encryption } from '@pvermeer/dexie-encrypted-addon';
 
 function flatPromise() {
     let resolve: ((value?: unknown) => void) | undefined;
@@ -630,13 +630,13 @@ describe('Suite', () => {
                 it('should be shallow', async () => {
                     const friend = await firstValueFrom(db.friends.populate({ shallow: true }).$.get(id));
                     expect(friend?.hasFriends.every(x => x instanceof Friend)).toBeTrue();
-                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some((y: any) => !( y instanceof Friend)))).toBeTrue();
+                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some((y: any) => !(y instanceof Friend)))).toBeTrue();
                     expect(friend?.group instanceof Group).toBeTrue();
                 });
                 it('should be partially shallow', async () => {
                     const friend = await firstValueFrom(db.friends.populate(['hasFriends'], { shallow: true }).$.get(id));
                     expect(friend?.hasFriends.every(x => x instanceof Friend)).toBeTrue();
-                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some((y: any) => !( y instanceof Friend)))).toBeTrue();
+                    expect(friend?.hasFriends.every(x => typeof x?.hasFriends.some((y: any) => !(y instanceof Friend)))).toBeTrue();
                     expect(typeof friend?.group === 'number').toBeTrue();
                 });
             });
@@ -661,6 +661,20 @@ describe('Suite', () => {
                     });
                 });
             }
+
+            it('should be able to get a raw document in transaction', async () => {
+                const iDb = db.backendDB();
+                const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+                await new Promise(resolve => request.onsuccess = resolve);
+                const friendRaw = request.result as Friend;
+                let transactionFriend: Friend | undefined;
+
+                await db.transaction('readonly', db.friends, async transaction => {
+                    transaction.getRaw = true;
+                    transactionFriend = await db.friends.get(id) as Friend;
+                });
+                expect(transactionFriend).toEqual(friendRaw);
+            });
         });
     });
 });

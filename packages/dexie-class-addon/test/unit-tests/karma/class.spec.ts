@@ -131,6 +131,24 @@ describe('Immutable databases', () => {
                         });
                     });
                 });
+                describe('Transaction()', () => {
+                    it('should be able to get a raw document', async () => {
+                        const [friend] = mockFriends(1);
+                        const id = await db.friends.add(friend);
+
+                        const iDb = db.backendDB();
+                        const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+                        await new Promise(resolve => request.onsuccess = resolve);
+                        const friendRaw = request.result as Friend;
+                        let transactionFriend: Friend | undefined;
+
+                        await db.transaction('readonly', db.friends, async transaction => {
+                            transaction.getRaw = true;
+                            transactionFriend = await db.friends.get(id) as Friend;
+                        });
+                        expect(transactionFriend).toEqual(friendRaw);
+                    });
+                });
             });
             describe('Fixes', () => {
                 it('should remove an undefined primary index', async () => {

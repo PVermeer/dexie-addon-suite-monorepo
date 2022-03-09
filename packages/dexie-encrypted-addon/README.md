@@ -247,7 +247,7 @@ class Encryption {
      */
     static createRandomEncryptionKey(): string;
     /**
-     * Create a base64 hash string of the provided input.
+     * Create a base64 SHA-512 hash string of the provided input.
      * @param input Any non-circulair value.
      */
     static hash(input: any): string;

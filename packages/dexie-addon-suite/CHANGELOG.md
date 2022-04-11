@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.32](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.31...@pvermeer/dexie-addon-suite@1.0.0-beta.32) (2022-04-11)
+
+
+### Features
+
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
 # [1.0.0-beta.31](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.30...@pvermeer/dexie-addon-suite@1.0.0-beta.31) (2022-03-09)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

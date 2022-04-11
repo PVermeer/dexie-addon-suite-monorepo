@@ -1,31 +1,37 @@
-import type { Dexie } from 'dexie';
-
-// declare interface DexieRxjsAddonType { dexieRxjs: typeof dexieRxjs; }
+import { Dexie as DexieImport } from 'dexie';
+import * as Rxjs from 'rxjs';
 
 /*
  * Lib is not really meant for node but package should be able to be required in node.
  */
-describe('dexie-rxjs-addon dexie.spec', () => {
+describe('dexie-addon-suite dexie.spec', () => {
 
     describe('Dexie', () => {
         describe('Node require', () => {
-            let DexieReq: typeof Dexie;
+            let DexieReq: typeof DexieImport;
+            let rxjs: typeof Rxjs;
             beforeAll(() => {
                 DexieReq = require('dexie');
-                require('rxjs');
+                rxjs = require('rxjs');
             });
-            it('should load Dexie.js', () => {
+            it('should be able to require Dexie.js', () => {
                 expect(DexieReq).toBeTruthy();
+            });
+            it('should be able to require rxjs', () => {
+                expect(rxjs).toBeTruthy();
             });
             it('should throw when trying to require', () => {
                 let addon: any;
+                let error: Error = new Error;
                 // Addon throws because window.self is not defined.
                 // Dependency 'dexie-observable' relies on this.
                 try {
                     addon = require('../../../dist/index');
-                } catch (error) {
-                    expect(error instanceof Error).toBeTrue();
+                } catch (_error: any) {
+                    error = _error;
                 }
+                expect(error instanceof ReferenceError).toBeTrue();
+                expect(error.message).toBe('self is not defined');
                 expect(addon).toBeUndefined();
             });
         });

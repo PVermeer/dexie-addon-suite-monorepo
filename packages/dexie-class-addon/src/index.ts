@@ -14,7 +14,7 @@ declare module 'dexie' {
      * Extend Transaction interface
      */
     interface Transaction {
-        getRaw?: boolean;
+        raw?: boolean;
     }
 
 }

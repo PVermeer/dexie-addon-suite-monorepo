@@ -107,30 +107,39 @@ export function encrypted(db: Dexie, options?: EncryptedOptions) {
                 const dexieTable = db.table(table);
                 const originalReadHook = dexieTable.schema.readHook;
 
-                // Make sure reading always encrypts first
                 const readHook = (obj: any) => {
                     const transaction = Dexie.currentTransaction;
 
-                    const document = transaction?.getRaw ?
+                    const document = transaction?.raw ?
                         obj :
                         decryptOnReading(obj, keysObj, encryption);
 
                     if (originalReadHook) return originalReadHook(document);
                     return document;
                 };
-                if (dexieTable.schema.readHook) {
-                    dexieTable.hook.reading.unsubscribe(dexieTable.schema.readHook);
-                }
+                if (dexieTable.schema.readHook) dexieTable.hook.reading.unsubscribe(dexieTable.schema.readHook);
                 dexieTable.schema.readHook = readHook;
-
-                // Set hooks
                 dexieTable.hook('reading', readHook);
-                dexieTable.hook('creating', (primaryKey, document) =>
-                    encryptOnCreation(primaryKey, document, keysObj, encryption)
-                );
-                dexieTable.hook('updating', (changes, _primaryKey) =>
-                    encryptOnUpdating(changes, _primaryKey, keysObj, encryption)
-                );
+
+                dexieTable.hook('creating', (primaryKey, obj) => {
+                    const transaction = Dexie.currentTransaction;
+
+                    const document = transaction?.raw ?
+                        obj :
+                        encryptOnCreation(primaryKey, obj, keysObj, encryption);
+
+                    return document;
+                });
+
+                dexieTable.hook('updating', (changes, _primaryKey) => {
+                    const transaction = Dexie.currentTransaction;
+
+                    const document = transaction?.raw ?
+                        changes :
+                        encryptOnUpdating(changes, _primaryKey, keysObj, encryption);
+
+                    return document;
+                });
             });
         }
 

@@ -178,16 +178,15 @@ Addon is export as namespace DexieClassAddon
 </html>
 ```
 
-#### Getting a raw document
-To get a raw document, unaltered by reading hooks, a transaction can be used while setting `getRaw` to `true` on the `transaction` object:
+#### Getting and setting a raw document
+To get or set raw document, unaltered by hooks, a transaction can be used while setting `raw` to `true` on the `transaction` object:
 ```ts
 await db.transaction('readonly', db.friends, async (transaction) => {
-    transaction.getRaw = true;
+    transaction.raw = true;
     const friendRaw = await db.friends.get(id) as RawFriend;
 });
 ```
-All read actions in the transaction will return a raw document as saved in the db. So no Class mapping or decrecyption will be performed on the document. Typing might also be not correct anymore.
-
+All read actions in the transaction will return a raw document as saved in the db. All set actions will save the document as is. So no Class mapping or decryption / encryption will be performed on the document.
 
 API
 ---

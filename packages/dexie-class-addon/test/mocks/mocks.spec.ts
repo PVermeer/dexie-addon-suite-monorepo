@@ -1,10 +1,11 @@
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/en';
 import { classMap } from '../../src/class';
+import { OnSerialize } from '../../src/serialize';
 
 type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
-export class Friend {
+export class Friend implements OnSerialize {
     id?: number;
     age?: number;
     firstName: string;
@@ -16,12 +17,12 @@ export class Friend {
 
     serialize() {
         return {
-            id: this.id,
-            age: this.age,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            shoeSize: this.shoeSize,
-            date: this.date.getTime()
+            id: () => this.id,
+            age: () => this.age,
+            firstName: () => this.firstName,
+            lastName: () => this.lastName,
+            shoeSize: () => this.shoeSize,
+            date: () => this.date.getTime()
         };
     }
 

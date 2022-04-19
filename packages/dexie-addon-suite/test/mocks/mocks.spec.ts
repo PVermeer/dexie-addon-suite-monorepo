@@ -1,8 +1,9 @@
+import { OnSerialize } from '@pvermeer/dexie-class-addon';
+import { EncryptedOptions, Encryption } from '@pvermeer/dexie-encrypted-addon';
+import { Ref } from '@pvermeer/dexie-populate-addon';
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/en';
-import { Ref } from '@pvermeer/dexie-populate-addon';
 import { addonSuite, Config } from '../../src/addon-suite';
-import { EncryptedOptions, Encryption } from '@pvermeer/dexie-encrypted-addon';
 
 type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
@@ -90,7 +91,7 @@ export class Group {
     }
 
 }
-export class Friend {
+export class Friend implements OnSerialize {
     id?: string;
     age: number;
     firstName: string;
@@ -109,21 +110,21 @@ export class Friend {
 
     serialize() {
         const serialized = {
-            id: this.id,
-            age: this.age,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            shoeSize: this.shoeSize,
-            customId: this.customId,
-            date: this.date.getTime(),
-            hasFriends: this.hasFriends,
-            memberOf: this.memberOf,
-            group: this.group,
-            hairColor: this.hairColor
+            id: () => this.id,
+            age: () => this.age,
+            firstName: () => this.firstName,
+            lastName: () => this.lastName,
+            shoeSize: () => this.shoeSize,
+            customId: () => this.customId,
+            date: () => this.date.getTime(),
+            hasFriends: () => this.hasFriends,
+            memberOf: () => this.memberOf,
+            group: () => this.group,
+            hairColor: () => this.hairColor
         };
         return serialized;
     }
-    
+
     deserialize(input: OmitMethods<Friend>) {
         Object.entries(input).forEach(([prop, value]) => this[prop] = value);
         this.date = new Date(input.date);
@@ -163,7 +164,7 @@ const getDatabase = (
             groups: '++id, $name',
             hairColors: '++id, $name'
         });
-        
+
         this.friends.mapToClass(Friend);
         this.clubs.mapToClass(Club);
         this.themes.mapToClass(Theme);
@@ -181,7 +182,7 @@ export const databasesPositive = [
         immutable: true,
         encrypted: true,
         class: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase - all addons', {
+        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!, {
             secretKey: Encryption.createRandomEncryptionKey()
         })
     },
@@ -190,7 +191,7 @@ export const databasesPositive = [
         encrypted: false,
         immutable: true,
         class: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase - populate / observable')
+        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!)
     }
 ];
 

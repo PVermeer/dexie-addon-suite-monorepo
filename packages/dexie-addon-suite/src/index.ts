@@ -1,3 +1,4 @@
+import { OnSerialize } from '@pvermeer/dexie-class-addon';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
 import type { PopulateOptions } from '@pvermeer/dexie-populate-addon';
 import { Populated, Ref } from '@pvermeer/dexie-populate-addon';
@@ -7,7 +8,7 @@ import type { ObservableTablePopulated, PopulatedTableObservable } from './table
 export { addonSuite } from './addon-suite';
 export type { ObservableTablePopulated, PopulatedTableObservable } from './table-extended.class';
 export { Encryption };
-export type { Ref, Populated, PopulateOptions };
+export type { Ref, Populated, PopulateOptions, OnSerialize };
 
 
 declare module 'dexie' {

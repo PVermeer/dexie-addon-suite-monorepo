@@ -32,9 +32,15 @@ Add `classMap()` to your Dexie database. See below examples and https://dexie.or
 This addon overwrites the save and read methods of Dexie.js and maps the record to class by calling the class constructor.
 Dexie already has a method `mapToClass()` on tables for doing this, however this method does not call the constructor and does no serialization. This addon overwrites that method on the table so it will call the class constructor and also call the `serialize()` method if defined.
 
-Example:
+The `serialize()` must return an object with database keys as object keys and an arrow function for the value that returns the correct data to save to the database.
+
+This package also export the `OnSerialize` interface for TypeScript classes. Implementing this in your database class makes sure you implement the serialize correctly.
+
+Example (TypeScript):
 ```js
-export class Friend {
+import { OnSerialize } from '@pvermeer/dexie-class-addon';
+
+export class Friend implements OnSerialize {
     id?: number;
     age?: number;
     firstName: string;
@@ -46,12 +52,12 @@ export class Friend {
 
     serialize() {
         return {
-            id: this.id,
-            age: this.age,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            shoeSize: this.shoeSize,
-            date: this.date.getTime()
+            id: () => this.id,
+            age: () => this.age,
+            firstName: () => this.firstName,
+            lastName: () => this.lastName,
+            shoeSize: () => this.shoeSize,
+            date: () => this.date.getTime()
         };
     }
 
@@ -81,8 +87,8 @@ class FriendsDatabase extends Dexie {
 }
 ```
 
-- On reading records the class constructor will be called with the record as the first parameter.
-- On saving records it will call the `serialize()` method if defined.
+- On reading records, the class constructor will be called with the record as the first parameter.
+- On saving records the `serialize()` method will be called if defined.
 
 
 ### Create Dexie database
@@ -186,7 +192,7 @@ await db.transaction('readonly', db.friends, async (transaction) => {
     const friendRaw = await db.friends.get(id) as RawFriend;
 });
 ```
-All read actions in the transaction will return a raw document as saved in the db. All set actions will save the document as is. So no Class mapping or decryption / encryption will be performed on the document.
+All read actions in the transaction will return a raw document as saved in the db. All set actions will save the document as is. So no class mapping will be performed on the document.
 
 API
 ---

@@ -20,6 +20,15 @@ function flatPromise() {
     return { promise, resolve, reject };
 }
 
+function hashDocument(dbClass: { serialize: () => any; }) {
+    return Encryption.hash(
+        Object.entries(dbClass.serialize()).reduce((acc, [key, value]) => {
+            acc[key] = (value as any)();
+            return acc;
+        }, {})
+    );
+}
+
 describe('dexie-addon-suite addon-suite.spec', () => {
 
     describe('Suite', () => {
@@ -48,6 +57,7 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                 let styleIds: number[];
 
                 beforeEach(async () => {
+                    await Dexie.delete(database.desc);
                     db = database.db(Dexie);
                     await db.open();
                     expect(db.isOpen()).toBeTrue();
@@ -136,12 +146,12 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                         it('should hash id', async () => {
                             const getFriend = await db.friends.get(id) as Friend;
                             if (friend.id) { delete friend.id; }
-                            const hashId = Encryption.hash(friend.serialize());
+                            const hashId = hashDocument(friend);
                             expect(getFriend.id).toBe(hashId);
                         });
                         it('should encrypt firstName', async () => {
                             const iDb = db.backendDB();
-                            const hashedId = Encryption.hash(friend.serialize());
+                            const hashedId = hashDocument(friend);
                             const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(hashedId);
                             await new Promise(resolve => request.onsuccess = resolve);
                             const friendRaw = request.result;
@@ -352,7 +362,7 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                                 const method = _method.method(db);
                                 const [newFriend] = mockFriends(1);
                                 const lastId = await db.friends.add(mockFriends(1)[0]);
-                                const newId = database.encrypted ? Encryption.hash(newFriend.serialize()) : lastId + 1;
+                                const newId = database.encrypted ? hashDocument(newFriend) : lastId + 1;
                                 let emitCount = 0;
                                 let obsFriend!: Populated<Friend> | undefined;
                                 const emitPromise = new Promise<void>(resolve => {
@@ -683,7 +693,6 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                     await new Promise(resolve => request.onsuccess = resolve);
                     const friendRaw = request.result as Friend;
                     let transactionFriend: Friend | undefined;
-                    let transactionFriend2: Friend | undefined;
 
                     await db.transaction('readonly', db.friends, async transaction => {
                         transaction.raw = true;
@@ -698,7 +707,6 @@ describe('dexie-addon-suite addon-suite.spec', () => {
 
                         transactionFriend.firstName = 'firstName';
                         await db.friends.put(transactionFriend, id);
-                        transactionFriend2 = await db.friends.get(id) as Friend;
                     });
 
                     const request2 = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);

@@ -86,6 +86,7 @@ describe('dexie-addon-suite html.spec', () => {
             let styleIds: number[];
 
             beforeEach(async () => {
+                await Dexie.delete('Test Database HTML');
                 const secretKey = DexieAddonSuite.Encryption.createRandomEncryptionKey();
                 db = new Dexie('Test Database HTML', { addons: [DexieAddonSuite.addonSuite.setConfig({ secretKey })] }) as any;
                 db.on('blocked', () => false);
@@ -148,14 +149,19 @@ describe('dexie-addon-suite html.spec', () => {
                 ]);
 
                 friendExpected = new Friend(friend);
-                friendExpected.id = DexieAddonSuite.Encryption.hash(friend.serialize());
+                friendExpected.id = DexieAddonSuite.Encryption.hash(
+                    Object.entries(friend.serialize()).reduce((acc, [key, value]) => {
+                        acc[key] = value();
+                        return acc;
+                    }, {})
+                );
                 friendExpected.hasFriends = ids.slice(1) as any;
                 friendExpected.memberOf = clubIds as any;
                 friendExpected.group = groupIds[1] as any;
                 friendExpected.hairColor = hairColorIds[1] as any;
 
                 friendExpectedPop = new Friend(friend) as Populated<Friend, false, string>;
-                friendExpectedPop.id = DexieAddonSuite.Encryption.hash(friend.serialize());
+                friendExpectedPop.id = friendExpected.id;
                 friendExpectedPop.hasFriends = friends.slice(1).map((x, i) => { x.id = ids[i + 1]; return x; }) as any;
                 friendExpectedPop.memberOf = clubs.map((x, i) => { x.id = clubIds[i]; return x; }) as any;
                 friendExpectedPop.group = groups.map((x, i) => { x.id = groupIds[i]; return x; })[1] as any;

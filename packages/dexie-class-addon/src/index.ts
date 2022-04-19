@@ -2,6 +2,7 @@ import { TableExtended } from './table-extended.class';
 
 export { classMap } from './class';
 export type { TableExtended } from './table-extended.class';
+export type { OnSerialize } from './serialize';
 
 declare module 'dexie' {
 

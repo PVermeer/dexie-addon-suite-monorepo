@@ -5,17 +5,24 @@ describe('dexie-class-addon class.spec', () => {
 
     describe('Immutable databases', () => {
         // Should work for each positive database
-        databasesPositive.forEach(database => {
+        databasesPositive.forEach((database, _i) => {
+            // if (_i > 0) return;
             describe(database.desc, () => {
                 let db: ReturnType<typeof database.db>;
                 let serializeSpy: jasmine.Spy;
                 let deSerializeSpy: jasmine.Spy;
-                const friendExpectations = (friend: Friend) => {
+
+                let friends: Friend[];
+                let ids: number[];
+                let friend: Friend;
+                let id: number;
+
+                const friendExpectations = (friendUpdated: Friend) => {
                     expect(deSerializeSpy).toHaveBeenCalled();
-                    expect(friend).toEqual(friend);
-                    expect(friend).toBeInstanceOf(Friend);
-                    expect(friend?.someMethod).toBeDefined();
-                    expect(friend?.date).toBeInstanceOf(Date);
+                    expect(friendUpdated).toEqual(friend);
+                    expect(friendUpdated).toBeInstanceOf(Friend);
+                    expect(friendUpdated?.someMethod).toBeDefined();
+                    expect(friendUpdated?.date).toBeInstanceOf(Date);
                 };
 
                 beforeEach(async () => {
@@ -25,6 +32,13 @@ describe('dexie-class-addon class.spec', () => {
                     db = database.db();
                     await db.open();
                     expect(db.isOpen()).toBeTrue();
+
+                    friends = mockFriends();
+                    ids = await db.friends.bulkAdd(friends, { allKeys: true });
+                    friends.forEach((friend, i) => friend.id = ids[i]);
+
+                    friend = friends[0];
+                    id = ids[0];
                 });
                 afterEach(async () => {
                     await db.delete();
@@ -37,8 +51,6 @@ describe('dexie-class-addon class.spec', () => {
                 describe('Methods', () => {
                     describe('Add()', () => {
                         it('should be able to add() and get() friend', async () => {
-                            const [friend] = mockFriends(1);
-                            const id = await db.friends.add(friend);
                             expect(serializeSpy).toHaveBeenCalled();
                             friend.id = id;
 
@@ -59,8 +71,6 @@ describe('dexie-class-addon class.spec', () => {
                     });
                     describe('Put()', () => {
                         it('should be able to put() and get() friend', async () => {
-                            const [friend] = mockFriends(1);
-                            const id = await db.friends.put(friend);
                             expect(serializeSpy).toHaveBeenCalled();
                             friend.id = id;
 
@@ -80,13 +90,6 @@ describe('dexie-class-addon class.spec', () => {
                         });
                     });
                     describe('Update()', () => {
-                        let friend: Friend;
-                        let id: number;
-                        beforeEach(async () => {
-                            [friend] = mockFriends(1);
-                            id = await db.friends.add(friend);
-                            friend.id = id;
-                        });
                         it('should be able to update document', async () => {
                             const updatedDoc: Partial<Friend> = { firstName: 'mock name' };
                             await db.friends.update(id, updatedDoc);
@@ -95,38 +98,38 @@ describe('dexie-class-addon class.spec', () => {
                             const getFriend = await db.friends.get(id);
                             friendExpectations(getFriend!);
                         });
+                        it('should run serializer', async () => {
+                            const date = new Date();
+                            const updatedDoc: Partial<Friend> = { date };
+                            await db.friends.update(id, updatedDoc);
+                            friend.date = date;
+
+                            const getFriend = await db.friends.get(id);
+                            friendExpectations(getFriend!);
+
+                            const iDb = db.backendDB();
+                            const request = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
+                            await new Promise(resolve => request.onsuccess = resolve);
+                            const friendRaw = request.result as Friend;
+
+                            expect(typeof friendRaw.date === 'number').toBeTrue;
+                        });
                     });
                     describe('Get()', () => {
-                        let friendsRead: Friend[];
-                        let id: number;
-                        beforeEach(async () => {
-                            friendsRead = mockFriends();
-                            id = await db.friends.bulkAdd(friendsRead);
-                        });
                         it('should be able to get the document', async () => {
-                            friendsRead[4].id = id;
                             const getFriend = await db.friends.get(id);
                             friendExpectations(getFriend!);
                         });
                     });
                     describe('Where()', () => {
-                        let friendsRead: Friend[];
-                        beforeEach(async () => {
-                            friendsRead = mockFriends();
-                            const friendIds = await db.friends.bulkAdd(friendsRead, { allKeys: true });
-                            friendsRead.forEach((friend, i) => {
-                                friend.id = friendIds[i];
-                                return friend;
-                            });
-                        });
                         it('should be able to use where()', async () => {
-                            const friends = await db.friends.where('age')
+                            const findFriends = await db.friends.where('age')
                                 .between(1, 80, true, true).toArray();
 
                             expect(deSerializeSpy).toHaveBeenCalled();
-                            expect(friends).toEqual(jasmine.arrayContaining(friendsRead));
-                            expect(friends.length > 0).toBeTrue();
-                            friends.forEach(friend => {
+                            expect(findFriends).toEqual(jasmine.arrayContaining(friends));
+                            expect(findFriends.length > 0).toBeTrue();
+                            findFriends.forEach(friend => {
                                 expect(friend).toBeInstanceOf(Friend);
                                 expect(friend?.someMethod).toBeDefined();
                                 expect(friend?.date).toBeInstanceOf(Date);
@@ -159,7 +162,6 @@ describe('dexie-class-addon class.spec', () => {
                             await new Promise(resolve => request.onsuccess = resolve);
                             const friendRaw = request.result as Friend;
                             let transactionFriend: Friend | undefined;
-                            let transactionFriend2: Friend | undefined;
 
                             await db.transaction('readonly', db.friends, async transaction => {
                                 transaction.raw = true;
@@ -174,7 +176,6 @@ describe('dexie-class-addon class.spec', () => {
 
                                 transactionFriend.firstName = 'firstName';
                                 await db.friends.put(transactionFriend, id);
-                                transactionFriend2 = await db.friends.get(id) as Friend;
                             });
 
                             const request2 = iDb.transaction('friends', 'readonly').objectStore('friends').get(id);
@@ -187,8 +188,6 @@ describe('dexie-class-addon class.spec', () => {
                 });
                 describe('Fixes', () => {
                     it('should remove an undefined primary index', async () => {
-                        const [friend] = mockFriends(1);
-                        const id = await db.friends.add(friend);
                         await db.friends.update(id, friend);
 
                         const getFriend = await db.friends.get(id) as Friend;

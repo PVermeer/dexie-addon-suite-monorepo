@@ -1,4 +1,5 @@
 import { Dexie, Table } from 'dexie';
+import { SerializeObject, Serializer } from './serialize';
 import { getTableExtended } from './table-extended.class';
 
 type DexieExtended = Dexie & {
@@ -17,7 +18,28 @@ export function classMap(db: Dexie) {
     function serialize(table: Table, item: { [prop: string]: any; }) {
 
         let itemState = item;
-        if (item['serialize'] && typeof item['serialize'] === 'function') itemState = item.serialize();
+        if (!(typeof itemState === 'object' && !Array.isArray(itemState) && itemState !== null)) return itemState;
+
+        const transaction = Dexie.currentTransaction;
+        if (transaction?.raw) return itemState;
+
+        if (item['serialize'] && typeof item['serialize'] === 'function') {
+            itemState = { ...new Serializer(item.serialize()) };
+        }
+        else {
+            // Check if a class is provided and if it has a serialize method. Table.update item has probably no serialize method.
+            const constructor = table.schema.mappedClass;
+            if (constructor) {
+
+                const classInstance = Object.create(constructor.prototype);
+                if (classInstance['serialize'] && typeof classInstance['serialize'] === 'function') {
+
+                    Object.assign(classInstance, item);
+                    const serializeObject: SerializeObject = classInstance['serialize']();
+                    itemState = { ...new Serializer(serializeObject, Object.keys(item)) };
+                }
+            }
+        }
 
         const primaryKey = table.schema.primKey.name;
         if (primaryKey in itemState && itemState[primaryKey] === undefined) {

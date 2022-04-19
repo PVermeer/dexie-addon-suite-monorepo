@@ -138,7 +138,7 @@ All read actions in the transaction will return a raw document as saved in the d
 ##### TypeScript
 ```ts
 import Dexie from 'dexie';
-import { addonSuite, Encryption, Ref } from '@pvermeer/dexie-addon-suite';
+import { addonSuite, Encryption, Ref, OnSerialize } from '@pvermeer/dexie-addon-suite';
 
 // Declare classes
 class Style {
@@ -166,7 +166,7 @@ class Group {
     true: boolean;
     description: string;
 }
-class Friend {
+class Friend implements OnSerialize {
     id?: number;
     name: string;
     memberOf: Ref<Club, number>[];
@@ -174,13 +174,17 @@ class Friend {
 
     doSomething() { return 'done'; }
 
-    // For dexie-class-addon (will call constructor/serialize on read/write)
-    serialize() {
+    /*
+        For dexie-class-addon (will call constructor/serialize on read/write).
+        Implement OnSerialize to enable type checking for this method.
+        See dexie-class-addon documentation for more info
+    */
+    serialize() { 
         return {
-            id: this.id,
-            name: this.name,
-            memberOf: this.memberOf.map(club => club instanceof Club ? club.id : club),
-            group: this.group instanceof Group ? this.group.id : group,
+            id: () => this.id,
+            name: () => this.name,
+            memberOf: () => this.memberOf.map(club => club instanceof Club ? club.id : club),
+            group: () => this.group instanceof Group ? this.group.id : group,
         };
     }
 
@@ -233,7 +237,6 @@ db.open()
         console.log('DB loaded! :D')
         // Use Dexie
     });
-
 ```
 
 ##### ES6
@@ -321,7 +324,7 @@ namespace addonSuite {
  * Ref nominal type.
  * TS does not support nominal types. Fake implementation so the type system can match.
  */
-export declare type Ref<O extends object, K extends IndexTypes, _N = "Ref"> = NominalRef<O> | K | null;
+export type Ref<O extends object, K extends IndexTypes, _N = "Ref"> = NominalRef<O> | K | null;
 
 /**
  * Overwrite the return type to the type as given in the Ref type after refs are populated.
@@ -329,12 +332,14 @@ export declare type Ref<O extends object, K extends IndexTypes, _N = "Ref"> = No
  * B = boolean if shallow populate;
  * O = union type of object keys to populate or the string type to populate all.
  */
-type Populated<T, B extends boolean = false, O extends string = string>;
+export type Populated<T, B extends boolean = false, O extends string = string>;
 
 /**
  * Class with cryptic methods
  */
-class Encryption { } // See dexie-encrypted-addon
+export class Encryption { } // See dexie-encrypted-addon
+
+export interface OnSerialize { } // Add to database classes that use serialization. See dexie-class-addon
 
 export as namespace DexieAddonSuite;
 ```

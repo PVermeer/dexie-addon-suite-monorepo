@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.8](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-class-addon@1.0.0-beta.7...@pvermeer/dexie-class-addon@1.0.0-beta.8) (2022-04-19)
+
+
+* feat(dexie-class-addon)!: table.update now also run serialization ([c0a21f3](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c0a21f32cd01c6af24c73e932eb58d46141103ad))
+
+
+### BREAKING CHANGES
+
+* `serialization` method must now be implemented with arrow functions
+
+
+
+
+
 # [1.0.0-beta.7](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-class-addon@1.0.0-beta.6...@pvermeer/dexie-class-addon@1.0.0-beta.7) (2022-04-11)
 
 

@@ -1,14 +1,22 @@
 import { Dexie, IndexableTypeArray } from 'dexie';
+import { IDatabaseChange } from 'dexie-observable/api';
 import faker from 'faker/locale/nl';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { databasesNegative, databasesPositive, Friend, methods, mockFriends } from '../../mocks/mocks.spec';
 
-function flatPromise() {
-    let resolve: ((value?: unknown) => void) | undefined;
-    let reject: ((value?: unknown) => void) | undefined;
-    const promise = new Promise((res, rej) => {
-        resolve = res;
+type FlatPromise<T = unknown> = {
+    promise: Promise<T>;
+    resolve: (value?: T | PromiseLike<T>) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    reject: (reason?: any) => void;
+};
+function flatPromise<T = unknown>(): FlatPromise<T> {
+    let resolve: ((value?: T | PromiseLike<T>) => void) | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let reject: ((reason?: any) => void) | undefined;
+    const promise = new Promise<T>((res, rej) => {
+        resolve = res as any;
         reject = rej;
     });
     if (!resolve || !reject) { throw new Error('What the hell...'); }
@@ -34,8 +42,14 @@ describe('dexie-rxjs-addon dexie-rxjs.spec', () => {
                     expect(db.isOpen()).toBeTrue();
 
                     [friend] = mockFriends(1);
-                    id = await db.friends.add(friend);
                     customId = friend.customId;
+
+                    const initFriendPromise = flatPromise(); // Change output might be delayed
+                    db.friends.$.get(database.customId ? customId : 1).pipe(filter(x => !!x)).subscribe(initFriendPromise.resolve);
+
+                    id = await db.friends.add(friend);
+
+                    await initFriendPromise.promise;
                 });
                 afterEach(async () => {
                     subs.unsubscribe();
@@ -497,6 +511,56 @@ describe('dexie-rxjs-addon dexie-rxjs.spec', () => {
                             }
                         });
                     });
+
+                    describe('changes()', () => {
+                        let obs$: Observable<IDatabaseChange[]>;
+
+                        beforeEach(() => {
+                            obs$ = db.friends.$.changes();
+                        });
+
+                        it('should be an observable', async () => {
+                            expect(obs$ instanceof Observable).toBeTrue();
+                        });
+                        it('should be open', async () => {
+                            let sub: Subscription;
+                            const emitPromise = new Promise<void>(resolve => {
+                                sub = obs$.subscribe(
+                                    () => resolve()
+                                );
+                                subs.add(sub);
+                            });
+                            const [newFriend] = mockFriends(1);
+                            await db.friends.add(newFriend);
+                            await emitPromise;
+                            expect(sub!.closed).toBe(false);
+                        });
+                        it('should emit the correct value', async () => {
+                            const changesPromise = flatPromise<IDatabaseChange[]>();
+                            obs$.pipe(take(1)).subscribe(changesPromise.resolve);
+
+                            const [newFriend] = mockFriends(1);
+                            await db.friends.add(newFriend);
+                            const changes = await changesPromise.promise;
+
+                            expect(changes.length > 0).toBeTrue();
+                            expect(changes.every(table => table.table === 'friends')).toBeTrue();
+                        });
+                        it('should not emit other table changes', async () => {
+                            const changesPromise = flatPromise<IDatabaseChange[]>();
+                            obs$.pipe(take(1)).subscribe(changesPromise.resolve);
+
+                            const [newFriend] = mockFriends(1);
+                            await db.friends.add(newFriend);
+                            const [newEnemy] = mockFriends(1);
+                            await db.enemies.add(newEnemy);
+                            const changes = await changesPromise.promise;
+
+                            expect(changes.length > 0).toBeTrue();
+                            expect(changes.every(table => table.table === 'friends')).toBeTrue();
+                        });
+                    });
+
                 });
                 describe('count()', () => {
                     it('should emit the correct count on Table', async () => {

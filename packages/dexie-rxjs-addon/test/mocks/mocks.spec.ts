@@ -23,12 +23,14 @@ export const databasesPositive = [
         desc: 'TestDatabase',
         db: (Dexie: typeof DexieType) => new class TestDatabase extends Dexie {
             public friends: DexieType.Table<Friend, number>;
+            public enemies: DexieType.Table<Friend, number>;
             constructor(name: string) {
                 super(name);
                 dexieRxjs(this);
                 this.on('blocked', () => false);
                 this.version(1).stores({
-                    friends: '++id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
+                    friends: '++id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]',
+                    enemies: '++id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
                 });
             }
         }('TestDatabase')
@@ -37,26 +39,31 @@ export const databasesPositive = [
         desc: 'TestDatabaseKeyPath',
         db: (Dexie: typeof DexieType) => new class TestDatabaseKeyPath extends Dexie {
             public friends: DexieType.Table<Friend, number>;
+            public enemies: DexieType.Table<Friend, number>;
             constructor(name: string) {
                 super(name);
                 dexieRxjs(this);
                 this.on('blocked', () => false);
                 this.version(1).stores({
-                    friends: '++some.id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
+                    friends: '++some.id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]',
+                    enemies: '++some.id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
                 });
             }
         }('TestDatabaseKeyPath')
     },
     {
         desc: 'TestDatabaseCustomKey',
+        customId: true,
         db: (Dexie: typeof DexieType) => new class TestDatabaseCustomKey extends Dexie {
             public friends: DexieType.Table<Friend, number>;
+            public enemies: DexieType.Table<Friend, number>;
             constructor(name: string) {
                 super(name);
                 dexieRxjs(this);
                 this.on('blocked', () => false);
                 this.version(1).stores({
-                    friends: 'customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
+                    friends: 'customId, firstName, lastName, shoeSize, age, [age+shoeSize]',
+                    enemies: 'customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
                 });
             }
         }('TestDatabaseCustomKey')
@@ -65,12 +72,14 @@ export const databasesPositive = [
         desc: 'TestDatabaseNoKey',
         db: (Dexie: typeof DexieType) => new class TestDatabaseNoKey extends Dexie {
             public friends: DexieType.Table<Friend, number>;
+            public enemies: DexieType.Table<Friend, number>;
             constructor(name: string) {
                 super(name);
                 dexieRxjs(this);
                 this.on('blocked', () => false);
                 this.version(1).stores({
-                    friends: '++, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
+                    friends: '++, customId, firstName, lastName, shoeSize, age, [age+shoeSize]',
+                    enemies: '++, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
                 });
             }
         }('TestDatabaseNoKey')

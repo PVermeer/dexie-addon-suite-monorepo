@@ -67,23 +67,27 @@ Instead of the `Dexie.Table` an `ObservableTable` is returned after using `$`.
 ```ts
 class ObservableTable<T, TKey> {
     /**
+     * Observable stream of table changes.
+     * Emits updated value on changes.
+     * @note Stays open so unsubscribe.
+     */
+    public changes(): Observable<IDatabaseChange[]>;
+    /**
      * Create an Observable Collection of this table.
      */
-    public toCollection(): ObservableCollection<T, TKey> {
-        return new ObservableCollection(this._db, this._table, this._table.toCollection());
-    }
+    public toCollection(): ObservableCollection<T, TKey>;
 	/**
 	 * Observable stream of the complete Table.
 	 * Emits updated Table array on changes.
 	 * @note Stays open so unsubscribe.
 	 */
-	toArray(): Observable<T[]>;
+	public toArray(): Observable<T[]>;
 	/**
 	 * Observable stream of a get request.
 	 * Emits updated value on changes.
 	 * @note Stays open so unsubscribe.
 	 */
-	get(keyOrequalityCriterias: TKey | {
+	public get(keyOrequalityCriterias: TKey | {
 		[key: string]: any;
 	}): Observable<T | undefined>;
     /**
@@ -92,8 +96,8 @@ class ObservableTable<T, TKey> {
      * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
      * @note Stays open so unsubscribe.
      */
-	where(index: string | string[]): ObservableWhereClause<T, TKey>;
-	where(equalityCriterias: { [key: string]: IndexableType; }): ObservableCollection<T, TKey>;
+	public where(index: string | string[]): ObservableWhereClause<T, TKey>;
+	public where(equalityCriterias: { [key: string]: IndexableType; }): ObservableCollection<T, TKey>;
     /**
      * Observable stream of the complete Table orderd by indexed key.
      * Emits updated Table array on changes.

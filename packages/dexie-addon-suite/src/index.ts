@@ -10,7 +10,6 @@ export type { ObservableTablePopulated, PopulatedTableObservable } from './table
 export { Encryption };
 export type { Ref, Populated, PopulateOptions, OnSerialize };
 
-
 declare module 'dexie' {
 
     interface Database {

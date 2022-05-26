@@ -26,11 +26,11 @@
   ],
   "dependencies": {
     "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
+    "@pvermeer/dexie-class-addon": "file:packages/dexie-class-addon",
     "@pvermeer/dexie-encrypted-addon": "file:packages/dexie-encrypted-addon",
     "@pvermeer/dexie-immutable-addon": "file:packages/dexie-immutable-addon",
     "@pvermeer/dexie-populate-addon": "file:packages/dexie-populate-addon",
-    "@pvermeer/dexie-rxjs-addon": "file:packages/dexie-rxjs-addon",
-    "@pvermeer/dexie-class-addon": "file:packages/dexie-class-addon"
+    "@pvermeer/dexie-rxjs-addon": "file:packages/dexie-rxjs-addon"
   },
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",
@@ -44,6 +44,7 @@
     "@types/lodash.flatten": "^4.4.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.uniqby": "^4.7.6",
+    "@types/lodash.uniqwith": "^4.5.7",
     "@typescript-eslint/eslint-plugin": "^5.3.1",
     "@typescript-eslint/parser": "^5.3.1",
     "dts-bundle-generator": "^5.9.0",

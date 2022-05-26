@@ -1,8 +1,9 @@
 import { Collection, Dexie, IndexableType, Table, WhereClause } from 'dexie';
 import { IDatabaseChange } from 'dexie-observable/api';
 import isEqual from 'lodash.isequal';
+import uniqWith from 'lodash.uniqwith';
 import { Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
+import { buffer, debounceTime, distinctUntilChanged, filter, map, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
 import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
@@ -17,8 +18,13 @@ type TableMapObservable = Omit<
 
 export class ObservableTable<T, TKey> implements TableMapObservable {
 
-    private _tableChanges$: Observable<IDatabaseChange[]> = this._db.changes$.pipe(
-        filter(x => x.some(y => y.table === this._table.name)),
+    private changes$ = this._db.changes$.pipe(
+        map(x => x.filter(y => y.table === this._table.name)),
+        filter(x => x.length > 0),
+        share()
+    );
+
+    private _tableChanges$: Observable<IDatabaseChange[]> = this.changes$.pipe(
         debounceTime(50), // Only checking if there are any changes on the table so only trigger on last in debounce window
         startWith([]),
         share()
@@ -29,6 +35,19 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
         distinctUntilChanged(isEqual),
         shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    /**
+     * Observable stream of table changes.
+     * Emits updated value on changes.
+     * @note Stays open so unsubscribe.
+     */
+    public changes(): Observable<IDatabaseChange[]> {
+        return this.changes$.pipe(
+            buffer(this.changes$.pipe(debounceTime(50))),
+            map(changesBuffer => uniqWith(changesBuffer.flat(), isEqual)),
+            share()
+        );
+    }
 
     /**
      * Create an Observable Collection of this table.

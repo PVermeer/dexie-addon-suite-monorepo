@@ -6,6 +6,7 @@ export { ObservableCollection } from './observable-collection.class';
 export { ObservableTable } from './observable-table.class';
 export { ObservableWhereClause } from './observable-where-clause.class';
 export type { TableExtended } from './table-extended.class';
+export * from 'dexie-observable/api';
 
 declare module 'dexie' {
     interface Database {

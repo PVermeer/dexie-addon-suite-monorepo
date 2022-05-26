@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.34](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.33...@pvermeer/dexie-addon-suite@1.0.0-beta.34) (2022-05-26)
+
+
+### Features
+
+* **dexie-rxjs-addon:** added changes method on table ([486a77d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/486a77daaf027db79371ef56a0763f9dd80dc66d))
+
+
+
+
+
 # [1.0.0-beta.33](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.32...@pvermeer/dexie-addon-suite@1.0.0-beta.33) (2022-04-19)
 
 

@@ -37,7 +37,7 @@ export type Populated<T, B extends boolean = false, K extends string = string> =
     [P in keyof T]: T[P] extends Ref<infer O, infer _, infer R>[] ? R extends 'Ref' ?
 
     // Check for partial population in array:
-    P extends K ? B extends false ? (Populated<O, B, K> | null)[] : (O | null)[] : T[P] : T[P]
+    P extends K ? B extends false ? (Populated<O, B, string> | null)[] : (O | null)[] : T[P] : T[P]
 
     // Check for nominal Ref on properties:
     : T[P] extends Ref<infer O, infer _, infer R> ? R extends 'Ref' ?

@@ -109,7 +109,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
         });
 
         const tableName = this._table.name;
-        const records = await this._records;
+        const records = this._records;
         this._populatedTree = {};
 
         // Update toBePopulated by assigning to references.
@@ -123,7 +123,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
     /**
      * Recursively populate the provided records (ref based strategy).
      */
-    private _recursivePopulate = async (tableName: string, populateRefs: T[]) => {
+    private _recursivePopulate = async (tableName: string, populateRefs: T[], deepRecursive = false) => {
 
         const schema = this._relationalSchema[tableName];
         if (!schema) { return; }
@@ -141,7 +141,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
 
                 if (
                     !schema[key] ||
-                    (keysToPopulate.length && !keysToPopulate.some(x => x === key)) ||
+                    (!deepRecursive && keysToPopulate.length && !keysToPopulate.some(x => x === key)) ||
                     !entry
                 ) { return; }
 
@@ -222,7 +222,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
         if (Object.keys(deepRefsToPopulate).length) {
             await Promise.all(
                 Object.entries(deepRefsToPopulate)
-                    .map(([table, refs]) => this._recursivePopulate(table, flatten(refs)))
+                    .map(([table, refs]) => this._recursivePopulate(table, flatten(refs), true))
             );
         }
     };

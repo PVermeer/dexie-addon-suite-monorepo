@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.22](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.21...@pvermeer/dexie-populate-addon@1.0.0-beta.22) (2022-06-19)
+
+
+### Bug Fixes
+
+* **dexie-populate-addon:** should now populate deep on partial populated properties ([0e5e265](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/0e5e265e095b9263d18259b74d69ae30f0409c5d))
+
+
+### Features
+
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
 # [1.0.0-beta.21](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.0-beta.20...@pvermeer/dexie-populate-addon@1.0.0-beta.21) (2022-02-02)
 
 **Note:** Version bump only for package @pvermeer/dexie-populate-addon

@@ -227,11 +227,11 @@ export const methodsPositive = [
             db.friends.populate({ shallow: _shallow }).toArray().then(x => x.find(y => y.id === _id))
     },
     {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).toArray()`,
+        desc: `Table.populate(['hasFriends', 'memberOf', 'hairColor']).toArray()`,
         populated: true,
         populatedPartial: true,
         method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor'], { shallow }).toArray().then(x => x.find(y => y.id === _id))
+            db.friends.populate(['hasFriends', 'memberOf', 'hairColor'], { shallow }).toArray().then(x => x.find(y => y.id === _id))
     },
     {
         desc: 'Table.toArray()',
@@ -270,18 +270,18 @@ export const methodsPositive = [
             db.friends.populate({ shallow: _shallow }).where('memberOf').equals(_id).first()
     },
     {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where()`,
+        desc: `Table.populate(['hasFriends', 'memberOf', 'hairColor']).where()`,
         populated: true,
         populatedPartial: true,
         method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor'], { shallow }).where(':id').equals(_id).first()
+            db.friends.populate(['hasFriends', 'memberOf', 'hairColor'], { shallow }).where(':id').equals(_id).first()
     },
     {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where({ id })`,
+        desc: `Table.populate(['hasFriends', 'memberOf', 'hairColor']).where({ id })`,
         populated: true,
         populatedPartial: true,
         method: (db: TestDatabaseType) => (id: number, shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor'], { shallow }).where({ id }).first()
+            db.friends.populate(['hasFriends', 'memberOf', 'hairColor'], { shallow }).where({ id }).first()
     },
     {
         desc: 'Table.where()',

@@ -215,6 +215,16 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                         {
                             desc: '$.populate()',
                             method: (dbInput: typeof db) => dbInput.friends.$.populate()
+                        },
+                        {
+                            desc: `$.populate(['hasFriends', 'memberOf', 'group', 'hairColor'])`,
+                            method: (dbInput: typeof db) => dbInput.friends.$.populate([
+                                'hasFriends',
+                                'memberOf',
+                                'group',
+                                'hairColor',
+                                // Typed as other methods, should return the same type
+                            ]) as unknown as PopulateTableObservable<Populated<Friend, false, string>, string, false, string>
                         }
                     ];
                     methods.forEach(_method => {

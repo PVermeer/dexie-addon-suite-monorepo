@@ -23,6 +23,9 @@ export function classMap(db: Dexie) {
         const transaction = Dexie.currentTransaction;
         if (transaction?.raw) return itemState;
 
+        // Dexie supports key path updates. These are treated as raw updates.
+        if (Object.keys(itemState).some(key => key.includes('.'))) return itemState;
+
         if (item['serialize'] && typeof item['serialize'] === 'function') {
             itemState = { ...new Serializer(item.serialize()) };
         }

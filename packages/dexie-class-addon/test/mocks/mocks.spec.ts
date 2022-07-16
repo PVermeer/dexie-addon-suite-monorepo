@@ -13,6 +13,11 @@ export class Friend implements OnSerialize {
     shoeSize: number;
     date: Date;
 
+    address: {
+        zipCode: string;
+        street: string;
+    };
+
     someMethod() { return; }
 
     serialize() {
@@ -22,7 +27,8 @@ export class Friend implements OnSerialize {
             firstName: () => this.firstName,
             lastName: () => this.lastName,
             shoeSize: () => this.shoeSize,
-            date: () => this.date.getTime()
+            date: () => this.date.getTime(),
+            address: () => ({ ...this.address })
         };
     }
 
@@ -96,7 +102,12 @@ export const mockFriends = (count = 5): Friend[] => {
         lastName: faker.name.lastName(),
         age: faker.datatype.number({ min: 1, max: 80 }),
         shoeSize: faker.datatype.number({ min: 5, max: 12 }),
-        date: faker.date.recent()
+        date: faker.date.recent(),
+
+        address: {
+            zipCode: faker.address.zipCode(),
+            street: faker.address.streetName()
+        }
     });
     return new Array(count).fill(null).map(() => friend());
 };

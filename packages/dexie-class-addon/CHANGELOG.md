@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.9](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-class-addon@1.0.0-beta.8...@pvermeer/dexie-class-addon@1.0.0-beta.9) (2022-07-16)
+
+
+### Bug Fixes
+
+* **dexie-class-addon:** key path updates are now treated as raw ([2b02806](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/2b0280610cff3b45a7b586a54b1c6c1059b7c7c0))
+
+
+
+
+
 # [1.0.0-beta.8](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-class-addon@1.0.0-beta.7...@pvermeer/dexie-class-addon@1.0.0-beta.8) (2022-04-19)
 
 

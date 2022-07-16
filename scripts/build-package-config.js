@@ -1,4 +1,3 @@
-// @ts-check
 const path = require('path');
 
 var os = require("os").type();

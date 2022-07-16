@@ -98,6 +98,20 @@ describe('dexie-class-addon class.spec', () => {
                             const getFriend = await db.friends.get(id);
                             friendExpectations(getFriend!);
                         });
+                        it('should be able to update document with key paths', async () => {
+                            const updatedDoc = {
+                                'address.zipCode': 'someZipCode',
+                                'address.street': 'someStreetName'
+                            };
+                            await db.friends.update(id, updatedDoc);
+                            friend.address = {
+                                zipCode: 'someZipCode',
+                                street: 'someStreetName'
+                            };
+
+                            const getFriend = await db.friends.get(id);
+                            friendExpectations(getFriend!);
+                        });
                         it('should run serializer', async () => {
                             const date = new Date();
                             const updatedDoc: Partial<Friend> = { date };

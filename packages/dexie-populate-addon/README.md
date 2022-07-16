@@ -93,6 +93,7 @@ Options:
 db.friends.populate().get(1); // Fully populated;
 db.friends.populate({ shallow: true }).get(1); // Only the record itself is populated, no deeper;
 db.friends.populate(['memberOf', 'group']).get(1); // Only 'memberOf' and 'group' are deep populated;
+db.friends.populate(['memberOf', 'group'], { shallow: true }).get(1); // Only 'memberOf' and 'group' are shallow populated;
 ```
 Array methods:
 ```ts
@@ -291,8 +292,3 @@ Dexie.js
 ========
 
 Dexie.js is a wrapper library for indexedDB - the standard database in the browser. https://dexie.org
-
-
-Known issues
-========
-- Array.every does not work on array Ref types because of a weird type in the es5 library. TypeScript bug?

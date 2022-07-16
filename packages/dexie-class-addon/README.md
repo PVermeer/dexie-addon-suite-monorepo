@@ -36,6 +36,8 @@ The `serialize()` must return an object with database keys as object keys and an
 
 This package also export the `OnSerialize` interface for TypeScript classes. Implementing this in your database class makes sure you implement the serialize correctly.
 
+Dexie supports nested updates with key paths `Table.update({'some.path': 'some value'})`. This addon treats these updates as raw. The addon does not run the `serialize()` method on these kind of updates.
+
 Example (TypeScript):
 ```js
 import { OnSerialize } from '@pvermeer/dexie-class-addon';

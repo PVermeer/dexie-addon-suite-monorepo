@@ -46,7 +46,7 @@ jobs:
       - name: Version
         if: ${{ github.event_name == 'push' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run version -- branch=$BRANCH
 
       - name: Npm release

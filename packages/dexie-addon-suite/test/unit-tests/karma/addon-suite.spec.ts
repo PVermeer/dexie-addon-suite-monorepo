@@ -57,7 +57,7 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                 let styleIds: number[];
 
                 beforeEach(async () => {
-                    await Dexie.delete(database.desc);
+                    subs = new Subscription();
                     db = database.db(Dexie);
                     await db.open();
                     expect(db.isOpen()).toBeTrue();
@@ -122,13 +122,10 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                     friendExpectedPop.hasFriends[0]!.memberOf = clubs.slice(3) as any;
                     friendExpectedPop.hasFriends[0]!.group = groups[2] as any;
                     friendExpectedPop.hasFriends[0]!.hairColor = hairColors[2] as any;
-
-                    subs = new Subscription();
                 });
                 afterEach(async () => {
                     subs.unsubscribe();
                     await db.delete();
-                    expect(db.isOpen()).toBeFalse();
                 });
 
                 if (database.immutable) {

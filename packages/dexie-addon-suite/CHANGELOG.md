@@ -3,6 +3,139 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.1...@pvermeer/dexie-addon-suite@1.0.2) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+## [1.0.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.36...@pvermeer/dexie-addon-suite@1.0.1) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.36...@pvermeer/dexie-addon-suite@1.0.0) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.36](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.35...@pvermeer/dexie-addon-suite@1.0.0-beta.36) (2022-07-16)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.35](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.34...@pvermeer/dexie-addon-suite@1.0.0-beta.35) (2022-06-19)
+
+
+### Bug Fixes
+
+* **dexie-populate-addon:** should now populate deep on partial populated properties ([0e5e265](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/0e5e265e095b9263d18259b74d69ae30f0409c5d))
+
+
+
+
+
+# [1.0.0-beta.34](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.33...@pvermeer/dexie-addon-suite@1.0.0-beta.34) (2022-05-26)
+
+
+### Features
+
+* **dexie-rxjs-addon:** added changes method on table ([486a77d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/486a77daaf027db79371ef56a0763f9dd80dc66d))
+
+
+
+
+
+# [1.0.0-beta.33](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.32...@pvermeer/dexie-addon-suite@1.0.0-beta.33) (2022-04-19)
+
+
+* feat(dexie-class-addon)!: table.update now also run serialization ([c0a21f3](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c0a21f32cd01c6af24c73e932eb58d46141103ad))
+
+
+### BREAKING CHANGES
+
+* `serialization` method must now be implemented with arrow functions
+
+
+
+
+
+# [1.0.0-beta.32](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.31...@pvermeer/dexie-addon-suite@1.0.0-beta.32) (2022-04-11)
+
+
+### Features
+
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
+# [1.0.0-beta.31](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.30...@pvermeer/dexie-addon-suite@1.0.0-beta.31) (2022-03-09)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.30](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.29...@pvermeer/dexie-addon-suite@1.0.0-beta.30) (2022-03-08)
+
+
+### Features
+
+* support to get a raw document in a transaction ([613a99a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/613a99a331e145b7a9867b77978f4d365c01c8d9))
+
+
+
+
+
+# [1.0.0-beta.29](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.28...@pvermeer/dexie-addon-suite@1.0.0-beta.29) (2022-03-03)
+
+
+### Bug Fixes
+
+* **dexie-addon-suite:** changes$ on db is now exposed ([b901469](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/b901469c13ab1b4b2e2c939e0f9a6d81270f90b5))
+
+
+
+
+
+# [1.0.0-beta.28](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.27...@pvermeer/dexie-addon-suite@1.0.0-beta.28) (2022-02-02)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.27](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.26...@pvermeer/dexie-addon-suite@1.0.0-beta.27) (2022-02-02)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
+# [1.0.0-beta.26](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.25...@pvermeer/dexie-addon-suite@1.0.0-beta.26) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
+
+
+
+
 # [1.0.0-beta.25](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.0-beta.24...@pvermeer/dexie-addon-suite@1.0.0-beta.25) (2022-01-31)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

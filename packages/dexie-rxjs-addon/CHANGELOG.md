@@ -3,6 +3,70 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.1...@pvermeer/dexie-rxjs-addon@1.0.2) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+## [1.0.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.36...@pvermeer/dexie-rxjs-addon@1.0.1) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.36...@pvermeer/dexie-rxjs-addon@1.0.0) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.36](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.35...@pvermeer/dexie-rxjs-addon@1.0.0-beta.36) (2022-05-26)
+
+
+### Features
+
+* **dexie-rxjs-addon:** added changes method on table ([486a77d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/486a77daaf027db79371ef56a0763f9dd80dc66d))
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
+# [1.0.0-beta.35](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.34...@pvermeer/dexie-rxjs-addon@1.0.0-beta.35) (2022-02-02)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.34](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.33...@pvermeer/dexie-rxjs-addon@1.0.0-beta.34) (2022-02-02)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** mixin classes with recursive prototype chain ([c8dcb8d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c8dcb8ddb68afa670bb737f71eb4d01e1ab469d9))
+* **dexie-rxjs-addon:** passing types to exposed methods ([df0ab3e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/df0ab3e57873bcfd24e6ba6af2b60cd3578024a9))
+
+
+
+
+
+# [1.0.0-beta.33](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.32...@pvermeer/dexie-rxjs-addon@1.0.0-beta.33) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
 # [1.0.0-beta.32](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.31...@pvermeer/dexie-rxjs-addon@1.0.0-beta.32) (2022-01-31)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

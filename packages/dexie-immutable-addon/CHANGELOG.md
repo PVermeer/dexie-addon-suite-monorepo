@@ -3,6 +3,44 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.0...@pvermeer/dexie-immutable-addon@1.1.1) (2022-07-22)
+
+**Note:** Version bump only for package @pvermeer/dexie-immutable-addon
+
+
+
+
+
+# [1.1.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.0.0-beta.11...@pvermeer/dexie-immutable-addon@1.1.0) (2022-07-22)
+
+
+### Features
+
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
+# [1.0.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.0.0-beta.11...@pvermeer/dexie-immutable-addon@1.0.0) (2022-07-22)
+
+
+### Features
+
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
+# [1.0.0-beta.11](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.0.0-beta.10...@pvermeer/dexie-immutable-addon@1.0.0-beta.11) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-immutable-addon
+
+
+
+
+
 # [1.0.0-beta.10](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.0.0-beta.9...@pvermeer/dexie-immutable-addon@1.0.0-beta.10) (2022-01-31)
 
 **Note:** Version bump only for package @pvermeer/dexie-immutable-addon

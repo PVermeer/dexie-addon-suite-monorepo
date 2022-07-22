@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-immutable-addon",
-  "version": "1.0.0-beta.11",
+  "version": "1.0.0",
   "description": "Addon for Dexie.js database to add immutability",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

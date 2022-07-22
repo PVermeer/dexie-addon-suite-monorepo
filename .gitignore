@@ -4,3 +4,4 @@ dist_tests/
 reports/
 tsconfig.tsbuildinfo
 /_temp
+lerna-debug.log

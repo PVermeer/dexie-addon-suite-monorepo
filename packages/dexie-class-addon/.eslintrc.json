@@ -11,7 +11,7 @@
                     "**/*.spec.ts"
                 ],
                 "packageDir": [
-                    "./packages/common",
+                    "./packages/dexie-class-addon",
                     "./"
                 ]
             }

@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [master, beta, next]
+  pull_request:
+    branches: [master, beta, next]
+
+jobs:
+  test:
+    name: Test - Release
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    env:
+      CI: true
+      BRANCH: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Lint commit message
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: wagoid/commitlint-github-action@v4
+
+      - name: Install
+        run: npm run bootstrap:ci
+
+      - name: Test
+        run: npm run test
+
+      - name: Configure git user
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          git config --global user.email "ci@ci.com"
+          git config --global user.name "@$GITHUB_ACTOR"
+
+      - name: Version
+        if: ${{ github.event_name == 'push' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run version -- branch=$BRANCH
+
+      - name: Npm release
+        if: ${{ github.event_name == 'push' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm run release -- branch=$BRANCH

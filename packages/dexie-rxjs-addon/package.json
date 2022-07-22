@@ -1,9 +1,9 @@
 {
   "name": "@pvermeer/dexie-rxjs-addon",
-  "version": "1.0.0-beta.18",
+  "version": "1.0.0-beta.36",
   "description": "Addon for Dexie.js database to add rxjs observables",
   "main": "dist/index.js",
-  "module": "dist/esm/dexie-rxjs-addon/src/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "author": "PVermeer",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "build": "bash ../../scripts/build-package.sh",
     "lint": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './tsconfig.json'\"} ./src && npm run lint:test",
     "lint:test": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './test/tsconfig.json'\"} ./test",
-    "test": "npm run lint && npm run build && npm run test:jasmine && npm run test:karma",
+    "test": "npm run lint && npm run test:jasmine && npm run test:karma",
     "test:karma": "karma start ../../karma.conf.js  --context=$PWD",
     "test:karma:debug": "karma start ../../karma.conf.js --context=$PWD --debug",
     "test:jasmine": "ts-node ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'",
@@ -37,7 +37,9 @@
   },
   "dependencies": {
     "dexie-observable": "^3.0.0-beta.11",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
+    "lodash.uniqwith": "^4.5.0",
     "tslib": "^2.3.1"
   },
   "peerDependencies": {

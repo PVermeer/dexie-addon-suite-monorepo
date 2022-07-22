@@ -9,27 +9,34 @@ export class PopulatedTableObservable<T, TKey, B extends boolean, K extends stri
     public $: PopulateTableObservable<Populated<T, B, K>, TKey, B, K> = new PopulateTableObservable<Populated<T, B, K>, TKey, B, K>(
         this._db,
         this._table,
-        this._keysOrOptions
+        this._keys,
+        this._options
     );
 
     constructor(
-        _keysOrOptions: K[] | PopulateOptions<B> | undefined,
+        _keys: K[] | undefined,
+        _options: PopulateOptions<B> | undefined,
         _db: Dexie,
         _table: Table<T, TKey>,
         _relationalSchema: RelationalDbSchema
     ) {
-        super(_keysOrOptions, _db, _table, _relationalSchema);
+        super(_keys, _options, _db, _table, _relationalSchema);
     }
 }
 
 export class ObservableTablePopulated<T, TKey> extends ObservableTable<T, TKey> {
 
-    public populate<B extends boolean = false, K extends string = string>(keysOrOptions?: K[] | PopulateOptions<B>)
-        : PopulateTableObservable<Populated<T, B, K>, TKey, B, K> {
+    public populate<B extends boolean = false, K extends string = string>(
+        keysOrOptions?: K[] | PopulateOptions<B>,
+        options?: PopulateOptions<B>
+    ): PopulateTableObservable<Populated<T, B, K>, TKey, B, K> {
+        const _keys = Array.isArray(keysOrOptions) ? keysOrOptions : undefined;
+        const _options = options || (keysOrOptions && 'shallow' in keysOrOptions ? keysOrOptions : undefined);
         return new PopulateTableObservable<Populated<T, B, K>, TKey, B, K>(
             this._db,
             this._table,
-            keysOrOptions
+            _keys,
+            _options
         );
     }
 
@@ -44,12 +51,8 @@ export class ObservableTablePopulated<T, TKey> extends ObservableTable<T, TKey> 
 export interface PopulatedObservableTable<T, TKey> {
     $: ObservableTablePopulated<T, TKey>;
     populate<B extends boolean = false, K extends string = string>(
-        keys: K[],
+        keysOrOptions?: K[] | PopulateOptions<B>,
         options?: PopulateOptions<B>
-    ): PopulatedTableObservable<T, TKey, B, K>;
-    populate<B extends boolean = false>(options?: PopulateOptions<B>): PopulatedTableObservable<T, TKey, B, string>;
-    populate<B extends boolean = false, K extends string = string>(
-        keysOrOptions?: K[] | PopulateOptions<B>
     ): PopulatedTableObservable<T, TKey, B, K>;
 }
 /**
@@ -60,15 +63,19 @@ export function getPopulatedObservableTable<T, TKey>(db: Dexie) {
 
     const TableClass = db.Table as DexieExtended['Table'];
 
-    return class TableExt extends TableClass<T, TKey>  implements Table<T, TKey>{
+    return class TableExt extends TableClass<T, TKey> implements Table<T, TKey>{
 
         public $: ObservableTablePopulated<T, TKey> = new ObservableTablePopulated<T, TKey>(db, this);
 
         public populate<B extends boolean = false, K extends string = string>(
-            keysOrOptions?: K[] | PopulateOptions<B>
+            keysOrOptions?: K[] | PopulateOptions<B>,
+            options?: PopulateOptions<B>
         ): PopulatedTableObservable<T, TKey, B, K> {
+            const _keys = Array.isArray(keysOrOptions) ? keysOrOptions : undefined;
+            const _options = options || (keysOrOptions && 'shallow' in keysOrOptions ? keysOrOptions : undefined);
             return new PopulatedTableObservable<T, TKey, B, K>(
-                keysOrOptions,
+                _keys,
+                _options,
                 db,
                 this,
                 (this.db as DexieExtended)._relationalSchema

@@ -21,15 +21,14 @@ export class Encryption {
     }
 
     /**
-     * Create a base64 hash string of the provided input.
+     * Create a base64 SHA-512 hash string of the provided input.
      * @param input Any non-circulair value.
      */
     public static hash(input: any): string {
         const messageUint8Array = encodeUtf8(JSON.stringify(input));
         const hashUint8Array = hash(messageUint8Array);
-        const base64FullMessage = encodeBase64(hashUint8Array);
-        const shortString = base64FullMessage.slice(11, 31);
-        return shortString;
+        const base64HashString = encodeBase64(hashUint8Array);
+        return base64HashString;
     }
 
     /**
@@ -37,7 +36,7 @@ export class Encryption {
      * @param json Any non-circulair value.
      */
     public encrypt(json: any): string {
-        if (!json) { return json; }
+        if (json === undefined) { return json; }
 
         const nonce = randomBytes(secretbox.nonceLength);
         const messageUint8 = encodeUtf8(JSON.stringify(json));

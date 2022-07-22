@@ -3,9 +3,9 @@ import cloneDeep from 'lodash.clonedeep';
 import flatten from 'lodash.flatten';
 import isEqual from 'lodash.isequal';
 import uniqBy from 'lodash.uniqby';
-
 import { RelationalDbSchema } from './schema-parser.class';
-import { Populated, PopulateOptions } from './types';
+import { DexieExtended, Populated, PopulateOptions } from './types';
+
 
 interface MappedIds {
     [targetTable: string]: {
@@ -26,6 +26,33 @@ export interface PopulateTree {
 }
 
 export class Populate<T, TKey, B extends boolean, K extends string> {
+
+    public static async populateResult<T, TKey, B extends boolean, K extends string>(
+        result: T | T[],
+        table: Table<T, TKey>,
+        keys: K[] | undefined,
+        options: PopulateOptions<B> | undefined
+    ): Promise<Populated<T, B, K>[]> {
+        const dbExt = table.db as DexieExtended;
+        const relationalSchema = dbExt._relationalSchema;
+        const populate = new Populate<T, TKey, B, K>(result, keys, options, dbExt, table, relationalSchema);
+        return populate.populated;
+    }
+
+    public static async populateResultWithTree<T, TKey, B extends boolean, K extends string>(
+        result: T,
+        table: Table<T, TKey>,
+        keys: K[] | undefined,
+        options: PopulateOptions<B> | undefined
+    ) {
+        const dbExt = table.db as DexieExtended;
+        const relationalSchema = dbExt._relationalSchema;
+        const populate = new Populate(result, keys, options, dbExt, table, relationalSchema);
+        const getPopulated = await populate.populated;
+        const populated = Array.isArray(result) ? getPopulated : (getPopulated.length ? getPopulated[0] : undefined);
+        const populatedTree = await populate.populatedTree;
+        return { populated, populatedTree };
+    }
 
     private _records: T[];
 
@@ -77,12 +104,12 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
         // Match schema with provided keys
         (this._keysToPopulate || []).forEach(key => {
             if (!Object.values(this._relationalSchema).some(x => Object.keys(x).some(y => y === key))) {
-                throw new Error(`DEXIE POPULATE: Provided key '${key}' doesn't match with schema`);
+                throw new Error(`DEXIE POPULATE ADDON: Provided key '${key}' doesn't match with schema`);
             }
         });
 
         const tableName = this._table.name;
-        const records = await this._records;
+        const records = this._records;
         this._populatedTree = {};
 
         // Update toBePopulated by assigning to references.
@@ -96,7 +123,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
     /**
      * Recursively populate the provided records (ref based strategy).
      */
-    private _recursivePopulate = async (tableName: string, populateRefs: T[]) => {
+    private _recursivePopulate = async (tableName: string, populateRefs: T[], deepRecursive = false) => {
 
         const schema = this._relationalSchema[tableName];
         if (!schema) { return; }
@@ -114,7 +141,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
 
                 if (
                     !schema[key] ||
-                    (keysToPopulate.length && !keysToPopulate.some(x => x === key)) ||
+                    (!deepRecursive && keysToPopulate.length && !keysToPopulate.some(x => x === key)) ||
                     !entry
                 ) { return; }
 
@@ -123,7 +150,8 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
                 if (!acc[targetTable]) { acc[targetTable] = {}; }
                 if (!acc[targetTable][targetKey]) { acc[targetTable][targetKey] = []; }
 
-                const ids = Array.isArray(entry) ? entry : [entry];
+                const ids = (Array.isArray(entry) ? entry : [entry])
+                    .filter(id => id !== undefined && id !== null);
                 const mappedIdEntries = ids.map(id => ({ id, key, ref: record }));
 
                 acc[targetTable][targetKey] = [...acc[targetTable][targetKey], ...mappedIdEntries];
@@ -167,7 +195,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
                                 isEqual(newRefKey[key], ref[key]);
 
                             if (isCircular) {
-                                throw new Error(`DEXIE POPULATE: Circular reference detected on '${key}'. ` +
+                                throw new Error(`DEXIE POPULATE ADDON: Circular reference detected on '${key}'. ` +
                                     `'${key}' Probably contains a reference to itself.`
                                 );
                             }
@@ -194,29 +222,22 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
         if (Object.keys(deepRefsToPopulate).length) {
             await Promise.all(
                 Object.entries(deepRefsToPopulate)
-                    /* Using lodash flatten (instead of Array.flat())
-                     because Edge just updated to support Array.flat() and MS updates slow */
-                    .map(([table, refs]) => this._recursivePopulate(table, flatten(refs)))
+                    .map(([table, refs]) => this._recursivePopulate(table, flatten(refs), true))
             );
         }
     };
 
     constructor(
         _records: T[] | T | undefined,
-        keysOrOptions: string[] | PopulateOptions<B> | undefined,
+        keys: string[] | undefined,
+        options: PopulateOptions<B> | undefined,
         private _db: Dexie,
         private _table: Table<T, TKey>,
         private _relationalSchema: RelationalDbSchema
     ) {
         this._records = _records ? Array.isArray(_records) ? _records : [_records] : [];
-
-        if (keysOrOptions) {
-            if (Array.isArray(keysOrOptions)) {
-                this._keysToPopulate = keysOrOptions;
-            } else if ('shallow' in keysOrOptions) {
-                this._options = keysOrOptions;
-            }
-        }
+        this._keysToPopulate = keys;
+        this._options = options;
     }
 
 }

@@ -99,6 +99,16 @@ interface EncryptedOptions {
 ```
 *Setting this to false can lead to unexpected / weird behavior in your application*
 
+#### Getting and setting a raw document
+To get or set raw document, unaltered by hooks, a transaction can be used while setting `raw` to `true` on the `transaction` object:
+```ts
+await db.transaction('readonly', db.friends, async (transaction) => {
+    transaction.raw = true;
+    const friendRaw = await db.friends.get(id) as RawFriend;
+});
+```
+All read actions in the transaction will return a raw document as saved in the db. All set actions will save the document as is. So no Class mapping or decryption / encryption will be performed on the document.
+
 #### Example (ESM)
 ```js
 import Dexie from 'dexie';
@@ -237,11 +247,21 @@ class Encryption {
      */
     static createRandomEncryptionKey(): string;
     /**
-     * Create a base64 hash string of the provided input.
+     * Create a base64 SHA-512 hash string of the provided input.
      * @param input Any non-circulair value.
      */
     static hash(input: any): string;
-    
+    /**
+     * Encrypt any value.
+     * @param json Any non-circulair value.
+     */
+    public encrypt(json: any): string;
+    /**
+     * Decrypt values.
+     * @param json Any non-circulair value.
+     */
+    public decrypt(messageWithNonce: string): any;
+
     constructor(secret?: string);
 }
 ```

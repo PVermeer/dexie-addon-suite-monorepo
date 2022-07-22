@@ -1,9 +1,11 @@
+import { OnSerialize } from '@pvermeer/dexie-class-addon';
+import { EncryptedOptions, Encryption } from '@pvermeer/dexie-encrypted-addon';
+import { Ref } from '@pvermeer/dexie-populate-addon';
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/en';
-import { Ref } from '@pvermeer/dexie-populate-addon';
-import { OmitMethods } from '../../../common/src/utility-types';
 import { addonSuite, Config } from '../../src/addon-suite';
-import { EncryptedOptions, Encryption } from '@pvermeer/dexie-encrypted-addon';
+
+type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
 export class HairColor {
     id?: number;
@@ -89,18 +91,16 @@ export class Group {
     }
 
 }
-export class Friend {
+export class Friend implements OnSerialize {
     id?: string;
-    testProp?: string;
     age: number;
-    hasAge?: boolean;
     firstName: string;
     lastName: string;
     shoeSize: number;
     customId: number;
-    some?: { id: number; other: string; };
-    hasFriends: Ref<Friend[], number[]>;
-    memberOf: Ref<Club[], number[]>;
+    date: Date;
+    hasFriends: Ref<Friend, number>[];
+    memberOf: Ref<Club, number>[];
     group: Ref<Group, number>;
     hairColor: Ref<HairColor, number>;
 
@@ -108,10 +108,30 @@ export class Friend {
         return 'done';
     }
 
+    serialize() {
+        const serialized = {
+            id: () => this.id,
+            age: () => this.age,
+            firstName: () => this.firstName,
+            lastName: () => this.lastName,
+            shoeSize: () => this.shoeSize,
+            customId: () => this.customId,
+            date: () => this.date.getTime(),
+            hasFriends: () => this.hasFriends,
+            memberOf: () => this.memberOf,
+            group: () => this.group,
+            hairColor: () => this.hairColor
+        };
+        return serialized;
+    }
+
+    deserialize(input: OmitMethods<Friend>) {
+        Object.entries(input).forEach(([prop, value]) => this[prop] = value);
+        this.date = new Date(input.date);
+    }
+
     constructor(friend: OmitMethods<Friend>) {
-        Object.entries(friend).forEach(([key, value]) => {
-            this[key] = value;
-        });
+        this.deserialize(friend);
     }
 }
 
@@ -120,21 +140,23 @@ const getDatabase = (
     name: string,
     config?: Config & EncryptedOptions
 ) => new class TestDatabase extends dexie {
+
     public friends: Dexie.Table<Friend, string>;
     public clubs: Dexie.Table<Club, number>;
     public themes: Dexie.Table<Theme, number>;
     public groups: Dexie.Table<Group, number>;
     public styles: Dexie.Table<Style, number>;
     public hairColors: Dexie.Table<HairColor, number>;
+
     constructor(_name: string) {
         super(_name);
         addonSuite(this, config);
         this.on('blocked', () => false);
         this.version(1).stores({
             friends: config?.secretKey || config?.encrypted?.secretKey ?
-                '#id, &customId, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]' :
+                '#id, &customId, $date, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]' :
 
-                '++id, &customId, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]',
+                '++id, &customId, date, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]',
 
             clubs: '++id, $name, theme => themes.id',
             themes: '++id, $name, style => styles.id',
@@ -142,6 +164,7 @@ const getDatabase = (
             groups: '++id, $name',
             hairColors: '++id, $name'
         });
+
         this.friends.mapToClass(Friend);
         this.clubs.mapToClass(Club);
         this.themes.mapToClass(Theme);
@@ -158,15 +181,17 @@ export const databasesPositive = [
         desc: 'TestDatabase - all addons',
         immutable: true,
         encrypted: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase - all addons', {
+        class: true,
+        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!, {
             secretKey: Encryption.createRandomEncryptionKey()
         })
     },
     {
-        desc: 'TestDatabase - populate / observable / immutable',
+        desc: 'TestDatabase - populate / observable / immutable / class',
         encrypted: false,
         immutable: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase - populate / observable')
+        class: true,
+        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!)
     }
 ];
 
@@ -181,12 +206,12 @@ export const mockFriends = (count = 5): Friend[] => {
         hasFriends: [],
         memberOf: [],
         group: null,
-        hairColor: null
+        hairColor: null,
+        date: faker.date.recent()
     });
     return new Array(count).fill(null).map(() => {
         const mockfriend = friend();
         customId++;
-        mockfriend.customId = customId;
         return mockfriend;
     });
 };
@@ -229,220 +254,3 @@ export const mockHairColors = (count = 5): HairColor[] => {
     });
     return new Array(count).fill(null).map(() => hairColor());
 };
-
-// import { addonSuite } from '@pvermeer/dexie-suite-addon';
-// import type { Dexie as DexieType } from 'dexie';
-// import faker from 'faker/locale/nl';
-// import { EMPTY, of } from 'rxjs';
-// import { mergeMap, map } from 'rxjs/operators';
-
-// export interface Friend {
-//     id?: number;
-//     testProp?: string;
-//     age: number;
-//     hasAge?: boolean;
-//     firstName: string;
-//     lastName: string;
-//     shoeSize: number;
-//     customId: number;
-//     some?: { id: number; };
-// }
-
-// type TestDatabaseType = DexieType & { friends: DexieType.Table<Friend, number>; };
-
-// export const databasesPositive = [
-//     {
-//         desc: 'TestDatabase',
-//         db: (Dexie: typeof DexieType) => new class TestDatabase extends Dexie {
-//             public friends: DexieType.Table<Friend, number>;
-//             constructor(name: string) {
-//                 super(name);
-//                 addonSuite(this);
-//                 this.on('blocked', () => false);
-//                 this.version(1).stores({
-//                     friends: '++id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
-//                 });
-//                 console.log(this);
-//             }
-//         }('TestDatabase')
-//     },
-//     {
-//         desc: 'TestDatabaseKeyPath',
-//         db: (Dexie: typeof DexieType) => new class TestDatabaseKeyPath extends Dexie {
-//             public friends: DexieType.Table<Friend, number>;
-//             constructor(name: string) {
-//                 super(name);
-//                 addonSuite(this);
-//                 this.on('blocked', () => false);
-//                 this.version(1).stores({
-//                     friends: '++some.id, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
-//                 });
-//             }
-//         }('TestDatabaseKeyPath')
-//     },
-//     {
-//         desc: 'TestDatabaseCustomKey',
-//         db: (Dexie: typeof DexieType) => new class TestDatabaseCustomKey extends Dexie {
-//             public friends: DexieType.Table<Friend, number>;
-//             constructor(name: string) {
-//                 super(name);
-//                 addonSuite(this);
-//                 this.on('blocked', () => false);
-//                 this.version(1).stores({
-//                     friends: 'customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
-//                 });
-//             }
-//         }('TestDatabaseCustomKey')
-//     },
-//     {
-//         desc: 'TestDatabaseNoKey',
-//         db: (Dexie: typeof DexieType) => new class TestDatabaseNoKey extends Dexie {
-//             public friends: DexieType.Table<Friend, number>;
-//             constructor(name: string) {
-//                 super(name);
-//                 addonSuite(this);
-//                 this.on('blocked', () => false);
-//                 this.version(1).stores({
-//                     friends: '++, customId, firstName, lastName, shoeSize, age, [age+shoeSize]'
-//                 });
-//             }
-//         }('TestDatabaseNoKey')
-//     }
-// ];
-
-// export const databasesNegative = [
-//     {
-//         desc: 'TestDatabaseCompoundIndex',
-//         db: (Dexie: typeof DexieType) => new class TestDatabaseCompoundIndex extends Dexie {
-//             public friends: DexieType.Table<Friend, number>;
-//             constructor(name: string) {
-//                 super(name);
-//                 addonSuite(this);
-//                 this.on('blocked', () => false);
-//                 this.version(1).stores({
-//                     friends: '++id, firstName, lastName, [firstName+lastName], shoeSize, age'
-//                 });
-//             }
-//         }('TestDatabaseCompoundIndex')
-//     },
-//     {
-//         desc: 'TestDatabaseMultiIndex',
-//         db: (Dexie: typeof DexieType) => new class TestDatabaseMultiIndex extends Dexie {
-//             public friends: DexieType.Table<Friend, number>;
-//             constructor(name: string) {
-//                 super(name);
-//                 addonSuite(this);
-//                 this.on('blocked', () => false);
-//                 this.version(1).stores({
-//                     friends: '++id, multi*, firstName, lastName, shoeSize, age'
-//                 });
-//             }
-//         }('TestDatabaseMultiIndex')
-//     }
-// ];
-
-// interface MethodOptions {
-//     emitUndefined?: boolean;
-//     emitFull?: boolean;
-//     singelton?: boolean;
-// }
-// export const methods = [
-//     {
-//         desc: 'get()',
-//         singelton: false,
-//         array: false,
-//         alwaysEmit: false,
-//         method: (db: TestDatabaseType) => (id: number, _customId: number, _options?: MethodOptions) => db.friends.$.get(id)
-//     },
-//     {
-//         desc: 'get({id})',
-//         singelton: false,
-//         array: false,
-//         alwaysEmit: false,
-//         method: (db: TestDatabaseType) => (id: number, _customId: number, _options?: MethodOptions) =>
-//             db.friends.schema.primKey.keyPath === 'id' ?
-//                 db.friends.$.get({ id }) :
-//                 db.friends.$.get({ customId: _customId })
-//     },
-//     {
-//         desc: 'toArray()',
-//         singelton: true,
-//         array: true,
-//         alwaysEmit: true,
-//         method: (db: TestDatabaseType) => (
-//             id: number,
-//             _customId: number,
-//             _options: MethodOptions = {}
-//         ) => _options.singelton ?
-//                 db.friends.$.toArray() :
-//                 db.friends.$.toArray().pipe(
-//                     mergeMap(x => {
-//                         if (_options.emitFull) { return of(x); }
-//                         /** The general method tests rely on returning undefined when not found. */
-//                         const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
-//                         if (!find && !_options.emitUndefined) { return EMPTY; }
-//                         return of(find);
-//                     })
-//                 )
-//     },
-//     {
-//         desc: 'where()',
-//         singelton: false,
-//         array: true,
-//         alwaysEmit: false,
-//         method: (db: TestDatabaseType) => (id: number, _customId: number, _options: MethodOptions = {}) =>
-//             db.friends.$.where(':id').equals(id).toArray().pipe(map(x => _options.emitFull ? x : x[0]))
-//     },
-//     {
-//         desc: 'where({id})',
-//         singelton: false,
-//         array: true,
-//         alwaysEmit: false,
-//         method: (db: TestDatabaseType) => (id: number, _customId: number, _options: MethodOptions = {}) =>
-//             db.friends.schema.primKey.keyPath === 'id' ?
-//                 db.friends.$.where({ id }).toArray().pipe(map(x => _options.emitFull ? x : x[0])) :
-//                 db.friends.$.where({ customId: _customId }).toArray().pipe(map(x => _options.emitFull ? x : x[0]))
-//     },
-//     {
-//         desc: 'where([age, shoeSize])',
-//         singelton: false,
-//         array: true,
-//         alwaysEmit: false,
-//         method: (db: TestDatabaseType) => (id: number, _customId: number, _options: MethodOptions = {}) =>
-//             db.friends.$.where(['age', 'shoeSize']).between([0, 0], [100, 100]).toArray().pipe(
-//                 mergeMap(x => {
-//                     if (_options.emitFull) { return of(x); }
-//                     /** The general method tests rely on returning undefined when not found. */
-//                     const find = x.find(y => y.id === id || y.customId === _customId || (y.some && y.some.id === id));
-//                     if (!find && !_options.emitUndefined) { return EMPTY; }
-//                     return of(find);
-//                 })
-//             )
-//     },
-//     {
-//         desc: 'where().anyOf()',
-//         singelton: false,
-//         array: true,
-//         alwaysEmit: false,
-//         method: (db: TestDatabaseType) => (id: number, _customId: number, _options: MethodOptions = {}) =>
-//             db.friends.$.where(':id').anyOf([id]).toArray().pipe(map(x => _options.emitFull ? x : x[0]))
-//     }
-// ];
-
-// let customId = 1000000;
-// export const mockFriends = (count = 5): Friend[] => {
-//     const friend = () => ({
-//         firstName: faker.name.firstName(),
-//         lastName: faker.name.lastName(),
-//         age: faker.datatype.number({ min: 1, max: 80 }),
-//         shoeSize: faker.datatype.number({ min: 5, max: 12 }),
-//         customId
-//     });
-//     return new Array(count).fill(null).map(() => {
-//         const mockfriend = friend();
-//         mockfriend.customId = customId;
-//         customId++;
-//         return mockfriend;
-//     });
-// };
-

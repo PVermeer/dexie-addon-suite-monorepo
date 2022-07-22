@@ -60,13 +60,13 @@ export class Friend {
     id?: number;
     firstName: string;
     lastName: string;
-    memberOf: Ref<Club[], number[]>;
+    memberOf: Ref<Club, number>[];
 
     doSomething() { }
 }
 
 ```
-With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number[]`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]`.
+With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]`.
 
 The `Ref` type is a (fake) nominal type so the type system can differentiate this type from other assignable types.
 
@@ -84,10 +84,8 @@ populate(keysOrOptions?: string[] | PopulateOptions): PopulateTable;
 It returns a new `PopulateTable` with the available `Dexie.Table` methods that support population. Dexie `Table` methods can then be used as normal.
 
 When no options are provided, the return is a deep populated record. Since this is not always wanted and to speed up the database lookup, options can be provided:
-- Providing `string[]` expects population keys as provided in the table schema. Only thoses properties will be populated (deep).
+- Providing `string[]` expects population keys as provided in the table schema. Only thoses properties will be populated .
 - Providing `{ shallow: true }` disables deep population. Only one layer of population is applied.
-
-They cannot be used in conjunction (yet :D).
 
 ##### Examples:
 Options:
@@ -95,12 +93,12 @@ Options:
 db.friends.populate().get(1); // Fully populated;
 db.friends.populate({ shallow: true }).get(1); // Only the record itself is populated, no deeper;
 db.friends.populate(['memberOf', 'group']).get(1); // Only 'memberOf' and 'group' are deep populated;
+db.friends.populate(['memberOf', 'group'], { shallow: true }).get(1); // Only 'memberOf' and 'group' are shallow populated;
 ```
 Array methods:
 ```ts
 db.friends.populate().where(':id').equals(1).first();
 db.friends.populate().toArray();
-db.friends.populate().each(x => x); // Not recommendend, can be very slow
 ```
 Compound:
 ```ts
@@ -170,7 +168,7 @@ class Group {
 class Friend {
     id?: number;
     name: string;
-    memberOf: Ref<Club[], number[]>;
+    memberOf: Ref<Club, number>[];
     group: Ref<Group, number>;
 
     doSomething() { return 'done'; }
@@ -260,7 +258,6 @@ Addon is export as namespace DexiePopulateAddon
 
 API
 ---
-The packet exposes two main exports:
 
 #### populate - addon function
 ```ts
@@ -273,7 +270,18 @@ function populate(db: Dexie): void;
  * Ref nominal type.
  * TS does not support nominal types. Fake implementation so the type system can match.
  */
-type Ref<O extends object, K extends IndexableType, _N = 'Ref'> = NominalT<O> | K;
+export declare type Ref<O extends object, K extends IndexTypes, _N = "Ref"> = NominalRef<O> | K | null;
+```
+
+### Populated - type
+```ts
+/**
+ * Overwrite the return type to the type as given in the Ref type after refs are populated.
+ * T = object type;
+ * B = boolean if shallow populate;
+ * O = union type of object keys to populate or the string type to populate all.
+ */
+type Populated<T, B extends boolean = false, O extends string = string>;
 ```
 
 Also exports some other classes and types to support further extension. See declaration or source.

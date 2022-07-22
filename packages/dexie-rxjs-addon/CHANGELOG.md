@@ -1,3 +1,194 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-beta.36](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.35...@pvermeer/dexie-rxjs-addon@1.0.0-beta.36) (2022-05-26)
+
+
+### Features
+
+* **dexie-rxjs-addon:** added changes method on table ([486a77d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/486a77daaf027db79371ef56a0763f9dd80dc66d))
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
+# [1.0.0-beta.35](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.34...@pvermeer/dexie-rxjs-addon@1.0.0-beta.35) (2022-02-02)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.34](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.33...@pvermeer/dexie-rxjs-addon@1.0.0-beta.34) (2022-02-02)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** mixin classes with recursive prototype chain ([c8dcb8d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c8dcb8ddb68afa670bb737f71eb4d01e1ab469d9))
+* **dexie-rxjs-addon:** passing types to exposed methods ([df0ab3e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/df0ab3e57873bcfd24e6ba6af2b60cd3578024a9))
+
+
+
+
+
+# [1.0.0-beta.33](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.32...@pvermeer/dexie-rxjs-addon@1.0.0-beta.33) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.32](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.31...@pvermeer/dexie-rxjs-addon@1.0.0-beta.32) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.31](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.30...@pvermeer/dexie-rxjs-addon@1.0.0-beta.31) (2022-01-30)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** allow compound queries in strong types ([bed9421](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/bed942175403802d2c9078808eabaee0bf16c69b))
+
+
+### Reverts
+
+* **dexie-rxjs-addon:** removed strong typing ([039b5f9](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/039b5f9159cfee633abc66dcf3565966c621bbd1))
+
+
+
+
+
+# [1.0.0-beta.30](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.29...@pvermeer/dexie-rxjs-addon@1.0.0-beta.30) (2022-01-29)
+
+
+### Features
+
+* **dexie-rxjs-addon:** strong type observable methods ([9c185e4](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/9c185e4668ac07a5d3b81a66bbb1b87eba9bac4c))
+
+
+
+
+
+# [1.0.0-beta.29](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.28...@pvermeer/dexie-rxjs-addon@1.0.0-beta.29) (2022-01-21)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.28](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.27...@pvermeer/dexie-rxjs-addon@1.0.0-beta.28) (2022-01-09)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** debounce now emits first immediately ([6bd1476](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/6bd147647c1e403b6c232126deba18889ccef57a))
+
+
+
+
+
+# [1.0.0-beta.27](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.26...@pvermeer/dexie-rxjs-addon@1.0.0-beta.27) (2022-01-09)
+
+
+### Features
+
+* **dexie-rxjs-addon:** debounceTime can now be set on collections ([79028fc](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/79028fc9802cec7325d13023ccdef04b299b9776))
+
+
+
+
+
+# [1.0.0-beta.26](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.25...@pvermeer/dexie-rxjs-addon@1.0.0-beta.26) (2022-01-08)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** fix + tests for mapped table / collection methods ([41192d6](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/41192d676becf98c223d6d63cacf7957f8fc2f60))
+
+
+
+
+
+# [1.0.0-beta.25](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.24...@pvermeer/dexie-rxjs-addon@1.0.0-beta.25) (2022-01-07)
+
+
+### Features
+
+* **dexie-rxjs-addon:** all table and collection methods as observers ([17f0600](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/17f060075b2257ed9cb57c7632c899360e768b15))
+* **dexie-rxjs-addon:** exposed reverse() on observable collection ([5472e3f](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/5472e3f0ead7c8a76ec2b5b91bcd6902c5c4e3b1))
+
+
+
+
+
+# [1.0.0-beta.24](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.23...@pvermeer/dexie-rxjs-addon@1.0.0-beta.24) (2022-01-06)
+
+
+### Features
+
+* **dexie-addon-suite:** orderBy for populated observables ([ab4caf9](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/ab4caf9bd1bf7c7e4be59c07d99bd9830c9f8cc7))
+* **dexie-rxjs-addon:** added orderBy method on table ([fff4aa2](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff4aa222b6c0579e42987437791a456f7bfc95c))
+
+
+
+
+
+# [1.0.0-beta.23](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.22...@pvermeer/dexie-rxjs-addon@1.0.0-beta.23) (2022-01-04)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.22](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.21...@pvermeer/dexie-rxjs-addon@1.0.0-beta.22) (2022-01-04)
+
+
+### Bug Fixes
+
+* **dexie-rxjs-addon:** shareReplay now uses refCount to clear memory ([50bf84f](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/50bf84fdd6151b64da7b4d9f3ed0bf1996d568ee))
+
+
+
+
+
+# [1.0.0-beta.21](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.20...@pvermeer/dexie-rxjs-addon@1.0.0-beta.21) (2021-12-30)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# [1.0.0-beta.20](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.0-beta.19...@pvermeer/dexie-rxjs-addon@1.0.0-beta.20) (2021-12-30)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+# 1.0.0-beta.19 (2021-11-21)
+
+
+### Bug Fixes
+
+* **dexie-rxjs:** shareReplay should be buffer 1 ([0c39eef](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/0c39eef8e970dd4e174e39038716d7475167d04e))
+
+
+
+
+
 # [1.0.0-beta.18](https://github.com/PVermeer/dexie-rxjs-addon/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2020-11-22)
 
 

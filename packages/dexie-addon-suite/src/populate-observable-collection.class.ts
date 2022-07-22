@@ -9,8 +9,9 @@ export class PopulateObservableCollection<T, TKey, B extends boolean, K extends 
         _db: Dexie,
         _table: Table<T, TKey>,
         _collection: Collection<T, TKey>,
-        _keysOrOptions: K[] | PopulateOptions<B> | undefined,
-    ) {
+        keys: K[] | undefined,
+        options: PopulateOptions<B> | undefined
+        ) {
         super(_db, _table, _collection);
 
         // Override methods to return a populated observable
@@ -23,7 +24,7 @@ export class PopulateObservableCollection<T, TKey, B extends boolean, K extends 
                 const returnValue = super[name](...args);
 
                 if (returnValue instanceof Observable) {
-                    return populateObservable(returnValue, _table, _keysOrOptions);
+                    return populateObservable(returnValue, _table, keys, options);
                 }
 
                 return returnValue;

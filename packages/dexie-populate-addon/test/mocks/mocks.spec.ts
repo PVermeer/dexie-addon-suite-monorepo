@@ -1,8 +1,9 @@
-import { Dexie, PromiseExtended } from 'dexie';
+import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
 import { populate } from '../../src/populate';
-import { Populated, Ref } from '../../src/types';
-import { OmitMethods } from "../../../common/src/utility-types";
+import { Ref } from '../../src/types';
+
+type OmitMethods<T> = Pick<T, { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P; }[keyof T]>;
 
 export class HairColor {
     id?: number;
@@ -98,10 +99,11 @@ export class Friend {
     shoeSize: number;
     customId: number;
     some?: { id: number; other: string; };
-    hasFriends: Ref<Friend[], number[]>;
-    memberOf: Ref<Club[], number[]>;
+    hasFriends: Ref<Friend, number>[];
+    memberOf: Ref<Club, number>[];
     group: Ref<Group, number>;
     hairColor: Ref<HairColor, number>;
+    testArray: string[];
 
     doSomething() {
         return 'done';
@@ -197,17 +199,11 @@ export const methodsPositive = [
             db.friends.populate({ shallow: _shallow }).get({ group: _id }).then(x => x!)
     },
     {
-        desc: `Table.populate().get(cb)`,
-        populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate({ shallow: _shallow }).get(_id, cb => cb)
-    },
-    {
         desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).get()`,
         populated: true,
         populatedPartial: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).get(_id).then(x => x!)
+        method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
+            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor'], { shallow }).get(_id).then(x => x!)
     },
     {
         desc: 'Table.get()',
@@ -231,18 +227,11 @@ export const methodsPositive = [
             db.friends.populate({ shallow: _shallow }).toArray().then(x => x.find(y => y.id === _id))
     },
     {
-        desc: `Table.populate().toArray(cb)`,
-        populated: true,
-        populatedPartial: false,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate({ shallow: _shallow }).toArray(x => x!.find(y => y.id === _id))
-    },
-    {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).toArray()`,
+        desc: `Table.populate(['hasFriends', 'memberOf', 'hairColor']).toArray()`,
         populated: true,
         populatedPartial: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).toArray().then(x => x.find(y => y.id === _id))
+        method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
+            db.friends.populate(['hasFriends', 'memberOf', 'hairColor'], { shallow }).toArray().then(x => x.find(y => y.id === _id))
     },
     {
         desc: 'Table.toArray()',
@@ -281,24 +270,18 @@ export const methodsPositive = [
             db.friends.populate({ shallow: _shallow }).where('memberOf').equals(_id).first()
     },
     {
-        desc: 'Table.populate().where(cb)',
-        populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate({ shallow: _shallow }).where(':id').equals(_id).first(cb => cb)
-    },
-    {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where()`,
+        desc: `Table.populate(['hasFriends', 'memberOf', 'hairColor']).where()`,
         populated: true,
         populatedPartial: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where(':id').equals(_id).first()
+        method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
+            db.friends.populate(['hasFriends', 'memberOf', 'hairColor'], { shallow }).where(':id').equals(_id).first()
     },
     {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where({ id })`,
+        desc: `Table.populate(['hasFriends', 'memberOf', 'hairColor']).where({ id })`,
         populated: true,
         populatedPartial: true,
-        method: (db: TestDatabaseType) => (id: number, _shallow = false) =>
-            db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where({ id }).first()
+        method: (db: TestDatabaseType) => (id: number, shallow = false) =>
+            db.friends.populate(['hasFriends', 'memberOf', 'hairColor'], { shallow }).where({ id }).first()
     },
     {
         desc: 'Table.where()',
@@ -335,12 +318,6 @@ export const methodsPositive = [
         method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
             db.friends.populate({ shallow: _shallow }).where(':id').equals(_id).toArray().then(x => x[0])
     },
-    {
-        desc: 'Table.populate().where().toArray(cb)',
-        populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate({ shallow: _shallow }).where(':id').equals(_id).toArray(x => x[0])
-    },
 
     // ======== Where().anyOf() =========
     {
@@ -364,54 +341,12 @@ export const methodsPositive = [
             db.friends.populate({ shallow: _shallow }).where({ id: _id, group: 2 }).first()
     },
 
-    // ======== Each() =========
+    // ======== orderBy(age) =========
     {
-        desc: 'Table.populate().each()',
+        desc: 'Table.populate().orderBy(age).toArray()',
         populated: true,
         method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            new Promise((res: (value: Populated<Friend, false, string>) => void) =>
-                db.friends.populate({ shallow: _shallow }).each(x => res(x)))
-    },
-    {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).each()`,
-        populated: true,
-        populatedPartial: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            new Promise((res: (value: Populated<Friend, false, string>) => void) =>
-                db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).each(x => res(x as any)))
-    },
-    {
-        desc: 'Table.each()',
-        populated: false,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            new Promise((res: (value: Friend) => void) =>
-                db.friends.each(x => res(x)))
-    },
-    {
-        desc: 'Table.populate().where().each()',
-        populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            new Promise((res: (value: Populated<Friend, false, string>) => void) =>
-                db.friends.populate({ shallow: _shallow }).where(':id').equals(_id).each(x => res(x as any)))
-    },
-    {
-        desc: `Table.populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor']).where().each()`,
-        populated: true,
-        populatedPartial: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            new Promise((res: (value: Populated<Friend, false, string>) => void) =>
-                db.friends
-                    .populate(['hasFriends', 'memberOf', 'theme', 'style', 'hairColor'])
-                    .where(':id')
-                    .equals(_id)
-                    .each(x => res(x as any)))
-    },
-    {
-        desc: 'Table.where().each()',
-        populated: false,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            new Promise((res: (value: Friend) => void) =>
-                db.friends.where(':id').equals(_id).each(x => res(x)))
+            db.friends.populate({ shallow: _shallow }).orderBy('age').toArray().then(x => x.find(y => y.id === _id))
     }
 ];
 
@@ -419,44 +354,36 @@ export const methodsNegative = [
     {
         desc: 'Table.populate().get()',
         populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['sdfsdf']).get(_id).then(x => x!)
+        method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
+            db.friends.populate(['sdfsdf'], { shallow }).get(_id).then(x => x!)
     },
     {
         desc: 'Table.populate().where()',
         populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['sdfsdf']).where(':id').equals(_id).first()
+        method: (db: TestDatabaseType) => (_id: number, shallow = false) =>
+            db.friends.populate(['sdfsdf'], { shallow }).where(':id').equals(_id).first()
     },
-    {
-        desc: 'Table.populate().each()',
-        populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['sdfsdf'])
-                .each(x => x) as unknown as PromiseExtended<Populated<Friend, false, 'sdfsdf'>>
-    },
-    {
-        desc: 'Table.populate().where().each()',
-        populated: true,
-        method: (db: TestDatabaseType) => (_id: number, _shallow = false) =>
-            db.friends.populate(['sdfsdf']).where(':id').equals(_id)
-                .each(x => x) as unknown as PromiseExtended<Populated<Friend, false, 'sdfsdf'>>
-    }
 ];
 
+let customId = 1000;
 export const mockFriends = (count = 5): Friend[] => {
     const friend = () => new Friend({
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         age: faker.datatype.number({ min: 1, max: 80 }),
         shoeSize: faker.datatype.number({ min: 5, max: 12 }),
-        customId: faker.datatype.number({ min: 1000000, max: 9999999 }),
+        customId,
         hasFriends: [],
         memberOf: [],
         group: null,
-        hairColor: null
+        hairColor: null,
+        testArray: []
     });
-    return new Array(count).fill(null).map(() => friend());
+    return new Array(count).fill(null).map(() => {
+        const mockFriend = friend();
+        customId++;
+        return mockFriend;
+    });
 };
 export const mockClubs = (count = 5): Club[] => {
     const club = () => new Club({

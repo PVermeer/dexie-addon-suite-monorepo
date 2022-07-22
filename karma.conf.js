@@ -120,17 +120,14 @@ module.exports = function (config) {
             level: 'off',
             terminal: false
         },
-        autoWatch: true,
-        singleRun: false,
-        restartOnFileChange: true
-    }
-
-    const configOptions = {
-        ...baseConfig,
-
+        retryLimit: 0,
         autoWatch: false,
         singleRun: true,
         restartOnFileChange: false
+    }
+
+    const configOptions = {
+        ...baseConfig
     };
 
     const debugOptions = {
@@ -145,8 +142,7 @@ module.exports = function (config) {
         ...configOptions,
 
         browsers: [
-            'ChromeHeadless_no_sandbox',
-            'FirefoxHeadless'
+            'ChromeHeadless_no_sandbox'
         ]
     }
 

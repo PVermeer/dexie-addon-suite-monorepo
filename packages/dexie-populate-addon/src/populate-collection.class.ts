@@ -1,80 +1,95 @@
-import { Collection, DBCoreKeyRange, Dexie, IndexableType, PromiseExtended, Table, ThenShortcut, WhereClause } from 'dexie';
+import { Collection, Dexie, IndexableTypeArray, Table } from 'dexie';
+import cloneDeep from 'lodash.clonedeep';
+import { PopulatedWhereClause } from './populate-where-clause.class';
 import { Populate } from './populate.class';
-import { RelationalDbSchema } from './schema-parser.class';
-import { Populated, PopulateOptions } from './types';
+import { DexieExtended, Populated, PopulateOptions } from './types';
+import { mixinClass } from './_utils/utils';
 
-// Interfaces to extend Dexie declarations. A lot of properties are not exposed :(
-export interface WhereClauseExtended<T, TKey> {
-    Collection: new (whereClause?: WhereClause<any, TKey> | null, keyRangeGenerator?: () => DBCoreKeyRange) => Collection<T, TKey>;
-}
+// Type check for when dexie would update the Collection interface
+type CollectionMapPopulated = Omit<
+    Record<keyof Collection, (...args: any[]) => any>,
+    // Only to observe so omit:
+    'each' | 'eachKey' | 'eachPrimaryKey' | 'eachUniqueKey' | 'clone' | 'raw' | 'delete' | 'modify'
+>;
 
-export interface CollectionPopulated<T, TKey> extends Collection<T, TKey> { }
 
-/**
- * Dexie.js is actively hiding classes and only exports interfaces
- * but extention is possible from the getter in the WhereClause.
- * From here the Collection class can be extended to override some methods
- * when table.populate() is called.
- */
-export function getCollectionPopulated<T, TKey, B extends boolean, K extends string>(
-    whereClause: WhereClause<Populated<T, B, K>, TKey> | null | undefined,
-    keysOrOptions: string[] | PopulateOptions<B> | undefined,
-    db: Dexie,
-    table: Table<T, TKey>,
-    relationalSchema: RelationalDbSchema
-) {
+export class PopulatedCollection<T, TKey, B extends boolean, K extends string> implements CollectionMapPopulated {
 
-    const whereClauseExt = whereClause as WhereClauseExtended<T, TKey>;
-    const collection = whereClauseExt.Collection;
+    private cloneAsCollection(): Collection<T, TKey> {
+        (this._collection as any)._ctx = (this as any)._ctx;
+        const collection = cloneDeep(this._collection);
+        return collection;
+    }
 
-    /** New collection class where methods are overwritten to support population */
-    return class CollectionPopulatedClass extends collection {
+    public async toArray(): Promise<Populated<T, B, K>[]> {
+        const result = await this.cloneAsCollection().toArray();
+        const populated = await Populate.populateResult(result, this._table, this._keys, this._options);
+        return populated;
+    }
 
-        public toArray<R>(
-            thenShortcut: ThenShortcut<Populated<T, B, K>[], R> = (value: any) => value
-        ): PromiseExtended<R> {
+    public async sortBy(keyPath: string): Promise<Populated<T, B, K>[]> {
+        const result = await this.cloneAsCollection().sortBy(keyPath);
+        const populated = await Populate.populateResult(result, this._table, this._keys, this._options);
+        return populated;
+    }
 
-            // Not using async / await so PromiseExtended is returned
-            return super.toArray()
-                .then(results => {
-                    const populatedClass = new Populate<T, TKey, B, K>(results, keysOrOptions, db, table, relationalSchema);
-                    return populatedClass.populated;
-                })
-                .then(popResults => thenShortcut(popResults));
-        }
+    public async count(): Promise<number> {
+        return this.cloneAsCollection().count();
+    }
 
-        /**
-         * @warning Potentially very slow.
-         */
-        public each(
-            callback: (obj: T, cursor: { key: IndexableType; primaryKey: TKey; }) => any
-        ): PromiseExtended<void> {
-            const records: T[] = [];
-            const cursors: { key: IndexableType; primaryKey: TKey; }[] = [];
-            return super.each((x, y) => records.push(x) && cursors.push(y))
-                .then(async () => {
-                    const populatedClass = new Populate<T, TKey, B, K>(records, keysOrOptions, db, table, relationalSchema);
-                    const recordsPop = await populatedClass.populated;
-                    recordsPop.forEach((x, i) => callback(x, cursors[i]));
-                    return;
-                });
-        }
+    public async first(): Promise<Populated<T, B, K> | undefined> {
+        const result = await this.cloneAsCollection().first() as T; // No idea why typecast is needed...
+        const [populated] = await Populate.populateResult(result, this._table, this._keys, this._options);
+        return populated;
+    }
 
-        constructor(
-            _whereClause?: WhereClause<Populated<T, B, K>, TKey> | null,
-            _keyRangeGenerator?: (() => DBCoreKeyRange),
-            _collection?: Collection<T, TKey>
-        ) {
-            super(_whereClause, _keyRangeGenerator);
+    public async last(): Promise<Populated<T, B, K> | undefined> {
+        const result = await this.cloneAsCollection().last() as T; // No idea why typecast is needed...
+        const [populated] = await Populate.populateResult(result, this._table, this._keys, this._options);
+        return populated;
+    }
 
-            // Because original WhereClause is not on the collection class,
-            // a new class can be created and then overwritten by the Collection props
-            if (_collection) {
-                Object.entries(_collection).forEach(([key, value]) => {
-                    this[key] = value;
-                });
-            }
-        }
-    };
+    public async keys(): Promise<IndexableTypeArray> {
+        return this.cloneAsCollection().keys();
+    }
+
+    public async primaryKeys(): Promise<TKey[]> {
+        return this.cloneAsCollection().primaryKeys();
+    }
+
+    public uniqueKeys(): Promise<IndexableTypeArray> {
+        return this.cloneAsCollection().uniqueKeys();
+    }
+
+    // Can be exposed because returns `this`
+    public and: (...args: Parameters<Collection<T, TKey>['and']>) => PopulatedCollection<T, TKey, B, K>;
+    public distinct: (...args: Parameters<Collection<T, TKey>['distinct']>) => PopulatedCollection<T, TKey, B, K>;
+    public filter: (...args: Parameters<Collection<T, TKey>['filter']>) => PopulatedCollection<T, TKey, B, K>;
+    public limit: (...args: Parameters<Collection<T, TKey>['limit']>) => PopulatedCollection<T, TKey, B, K>;
+    public offset: (...args: Parameters<Collection<T, TKey>['offset']>) => PopulatedCollection<T, TKey, B, K>;
+    public reverse: (...args: Parameters<Collection<T, TKey>['reverse']>) => PopulatedCollection<T, TKey, B, K>;
+    public until: (...args: Parameters<Collection<T, TKey>['until']>) => PopulatedCollection<T, TKey, B, K>;
+
+    // Remap
+    public or(...args: Parameters<Collection<T, TKey>['or']>): PopulatedWhereClause<T, TKey, B, K> {
+        const collection = this.cloneAsCollection();
+        const whereClause = new (this._db.WhereClause as DexieExtended['WhereClause'])(
+            this._table,
+            ...args,
+            collection
+        );
+        return new PopulatedWhereClause(this._db, this._table, whereClause, this._keys, this._options);
+    }
+
+    constructor(
+        protected _db: Dexie,
+        protected _table: Table<T, TKey>,
+        public _collection: Collection<T, TKey>,
+        protected _keys: K[] | undefined,
+        protected _options: PopulateOptions<B> | undefined
+    ) {
+        // Mixin with Collection
+        mixinClass(this, this._collection);
+    }
 
 }

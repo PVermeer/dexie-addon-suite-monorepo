@@ -1,3 +1,112 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.0.0-beta.17](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.16...@pvermeer/dexie-encrypted-addon@2.0.0-beta.17) (2022-04-11)
+
+
+### Features
+
+* extended raw support to also allow setting raw documents ([fff010e](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/fff010e84002c1c28b64f2bca860286814661259))
+
+
+
+
+
+# [2.0.0-beta.16](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.15...@pvermeer/dexie-encrypted-addon@2.0.0-beta.16) (2022-03-09)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
+# [2.0.0-beta.15](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.14...@pvermeer/dexie-encrypted-addon@2.0.0-beta.15) (2022-03-08)
+
+
+### Features
+
+* **dexie-encrypted-addon:** optionally disable encryption in transaction ([c46fecd](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c46fecded5616bd27126d02aaf5d91c2dd01647a))
+* support to get a raw document in a transaction ([613a99a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/613a99a331e145b7a9867b77978f4d365c01c8d9))
+
+
+
+
+
+# [2.0.0-beta.14](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.13...@pvermeer/dexie-encrypted-addon@2.0.0-beta.14) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
+# [2.0.0-beta.13](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.12...@pvermeer/dexie-encrypted-addon@2.0.0-beta.13) (2022-01-31)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
+# [2.0.0-beta.12](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.11...@pvermeer/dexie-encrypted-addon@2.0.0-beta.12) (2022-01-29)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
+# [2.0.0-beta.11](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.10...@pvermeer/dexie-encrypted-addon@2.0.0-beta.11) (2022-01-21)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
+# [2.0.0-beta.10](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.9...@pvermeer/dexie-encrypted-addon@2.0.0-beta.10) (2022-01-02)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** falsy values are now encrypted again ([9c7a977](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/9c7a977fd13258d62754c3e66e509b44ff85b152))
+
+
+
+
+
+# [2.0.0-beta.9](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.8...@pvermeer/dexie-encrypted-addon@2.0.0-beta.9) (2022-01-01)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** should encrypt all falsy values except undefined ([ed51d85](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/ed51d8566c2ff7e6b13403ac8c0a7ee6d6a076d6))
+
+
+
+
+
+# [2.0.0-beta.8](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.0-beta.7...@pvermeer/dexie-encrypted-addon@2.0.0-beta.8) (2021-12-31)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** make sure this readhook is called first ([c652d3b](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/c652d3b298ffb53e2ebc6b2b1180f651f25e6d83))
+
+
+
+
+
+# 2.0.0-beta.7 (2021-11-21)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
 # [2.0.0-beta.6](https://github.com/PVermeer/dexie-encrypted-addon/compare/v2.0.0-beta.5...v2.0.0-beta.6) (2020-11-22)
 
 

@@ -106,6 +106,14 @@
             {
                 "name": "fit",
                 "message": "don't focus tests"
+            },
+            {
+                "name": "xdescribe",
+                "message": "don't exclude tests"
+            },
+            {
+                "name": "xit",
+                "message": "don't exclude tests"
             }
         ]
     }

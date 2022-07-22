@@ -23,20 +23,13 @@ try
     dts-bundle-generator --config ../../scripts/dts-bundler.config.js
     echo "Declarations done"
 
-    echo "Building esm witch tsc"
-    tsc --build
+    echo "Building esm"
+    node ../../scripts/esbuild
     echo "Esm is done"
-
-    # Tsc doesn't rewrite import and since outDir is specified with composite referenced project
-    # the common package is not build in the correct location for each package. So copy it here
-    # to the right location. Every tsconfig of the packages should reference it.
-    echo "Copying common package"
-    cp -r $packagePath/../common/dist/esm $packagePath/dist
-    echo "Copy done"
-
 )
 catch || {
     rm -rf $packagePath/dist/*
+    echo "Removed dist files"
     echo "Package $package build failed!"
     exit 1
 }

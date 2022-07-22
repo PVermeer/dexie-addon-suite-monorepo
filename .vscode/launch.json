@@ -6,43 +6,26 @@
     "configurations": [
         {
             "name": "Attach to Karma",
-            "type": "pwa-chrome",
+            "type": "chrome",
             "request": "attach",
             "url": "http://localhost:9876/debug.html",
             "address": "localhost",
             "port": 9333,
-            "webRoot": "${workspaceFolder}/packages"
+            "sourceMapPathOverrides": {
+                "webpack://?:*/*": "${workspaceFolder}/packages/*"
+            }
         },
         {
             "name": "Attach to Jasmine (nodemon)",
-            "type": "pwa-node",
-            "console": "integratedTerminal",
+            "type": "node",
             "internalConsoleOptions": "neverOpen",
             "address": "localhost",
             "port": 9334,
             "request": "attach",
             "restart": true,
-            "runtimeExecutable": "nodemon",
             "skipFiles": [
                 "<node_internals>/**"
             ]
-        },
-        {
-            "name": "Run Jasmine (node) tests",
-            "type": "node",
-            "request": "launch",
-            "args": [
-                "${workspaceRoot}/node_modules/jasmine/bin/jasmine",
-                "--config=jasmine.conf.json",
-                "--reporter=jasmine-console-reporter"
-            ],
-            "runtimeArgs": [
-                "-r",
-                "ts-node/register"
-            ],
-            "cwd": "${workspaceRoot}/test",
-            "protocol": "inspector",
-            "console": "integratedTerminal"
         }
     ]
 }

@@ -102,21 +102,44 @@ export function encrypted(db: Dexie, options?: EncryptedOptions) {
             console.warn('DEXIE ENCRYPT ADDON: No encryption keys are set');
         } else {
 
-            // Set encryption on the tables via the create and update hook.
+            // Set encryption on the tables via the read, create and update hook.
             Object.entries(encryptSchema).forEach(([table, keysObj]) => {
                 const dexieTable = db.table(table);
+                const originalReadHook = dexieTable.schema.readHook;
 
-                dexieTable.hook('creating', (primaryKey, document) =>
-                    encryptOnCreation(primaryKey, document, keysObj, encryption)
-                );
+                const readHook = (obj: any) => {
+                    const transaction = Dexie.currentTransaction;
 
-                dexieTable.hook('updating', (changes, _primaryKey) =>
-                    encryptOnUpdating(changes, _primaryKey, keysObj, encryption)
-                );
+                    const document = transaction?.raw ?
+                        obj :
+                        decryptOnReading(obj, keysObj, encryption);
 
-                dexieTable.hook('reading', document =>
-                    decryptOnReading(document, keysObj, encryption)
-                );
+                    if (originalReadHook) return originalReadHook(document);
+                    return document;
+                };
+                if (dexieTable.schema.readHook) dexieTable.hook.reading.unsubscribe(dexieTable.schema.readHook);
+                dexieTable.schema.readHook = readHook;
+                dexieTable.hook('reading', readHook);
+
+                dexieTable.hook('creating', (primaryKey, obj) => {
+                    const transaction = Dexie.currentTransaction;
+
+                    const document = transaction?.raw ?
+                        obj :
+                        encryptOnCreation(primaryKey, obj, keysObj, encryption);
+
+                    return document;
+                });
+
+                dexieTable.hook('updating', (changes, _primaryKey) => {
+                    const transaction = Dexie.currentTransaction;
+
+                    const document = transaction?.raw ?
+                        changes :
+                        encryptOnUpdating(changes, _primaryKey, keysObj, encryption);
+
+                    return document;
+                });
             });
         }
 

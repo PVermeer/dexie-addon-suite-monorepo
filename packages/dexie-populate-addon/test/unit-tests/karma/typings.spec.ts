@@ -2,7 +2,7 @@ import { Dexie } from 'dexie';
 import cloneDeep from 'lodash.clonedeep';
 import { populate } from '../../../src';
 import { Populated } from '../../../src/types';
-import { databasesPositive, Friend, Group, mockClubs, mockFriends, mockGroups, mockStyles, mockThemes } from '../../mocks/mocks.spec';
+import { databasesPositive, Friend, mockClubs, mockFriends, mockGroups, mockStyles, mockThemes } from '../../mocks/mocks.spec';
 
 export const typings = async () => {
     const db = databasesPositive[0].db(Dexie, populate);
@@ -137,9 +137,12 @@ export const typings = async () => {
     // ========= Partial populate ========
 
     const populatedPartial = await Promise.all([
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).get(1).then(x => x),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).where(':id').equals(1).first().then(x => x),
-        db.friends.populate(['hasFriends', 'memberOf', 'theme', 'style']).toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf']).get(1).then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf']).where(':id').equals(1).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf']).where({ id: 0, age: 10 }).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf']).toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf']).orderBy('age').toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf']).orderBy(['age', 'id']).toArray().then(x => x[0]),
     ]);
     populatedPartial.forEach(async test => {
 
@@ -150,6 +153,8 @@ export const typings = async () => {
         if (hasFriend === null) { return; }
         hasFriend.doSomething();
         hasFriend.age = 56;
+
+        hasFriend.hasFriends[0]!.age = 32;
         hasFriend = null;
 
         const memberOf = test!.memberOf;
@@ -162,7 +167,55 @@ export const typings = async () => {
         isMemberOf = null;
 
         test.group = 2;
+        test.memberOf.every(x => x);
+        // @ts-expect-error
+        test.hairColor.every(x => x);
     });
+
+    const populatedPartialShallow = await Promise.all([
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf'], { shallow: true }).get(1).then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf'], { shallow: true }).where(':id').equals(1).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf'], { shallow: true }).where({ id: 0, age: 10 }).first().then(x => x),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf'], { shallow: true }).toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf'], { shallow: true }).orderBy('age').toArray().then(x => x[0]),
+        db.friends.populate(['hairColor', 'hasFriends', 'memberOf'], { shallow: true }).orderBy(['age', 'id']).toArray().then(x => x[0]),
+    ]);
+    populatedPartialShallow.forEach(async test => {
+
+        if (test === undefined) { return; }
+
+        const hasFriends = test!.hasFriends;
+        let hasFriend = hasFriends[0];
+        if (hasFriend === null) { return; }
+        hasFriend.doSomething();
+        hasFriend.age = 56;
+        hasFriend.hasFriends.every(x => x);
+        hasFriend.hasFriends.some(x => x);
+        hasFriend.hasFriends.forEach(x => x);
+        hasFriend.hasFriends.map(x => x);
+        hasFriend.hasFriends.reduce(x => x);
+
+        // @ts-expect-error
+        hasFriend.hasFriends[0]!.age = 32;
+        hasFriend = null;
+
+        const memberOf = test!.memberOf;
+        let isMemberOf = memberOf![1];
+        if (isMemberOf === null) { return; }
+        isMemberOf.doSomething();
+        isMemberOf.name = 'fsdfdf';
+        // @ts-expect-error
+        isMemberOf.theme!.name = 'vsvsdv';
+        // @ts-expect-error
+        isMemberOf.theme!.style!.color = 'asdasd';
+        isMemberOf = null;
+
+        test.group = 2;
+        test.memberOf.every(x => x);
+        // @ts-expect-error
+        test.hairColor.every(x => x);
+    });
+
 
     // ======= Not Populated =======
 
@@ -174,60 +227,8 @@ export const typings = async () => {
         test!.hasFriends![0] = 1;
     });
 
-    // ===== Callbacks (thenSchortcuts) =====
-
-    await db.friends.get(1, value => {
-        value!.hasFriends = [2];
-        return value;
-    });
-
-    await db.friends.populate({ shallow: true }).get(1, value => {
-        value!.hasFriends = [friends[1]];
-        return value;
-    });
-
-    await db.friends.where(':id').equals(1).first(value => {
-        value!.hasFriends = [2];
-        return value;
-    });
-
-    await db.friends.populate({ shallow: true }).where(':id').equals(1).first(value => {
-        value!.hasFriends = [friends[1]];
-        return value;
-    });
-
-    await db.friends.toArray(value => {
-        value[0].hasFriends = [2];
-        return value;
-    });
-
-    await db.friends.populate({ shallow: true }).toArray(value => {
-        value![0].hasFriends = [friends[1]];
-        return value;
-    });
-
-
-    // ===== Each =====
-
-    await new Promise((res: (value: Friend) => void) =>
-        db.friends.each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Friend, true, string>) => void) =>
-        db.friends.populate({ shallow: true }).each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Group, false, string>) => void) =>
-        db.friends.populate(['group', 'theme']).each(x => res(x.group!)));
-
-    await new Promise((res: (value: Friend) => void) =>
-        db.friends.where(':id').equals(1).each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Friend, true, string>) => void) =>
-        db.friends.populate({ shallow: true }).where(':id').equals(1).each(x => res(x)));
-
-    await new Promise((res: (value: Populated<Group, false, string>) => void) =>
-        db.friends.populate(['group', 'theme']).where(':id').equals(1).each(x => res(x.group!)));
-
-
+    // ===== Filter =====
+    await db.friends.populate().filter(x => !!x).toArray();
 
     await db.delete();
 };

@@ -66,30 +66,63 @@ Instead of the `Dexie.Table` an `ObservableTable` is returned after using `$`.
 
 ```ts
 class ObservableTable<T, TKey> {
+    /**
+     * Observable stream of table changes.
+     * Emits updated value on changes.
+     * @note Stays open so unsubscribe.
+     */
+    public changes(): Observable<IDatabaseChange[]>;
+    /**
+     * Create an Observable Collection of this table.
+     */
+    public toCollection(): ObservableCollection<T, TKey>;
 	/**
 	 * Observable stream of the complete Table.
 	 * Emits updated Table array on changes.
 	 * @note Stays open so unsubscribe.
 	 */
-	toArray(): Observable<T[]>;
+	public toArray(): Observable<T[]>;
 	/**
 	 * Observable stream of a get request.
 	 * Emits updated value on changes.
 	 * @note Stays open so unsubscribe.
 	 */
-	get(keyOrequalityCriterias: TKey | {
+	public get(keyOrequalityCriterias: TKey | {
 		[key: string]: any;
 	}): Observable<T | undefined>;
     /**
      * Observable stream of a where query.
      * Emits updated values on changes, including new or updated records that are in range.
      * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
-     * ObservableCollection has one method: `toArray()`, since RxJs operators can be used.
-     * Will be exanded on for convenience in the future.
      * @note Stays open so unsubscribe.
      */
-	where(index: string | string[]): ObservableWhereClause<T, TKey>;
-	where(equalityCriterias: { [key: string]: IndexableType; }): ObservableCollection<T, TKey>;
+	public where(index: string | string[]): ObservableWhereClause<T, TKey>;
+	public where(equalityCriterias: { [key: string]: IndexableType; }): ObservableCollection<T, TKey>;
+    /**
+     * Observable stream of the complete Table orderd by indexed key.
+     * Emits updated Table array on changes.
+     * @note Stays open so unsubscribe.
+     */
+    public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
+        const collection = this._table.orderBy(Array.isArray(index) ? `[${index.join('+')}]` : index);
+        const observableCollection = new ObservableCollection(this._db, this._table, collection);
+        return observableCollection;
+    }
+    /**
+     * Observable stream of the complete Table count.
+     * Emits updated new number on changes.
+     * @note Stays open so unsubscribe.
+     */
+    public count(): Observable<number> {
+        const count$ = this.toCollection().count();
+        return count$;
+    }
+
+    // Mapped Dexie Table methods
+    public filter: (...args: Parameters<Table['filter']>) => ObservableCollection<T, TKey>;
+    public offset: (...args: Parameters<Table['offset']>) => ObservableCollection<T, TKey>;
+    public limit: (...args: Parameters<Table['limit']>) => ObservableCollection<T, TKey>;
+    public reverse: (...args: Parameters<Table['reverse']>) => ObservableCollection<T, TKey>;
 }
 ```
 

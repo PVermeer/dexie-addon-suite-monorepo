@@ -13,7 +13,6 @@
         "importHelpers": true,
         "target": "es2017",
         "stripInternal": true,
-        "composite": true,
         "isolatedModules": true,
         "lib": [
             "es2020",

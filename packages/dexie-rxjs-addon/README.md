@@ -3,7 +3,7 @@ Dexie RxJs Addon
 
 [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
 [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/beta.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
-![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/test.yml/badge.svg?branch=master)
+![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/ci.yml/badge.svg?branch=master)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 

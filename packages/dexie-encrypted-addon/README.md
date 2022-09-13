@@ -186,7 +186,7 @@ Addon is export as namespace DexieEncryptedAddon
 
         <script>
             // Generate a random key
-            const secret = Encryption.createRandomEncryptionKey();
+            const secret = DexieEncryptedAddon.Encryption.createRandomEncryptionKey();
 
             // Define your database
             const db = new Dexie("FriendDatabase", {

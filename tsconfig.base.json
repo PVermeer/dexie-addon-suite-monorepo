@@ -33,6 +33,9 @@
             ],
             "@pvermeer/dexie-rxjs-addon": [
                 "./packages/dexie-rxjs-addon/src"
+            ],
+            "@pvermeer/dexie-boolean-null-index-addon": [
+                "./packages/dexie-boolean-null-index-addon/src"
             ]
         },
         "strict": true,

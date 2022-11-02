@@ -1,4 +1,4 @@
-import { Collection, DBCoreKeyRange, Dexie, Table, TableSchema, Transaction, WhereClause } from 'dexie';
+import { Collection, DBCoreKeyRange, Dexie, IndexableType, Table, TableSchema, Transaction, WhereClause } from 'dexie';
 
 export interface DexieExtended extends Dexie {
 
@@ -11,3 +11,5 @@ export interface DexieExtended extends Dexie {
     WhereClause: new <T, TKey>(table: Table<T, TKey>, index?: string, orCollection?: Collection<T, TKey>) => WhereClause<T, TKey>;
 
 }
+
+export type IndexableTypeExtended = IndexableType | boolean | null;

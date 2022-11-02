@@ -6,7 +6,7 @@ export interface Friend {
     id?: number;
     testProp?: string;
     age: number | null | boolean;
-    firstName: string | null;
+    firstName: string | null | boolean;
     lastName: string;
     shoeSize: number;
     date: Date;
@@ -18,28 +18,13 @@ class TestDatabase extends Dexie {
         super(name);
         booleanNullIndex(this);
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, age, date',
+            friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
             buddies: '++id, buddyName, buddyAge',
             dudes: '++id, dudeName, dudeAge',
             empty: ''
         });
     }
 }
-
-// export const VERY_LOW_NULL_VALUE = String.fromCharCode(1, 1);
-// class TestDatabaseLowNullValue extends Dexie {
-//     public friends: Dexie.Table<Friend, number>;
-//     constructor(name: string) {
-//         super(name);
-//         nullIndex(this, { nullStringValue: VERY_LOW_NULL_VALUE });
-//         this.version(1).stores({
-//             friends: '++id, firstName, lastName, shoeSize, age, date',
-//             buddies: '++id, buddyName, buddyAge',
-//             dudes: '++id, dudeName, dudeAge',
-//             empty: ''
-//         });
-//     }
-// }
 
 class TestDatabaseAddons extends Dexie {
     public friends: Dexie.Table<Friend, number>;
@@ -48,7 +33,7 @@ class TestDatabaseAddons extends Dexie {
             addons: [booleanNullIndex]
         });
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, age, date',
+            friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
         });
     }
 }
@@ -75,7 +60,7 @@ export class TestDatabaseWithHooks extends Dexie {
         });
 
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, age, date',
+            friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
         });
     }
 }
@@ -84,7 +69,7 @@ function testDatabaseJs(): TestDatabase {
         addons: [booleanNullIndex]
     });
     db.version(1).stores({
-        friends: '++id, firstName, lastName, shoeSize, age, date ',
+        friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
         buddies: '++id, buddyName, buddyAge',
         dudes: '++id, dudeName, dudeAge',
         empty: ''
@@ -104,12 +89,7 @@ export const databasesPositive = [
     {
         desc: 'testDatabaseJs',
         db: () => testDatabaseJs()
-    },
-    // {
-    //     desc: 'TestDatabaseLowNullValue',
-    //     otherNullValue: VERY_LOW_NULL_VALUE,
-    //     db: () => new TestDatabaseLowNullValue('TestDatabaseLowNullValue')
-    // }
+    }
 ];
 
 export const mockFriends = (count = 5): Friend[] => {

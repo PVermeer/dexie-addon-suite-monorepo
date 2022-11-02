@@ -1,47 +1,61 @@
-import { IndexableType } from "dexie";
 import cloneDeepWith from "lodash.clonedeepwith";
 import isObject from "lodash.isobject";
+import { IndexableTypeExtended } from "./types";
 
 // Keep it simple
-export const TRUE_STRING = 'true';
-export const FALSE_STRING = 'false';
-export const NULL_STRING = 'null';
+const textEncoder = new TextEncoder();
 
-type Value = boolean | null;
-type Input = { [key: string]: any; } | IndexableType;
+export const TRUE_STRING = '__*true*___';
+export const FALSE_STRING = '__*false*___';
+export const NULL_STRING = '__*null*___';
 
-function mapToString(value: unknown): string | void {
-    if (value === true) return TRUE_STRING;
-    if (value === false) return FALSE_STRING;
-    if (value === null) return NULL_STRING;
+export const TRUE_BINARY = textEncoder.encode(TRUE_STRING);
+export const FALSE_BINARY = textEncoder.encode(FALSE_STRING);
+export const NULL_BINARY = textEncoder.encode(NULL_STRING);
+
+export const TRUE_CHAR_STRING = TRUE_BINARY.toString();
+export const FALSE_CHAR_STRING = FALSE_BINARY.toString();
+export const NULL_CHAR_STRING = NULL_BINARY.toString();
+
+export const MIN_BINARY = new Uint8Array(0);
+
+type Input = { [key: string]: any; } | IndexableTypeExtended;
+
+function mapToBinary(value: unknown): void | Uint8Array {
+    if (value === true) return TRUE_BINARY;
+    if (value === false) return FALSE_BINARY;
+    if (value === null) return NULL_BINARY;
     return;
 }
 
-function mapToValue(value: unknown): Value | void {
-    if (value === TRUE_STRING) return true;
-    if (value === FALSE_STRING) return false;
-    if (value === NULL_STRING) return null;
+function mapToValue(value: unknown): IndexableTypeExtended | void {
+
+    if (!(value instanceof Uint8Array)) return;
+    const stringValue = value.toString();
+    if (stringValue === TRUE_CHAR_STRING) return true;
+    if (stringValue === FALSE_CHAR_STRING) return false;
+    if (stringValue === NULL_CHAR_STRING) return null;
     return;
 }
 
-export function mapValuesToString<T extends Input>(input: T): T {
+export function mapValuesToBinary<T extends Input>(input: T): T {
 
     if (isObject(input)) {
 
         return cloneDeepWith(input, (value, _key, _object, _stack) => {
 
-            return mapToString(value);
+            return mapToBinary(value);
         });
 
     }
 
-    const mapped = mapToString(input);
-    if (mapped !== undefined) return mapped as T;
+    const mapped = mapToBinary(input);
+    if (mapped !== undefined) return mapped as unknown as T;
 
     return input;
 }
 
-export function mapStringToValues<T extends Input>(input: T): T {
+export function mapBinaryToValues<T extends Input>(input: T): T {
 
     if (isObject(input)) {
 

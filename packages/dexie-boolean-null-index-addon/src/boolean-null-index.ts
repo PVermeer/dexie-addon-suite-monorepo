@@ -3,6 +3,7 @@ import { Dexie } from 'dexie';
 import { mapStringToValueOnReading, mapToStringOnCreation, mapToStringOnUpdating } from './hooks';
 import { getTableExtended } from './table-extended.class';
 import { DexieExtended } from './types';
+import { getWhereClauseExtended } from './where-clause.class';
 
 export function booleanNullIndex(db: Dexie): void {
 
@@ -21,8 +22,8 @@ export function booleanNullIndex(db: Dexie): void {
     // Extend Dexie Classes
     Object.defineProperties(db, {
         Table: { value: getTableExtended(db) },
-        // Collection: { value: getCollectionExtended(db) },
-        // WhereClause: { value: getWhereClauseExtended(db) }
+        WhereClause: { value: getWhereClauseExtended(db) },
+        // Collection: { value: getCollectionExtended(db) }
     });
 
     db.on('ready', () => {

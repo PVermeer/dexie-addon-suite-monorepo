@@ -1,7 +1,7 @@
 import { immutable } from '@pvermeer/dexie-immutable-addon';
 import { Dexie } from 'dexie';
 import { mapStringToValueOnReading, mapToStringOnCreation, mapToStringOnUpdating } from './hooks';
-import { getTableExtended } from './table-extended.class';
+import { getTableExtended } from './table.class';
 import { DexieExtended } from './types';
 import { getWhereClauseExtended } from './where-clause.class';
 

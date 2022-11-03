@@ -288,12 +288,13 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                         }));
                         describe('where()', () => {
                             let ids: number[];
+                            let testId: number;
                             let friends: Friend[];
 
                             beforeEach(async () => {
                                 friends = mockFriends(10);
                                 ids = await db.friends.bulkAdd(friends, { allKeys: true });
-                                const [testId] = ids;
+                                [testId] = ids;
                                 await db.friends.update(testId, {
                                     age: documentValue,
                                     firstName: documentValue,
@@ -495,7 +496,26 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                         expect(getFriends.length).withContext('Wrong length').toBe(2);
                                     });
                                 }));
-                                // below should just work because are converted values are above
+                                describe('anyOfIgnoreCase()', (() => {
+                                    it(`should be able to query`, async () => {
+
+                                        await db.friends.clear();
+                                        const friends = mockFriends(5).map((friend, i) => ({ ...friend, firstName: 'z' + i }));
+                                        friends[2].firstName = 'AfdgDfgdfgdfg';
+                                        friends[4].firstName = 'BsdfgRgr';
+
+                                        friends[2].age = documentValue;
+                                        await db.friends.bulkAdd(friends);
+
+                                        const getFriends = await db.friends.where('firstName').anyOfIgnoreCase('afdgdfgdfgdfg', 'bsdfgrgr').toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(2);
+
+                                        const getFriends2 = await db.friends.where('firstName').anyOfIgnoreCase(['afdgdfgdfgdfg', 'bsdfgrgr']).toArray();
+                                        expect(getFriends2.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length').toBe(2);
+                                    });
+                                }));
                                 describe('below()', (() => {
                                     it(`should not query ${type} values`, async () => {
 
@@ -555,7 +575,6 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                         await expectAsync(db.friends.where('age').below(Number.MAX_SAFE_INTEGER).toArray()).toBeResolved();
                                     });
                                 }));
-                                // belowOrEqual should just work because are converted values are above
                                 describe('belowOrEqual()', (() => {
                                     it(`should not query ${type} values`, async () => {
 
@@ -616,13 +635,443 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                         await expectAsync(db.friends.where('age').belowOrEqual(Number.MAX_SAFE_INTEGER).toArray()).toBeResolved();
                                     });
                                 }));
+                                describe('between()', (() => {
+                                    it(`should not query ${type} values`, async () => {
+
+                                        let addFriends: Friend[] = mockFriends(5)
+                                            .map(friend => ({ ...friend, age: faker.datatype.number({ min: 2, max: 48 }) }));
+
+                                        const [addFriendLower] = mockFriends(1);
+                                        addFriendLower.age = 1;
+
+                                        const [addFriendUpper] = mockFriends(1);
+                                        addFriendUpper.age = 49;
+
+                                        addFriends[3].age = documentValue; // Should be filtered out
+
+                                        addFriends = [...addFriends, addFriendLower, addFriendUpper];
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        // Default bounds are (true, false) for reasons...
+                                        const getFriends = await db.friends.where('age').between(1, 49).toArray();
+                                        expect(getFriends.every(friend => friend.age !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length - 2);
+
+                                        const getFriends2 = await db.friends.where('age').between(1, 49, false, false).toArray();
+                                        expect(getFriends2.every(friend => friend.age !== documentValue)).withContext('No value 2').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length 2').toBe(addFriends.length - 3);
+
+                                        const getFriends3 = await db.friends.where('age').between(1, 49, true, false).toArray();
+                                        expect(getFriends3.every(friend => friend.age !== documentValue)).withContext('No value 3').toBeTrue();
+                                        expect(getFriends3.length).withContext('Wrong length 3').toBe(addFriends.length - 2);
+
+                                        const getFriends4 = await db.friends.where('age').between(1, 49, false, true).toArray();
+                                        expect(getFriends4.every(friend => friend.age !== documentValue)).withContext('No value 4').toBeTrue();
+                                        expect(getFriends4.length).withContext('Wrong length 4').toBe(addFriends.length - 2);
+
+                                        const getFriends5 = await db.friends.where('age').between(1, 49, true, true).toArray();
+                                        expect(getFriends5.every(friend => friend.age !== documentValue)).withContext('No value 5').toBeTrue();
+                                        expect(getFriends5.length).withContext('Wrong length 5').toBe(addFriends.length - 1);
+                                    });
+                                    it(`should query ${type} on other properties`, async () => {
+
+                                        await db.friends.clear();
+                                        const startDate = new Date();
+                                        const endDate = faker.date.soon(30);
+                                        const lowerDate = new Date(startDate.getTime() - 1);
+                                        const higherDate = new Date(endDate.getTime() + 1);
+
+                                        let addFriends: Friend[] = mockFriends(5)
+                                            .map(friend => ({ ...friend, date: faker.date.between(startDate, endDate) }));
+
+                                        const [addFriendLower] = mockFriends(1);
+                                        addFriendLower.date = lowerDate;
+
+                                        const [addFriendUpper] = mockFriends(1);
+                                        addFriendUpper.date = higherDate;
+
+                                        addFriends[3].age = documentValue; // Should NOT be filtered out
+                                        addFriends[2].date = documentValue; // Should be filtered out
+
+                                        addFriends = [...addFriends, addFriendLower, addFriendUpper];
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        // Default bounds are (true, false) for reasons...
+                                        const getFriends = await db.friends.where('date').between(lowerDate, higherDate).toArray();
+                                        expect(getFriends.every(friend => friend.date !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length - 2);
+
+                                        const getFriends2 = await db.friends.where('date').between(lowerDate, higherDate, false, false).toArray();
+                                        expect(getFriends2.every(friend => friend.date !== documentValue)).withContext('No value 2').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value 2').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length 2').toBe(addFriends.length - 3);
+
+                                        const getFriends3 = await db.friends.where('date').between(lowerDate, higherDate, true, false).toArray();
+                                        expect(getFriends3.every(friend => friend.date !== documentValue)).withContext('No value 3').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value 3').toBeTrue();
+                                        expect(getFriends3.length).withContext('Wrong length 3').toBe(addFriends.length - 2);
+
+                                        const getFriends4 = await db.friends.where('date').between(lowerDate, higherDate, false, true).toArray();
+                                        expect(getFriends4.every(friend => friend.date !== documentValue)).withContext('No value 4').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value 4').toBeTrue();
+                                        expect(getFriends4.length).withContext('Wrong length 4').toBe(addFriends.length - 2);
+
+                                        const getFriends5 = await db.friends.where('date').between(lowerDate, higherDate, true, true).toArray();
+                                        expect(getFriends5.every(friend => friend.date !== documentValue)).withContext('No value 5').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value 5').toBeTrue();
+                                        expect(getFriends5.length).withContext('Wrong length 5').toBe(addFriends.length - 1);
+                                    });
+                                    it('should work with any high or low value', async () => {
+
+                                        await expectAsync(db.friends.where('age').between(String.fromCharCode(0), String.fromCharCode(65535)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').between(String.fromCharCode(1), String.fromCharCode(65535)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').between(String.fromCharCode(65535), String.fromCharCode(65535)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').between(1, Number.MAX_SAFE_INTEGER).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').between(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER).toArray()).toBeResolved();
+                                    });
+                                }));
                                 describe('equals()', (() => {
                                     it(`should be able to query for ${type}`, async () => {
 
                                         const getFriends = await db.friends.where('age').equals(documentValue).toArray();
                                         expect(getFriends.every(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
                                     });
+                                    it(`should query ${type} on other properties`, async () => {
+
+                                        await db.friends.clear();
+                                        const date = new Date();
+
+                                        const addFriends: Friend[] = mockFriends(5)
+                                            .map(friend => ({ ...friend, date }));
+
+                                        addFriends[3].age = documentValue; // Should NOT be filtered out
+
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        const getFriends = await db.friends.where('date').equals(date).toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length);
+                                    });
+                                    it('should work with any high or low value', async () => {
+
+                                        await expectAsync(db.friends.where('age').equals(String.fromCharCode(0)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').equals(String.fromCharCode(1)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').equals(String.fromCharCode(65535)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').equals(1).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').equals(Number.MAX_SAFE_INTEGER).toArray()).toBeResolved();
+                                    });
                                 }));
+                                describe('equalsIgnoreCase()', (() => {
+                                    it(`should be able to query`, async () => {
+
+                                        await db.friends.clear();
+                                        const friends = mockFriends(5).map((friend, i) => ({ ...friend, firstName: 'b' + i }));
+                                        friends[2].firstName = 'AfdgDfgdfgdfg';
+                                        friends[2].age = documentValue;
+                                        await db.friends.bulkAdd(friends);
+
+                                        const getFriends = await db.friends.where('firstName').equalsIgnoreCase('afdgdfgdfgdfg').toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                    });
+                                }));
+                                describe('inAnyRange()', (() => {
+                                    it(`should not query ${type} values`, async () => {
+
+                                        const lowerRange = [1, 25] as const;
+                                        const addFriends1: Friend[] = mockFriends(5)
+                                            .map(friend => ({
+                                                ...friend,
+                                                age: faker.datatype.number({ min: lowerRange[0] + 1, max: lowerRange[1] - 1 })
+                                            }));
+
+                                        const upperRange = [30, 49] as const;
+                                        const addFriends2: Friend[] = mockFriends(5)
+                                            .map(friend => ({
+                                                ...friend,
+                                                age: faker.datatype.number({ min: upperRange[0] + 1, max: upperRange[1] - 1 })
+                                            }));
+
+                                        const [addFriendLower] = mockFriends(1);
+                                        addFriendLower.age = 1;
+
+                                        const [addFriendUpper] = mockFriends(1);
+                                        addFriendUpper.age = 49;
+
+                                        addFriends1[3].age = documentValue; // Should be filtered out
+
+                                        const addFriends = [...addFriends1, ...addFriends2, addFriendLower, addFriendUpper];
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        // Default bounds are (true, false) for reasons...
+                                        const getFriends = await db.friends.where('age').inAnyRange([lowerRange, upperRange]).toArray();
+                                        expect(getFriends.every(friend => friend.age !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length - 2);
+
+                                        const getFriends2 = await db.friends.where('age')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: false, includeUppers: false })
+                                            .toArray();
+                                        expect(getFriends2.every(friend => friend.age !== documentValue)).withContext('No value 2').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length 2').toBe(addFriends.length - 3);
+
+                                        const getFriends3 = await db.friends.where('age')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: true, includeUppers: false })
+                                            .toArray();
+                                        expect(getFriends3.every(friend => friend.age !== documentValue)).withContext('No value 3').toBeTrue();
+                                        expect(getFriends3.length).withContext('Wrong length 3').toBe(addFriends.length - 2);
+
+                                        const getFriends4 = await db.friends.where('age')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: false, includeUppers: true })
+                                            .toArray();
+                                        expect(getFriends4.every(friend => friend.age !== documentValue)).withContext('No value 4').toBeTrue();
+                                        expect(getFriends4.length).withContext('Wrong length 4').toBe(addFriends.length - 2);
+
+                                        const getFriends5 = await db.friends.where('age')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: true, includeUppers: true })
+                                            .toArray();
+                                        expect(getFriends5.every(friend => friend.age !== documentValue)).withContext('No value 5').toBeTrue();
+                                        expect(getFriends5.length).withContext('Wrong length 5').toBe(addFriends.length - 1);
+                                    });
+                                    it(`should query ${type} on other properties`, async () => {
+
+                                        const day1 = 1000 * 60 * 60 * 24;
+
+                                        const startDate = new Date();
+                                        const endDate = new Date(startDate.getTime() + (day1 * 30));
+
+                                        const lowerRange = [
+                                            startDate,
+                                            new Date(startDate.getTime() + (day1 * 15))
+                                        ] as const;
+                                        const addFriends1: Friend[] = mockFriends(5)
+                                            .map(friend => ({
+                                                ...friend,
+                                                date: faker.date.between(
+                                                    new Date(lowerRange[0].getTime() + 1),
+                                                    new Date(lowerRange[1].getTime() - 1)
+                                                )
+                                            }));
+
+                                        const upperRange = [
+                                            new Date(startDate.getTime() + (day1 * 16)),
+                                            endDate
+                                        ] as const;
+                                        const addFriends2: Friend[] = mockFriends(5)
+                                            .map(friend => ({
+                                                ...friend,
+                                                date: faker.date.between(
+                                                    new Date(upperRange[0].getTime() + 1),
+                                                    new Date(upperRange[1].getTime() - 1)
+                                                )
+                                            }));
+
+                                        const [addFriendLower] = mockFriends(1);
+                                        addFriendLower.date = startDate;
+
+                                        const [addFriendUpper] = mockFriends(1);
+                                        addFriendUpper.date = endDate;
+
+                                        addFriends1[3].age = documentValue; // Should NOT be filtered out
+                                        addFriends1[2].date = documentValue; // Should be filtered out
+
+                                        const addFriends = [...addFriends1, ...addFriends2, addFriendLower, addFriendUpper];
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        // Default bounds are (true, false) for reasons...
+                                        const getFriends = await db.friends.where('date')
+                                            .inAnyRange([lowerRange, upperRange])
+                                            .toArray();
+                                        expect(getFriends.every(friend => friend.date !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length - 2);
+
+                                        const getFriends2 = await db.friends.where('date')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: false, includeUppers: false })
+                                            .toArray();
+                                        expect(getFriends.every(friend => friend.date !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length 2').toBe(addFriends.length - 3);
+
+                                        const getFriends3 = await db.friends.where('date')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: true, includeUppers: false })
+                                            .toArray();
+                                        expect(getFriends.every(friend => friend.date !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value').toBeTrue();
+                                        expect(getFriends3.length).withContext('Wrong length 3').toBe(addFriends.length - 2);
+
+                                        const getFriends4 = await db.friends.where('date')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: false, includeUppers: true })
+                                            .toArray();
+                                        expect(getFriends.every(friend => friend.date !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value').toBeTrue();
+                                        expect(getFriends4.length).withContext('Wrong length 4').toBe(addFriends.length - 2);
+
+                                        const getFriends5 = await db.friends.where('date')
+                                            .inAnyRange([lowerRange, upperRange], { includeLowers: true, includeUppers: true })
+                                            .toArray();
+                                        expect(getFriends.every(friend => friend.date !== documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('Has value').toBeTrue();
+                                        expect(getFriends5.length).withContext('Wrong length 5').toBe(addFriends.length - 1);
+                                    });
+                                    it('should work with any high or low value', async () => {
+
+                                        await expectAsync(db.friends.where('age')
+                                            .inAnyRange([[String.fromCharCode(0), String.fromCharCode(65535)]])
+                                            .toArray())
+                                            .toBeResolved();
+                                        await expectAsync(db.friends.where('age')
+                                            .inAnyRange([[String.fromCharCode(1), String.fromCharCode(65535)]])
+                                            .toArray())
+                                            .toBeResolved();
+                                        await expectAsync(db.friends.where('age')
+                                            .inAnyRange([[String.fromCharCode(65534), String.fromCharCode(65535)]])
+                                            .toArray())
+                                            .toBeResolved();
+                                        await expectAsync(db.friends.where('age')
+                                            .inAnyRange([[1, Number.MAX_SAFE_INTEGER]])
+                                            .toArray())
+                                            .toBeResolved();
+                                        await expectAsync(db.friends.where('age')
+                                            .inAnyRange([[Number.MAX_SAFE_INTEGER - 1, Number.MAX_SAFE_INTEGER]])
+                                            .toArray())
+                                            .toBeResolved();
+                                    });
+                                }));
+                                describe('noneOf()()', (() => {
+                                    it(`should be able to query for none of ${type}`, async () => {
+
+                                        const getFriends = await db.friends.where('age').noneOf([documentValue]).toArray();
+                                        expect(getFriends.every(friend => friend.age !== documentValue)).withContext('No value').toBeTrue();
+
+                                        const getFriends2 = await db.friends.where('age').noneOf([900, 800]).toArray();
+                                        expect(getFriends2.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                    });
+                                    it(`should query for ${type} on other properties`, async () => {
+
+                                        await db.friends.clear();
+
+                                        const addFriends: Friend[] = mockFriends(5)
+                                            .map(friend => ({ ...friend }));
+
+                                        const date = addFriends[2].date;
+                                        addFriends[3].age = documentValue; // Should NOT be filtered out
+
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        const getFriends = await db.friends.where('date').noneOf([date]).toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length - 1);
+                                    });
+                                    it('should work with any high or low value', async () => {
+
+                                        await expectAsync(db.friends.where('age').noneOf([String.fromCharCode(0)]).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').noneOf([String.fromCharCode(1)]).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').noneOf([String.fromCharCode(65535)]).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').noneOf([1]).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').noneOf([Number.MAX_SAFE_INTEGER]).toArray()).toBeResolved();
+                                    });
+                                }));
+                                describe('notEqual()()', (() => {
+                                    it(`should be able to query for none of ${type}`, async () => {
+
+                                        const getFriends = await db.friends.where('age').notEqual(documentValue).toArray();
+                                        expect(getFriends.every(friend => friend.age !== documentValue)).withContext('No value').toBeTrue();
+                                    });
+                                    it(`should query for ${type} on other properties`, async () => {
+
+                                        await db.friends.clear();
+
+                                        const addFriends: Friend[] = mockFriends(5)
+                                            .map(friend => ({ ...friend }));
+
+                                        const date = addFriends[2].date;
+                                        addFriends[3].age = documentValue; // Should NOT be filtered out
+
+                                        await db.friends.bulkAdd(addFriends);
+
+                                        const getFriends = await db.friends.where('date').notEqual(date).toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(addFriends.length - 1);
+                                    });
+                                    it('should work with any high or low value', async () => {
+
+                                        await expectAsync(db.friends.where('age').notEqual(String.fromCharCode(0)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').notEqual(String.fromCharCode(1)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').notEqual(String.fromCharCode(65535)).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').notEqual(1).toArray()).toBeResolved();
+                                        await expectAsync(db.friends.where('age').notEqual(Number.MAX_SAFE_INTEGER).toArray()).toBeResolved();
+                                    });
+                                }));
+                                describe('startsWith()', (() => {
+                                    it(`should be able to query`, async () => {
+
+                                        await db.friends.clear();
+                                        const friends = mockFriends(5).map((friend, i) => ({ ...friend, firstName: 'b' + i }));
+                                        friends[2].firstName = 'Afdgdfgdfgdfg';
+                                        friends[2].age = documentValue;
+                                        await db.friends.bulkAdd(friends);
+
+                                        const getFriends = await db.friends.where('firstName').startsWith('A').toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                    });
+                                }));
+                                describe('startsWithAnyOf()', (() => {
+                                    it(`should be able to query`, async () => {
+
+                                        await db.friends.clear();
+                                        const friends = mockFriends(5).map((friend, i) => ({ ...friend, firstName: 'z' + i }));
+                                        friends[2].firstName = 'Afdgdfgdfgdfg';
+                                        friends[4].firstName = 'Bsdfgrgr';
+
+                                        friends[2].age = documentValue;
+                                        await db.friends.bulkAdd(friends);
+
+                                        const getFriends = await db.friends.where('firstName').startsWithAnyOf('A', 'B').toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(2);
+
+                                        const getFriends2 = await db.friends.where('firstName').startsWithAnyOf(['A', 'B']).toArray();
+                                        expect(getFriends2.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length').toBe(2);
+                                    });
+                                }));
+                                describe('startsWithAnyOfIgnoreCase()', (() => {
+                                    it(`should be able to query`, async () => {
+
+                                        await db.friends.clear();
+                                        const friends = mockFriends(5).map((friend, i) => ({ ...friend, firstName: 'z' + i }));
+                                        friends[2].firstName = 'Afdgdfgdfgdfg';
+                                        friends[4].firstName = 'Bsdfgrgr';
+
+                                        friends[2].age = documentValue;
+                                        await db.friends.bulkAdd(friends);
+
+                                        const getFriends = await db.friends.where('firstName').startsWithAnyOfIgnoreCase('a', 'b').toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(2);
+
+                                        const getFriends2 = await db.friends.where('firstName').startsWithAnyOfIgnoreCase(['a', 'b']).toArray();
+                                        expect(getFriends2.some(friend => friend.age === documentValue)).withContext('No value').toBeTrue();
+                                        expect(getFriends2.length).withContext('Wrong length').toBe(2);
+                                    });
+                                }));
+                                describe('startsWithIgnoreCase()', (() => {
+                                    it(`should be able to query`, async () => {
+
+                                        await db.friends.clear();
+                                        const friends = mockFriends(5).map((friend, i) => ({ ...friend, firstName: 'b' + i }));
+                                        friends[2].firstName = 'Afdgdfgdfgdfg';
+                                        friends[2].age = documentValue;
+                                        await db.friends.bulkAdd(friends);
+
+                                        const getFriends = await db.friends.where('firstName').startsWithIgnoreCase('a').toArray();
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                    });
+                                }));
+
                             }));
 
                             describe('Collection', (() => {

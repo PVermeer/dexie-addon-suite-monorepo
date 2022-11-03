@@ -9,7 +9,7 @@ export interface Friend {
     firstName: string | null | boolean;
     lastName: string;
     shoeSize: number;
-    date: Date;
+    date: Date | null | boolean;
 }
 
 class TestDatabase extends Dexie {

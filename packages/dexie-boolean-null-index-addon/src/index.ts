@@ -16,6 +16,8 @@ declare module 'dexie' {
         anyOf(keys: ReadonlyArray<IndexableTypeExtended>): Collection<T, TKey>;
         anyOf(...keys: Array<IndexableTypeExtended>): Collection<T, TKey>;
         equals(key: IndexableTypeExtended): Collection<T, TKey>;
+        noneOf(keys: ReadonlyArray<IndexableTypeExtended>): Collection<T, TKey>;
+        notEqual(key: IndexableTypeExtended): Collection<T, TKey>;
     }
 
 }

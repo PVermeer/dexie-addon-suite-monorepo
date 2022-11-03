@@ -21,7 +21,6 @@ function checkForSimpleValue(value: unknown) {
 export function getWhereClauseExtended(db: Dexie) {
 
     const WhereClause = db.WhereClause as DexieExtended['WhereClause'];
-    // const Collection = db.Collection as DexieExtended['Collection'];
 
     return class WhereClauseExtended<T, TKey> extends WhereClause<T, TKey> {
 
@@ -39,7 +38,7 @@ export function getWhereClauseExtended(db: Dexie) {
             return this.between(key, MIN_BINARY, true, false);
         }
 
-        public override anyOf(_values: unknown) {
+        public override anyOf(_values: unknown): Collection<T, TKey> {
 
             // eslint-disable-next-line prefer-rest-params
             const values = <(IndexableType | null)[]>(arguments.length === 1 ? _values : [...arguments]);
@@ -48,11 +47,24 @@ export function getWhereClauseExtended(db: Dexie) {
             return super.anyOf(mappedValues);
         }
 
-        public override equals(key: Parameters<WhereClause['equals']>['0'] | null): Collection<T, TKey> {
+        public override equals(key: Parameters<WhereClause['equals']>['0']): Collection<T, TKey> {
 
             const newKey = mapValuesToBinary(key);
             return super.equals(newKey);
         }
+
+        public override noneOf(keys: Parameters<WhereClause['noneOf']>['0']): Collection<T, TKey> {
+
+            const newKeys = mapValuesToBinary(keys);
+            return super.noneOf(newKeys);
+        }
+
+        public override notEqual(key: Parameters<WhereClause['notEqual']>['0']): Collection<T, TKey> {
+
+            const newKey = mapValuesToBinary(key);
+            return super.notEqual(newKey);
+        }
+
 
         constructor(
             table: Table<T, TKey>,

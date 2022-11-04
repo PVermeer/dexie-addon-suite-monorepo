@@ -5,7 +5,7 @@ import { booleanNullIndex } from '../../src/boolean-null-index';
 export interface Friend {
     id?: number;
     testProp?: string;
-    age: number | null | boolean;
+    age: number | null | boolean | (number | null | boolean)[];
     firstName: string | null | boolean;
     lastName: string;
     shoeSize: number;
@@ -18,7 +18,7 @@ class TestDatabase extends Dexie {
         super(name);
         booleanNullIndex(this);
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
+            friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
             buddies: '++id, buddyName, buddyAge',
             dudes: '++id, dudeName, dudeAge',
             empty: ''
@@ -33,7 +33,7 @@ class TestDatabaseAddons extends Dexie {
             addons: [booleanNullIndex]
         });
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
+            friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
         });
     }
 }
@@ -60,7 +60,7 @@ export class TestDatabaseWithHooks extends Dexie {
         });
 
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
+            friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
         });
     }
 }
@@ -69,7 +69,7 @@ function testDatabaseJs(): TestDatabase {
         addons: [booleanNullIndex]
     });
     db.version(1).stores({
-        friends: '++id, firstName, lastName, shoeSize, age, date, [age+shoeSize]',
+        friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
         buddies: '++id, buddyName, buddyAge',
         dudes: '++id, dudeName, dudeAge',
         empty: ''

@@ -9,19 +9,36 @@ export const TRUE_STRING = '__*true*___';
 export const FALSE_STRING = '__*false*___';
 export const NULL_STRING = '__*null*___';
 
-export const TRUE_BINARY = textEncoder.encode(TRUE_STRING);
-export const FALSE_BINARY = textEncoder.encode(FALSE_STRING);
-export const NULL_BINARY = textEncoder.encode(NULL_STRING);
+export const TRUE_TYPED_ARRAY = textEncoder.encode(TRUE_STRING);
+export const FALSE_TYPED_ARRAY = textEncoder.encode(FALSE_STRING);
+export const NULL_TYPED_ARRAY = textEncoder.encode(NULL_STRING);
 
-export const TRUE_CHAR_STRING = TRUE_BINARY.toString();
-export const FALSE_CHAR_STRING = FALSE_BINARY.toString();
-export const NULL_CHAR_STRING = NULL_BINARY.toString();
+export const TRUE_BINARY = TRUE_TYPED_ARRAY.buffer;
+export const FALSE_BINARY = FALSE_TYPED_ARRAY.buffer;
+export const NULL_BINARY = NULL_TYPED_ARRAY.buffer;
 
-export const MIN_BINARY = new Uint8Array(0);
+export const MIN_BINARY = new Uint8Array(0).buffer;
 
 type Input = { [key: string]: any; } | IndexableTypeExtended;
 
-function mapToBinary(value: unknown): void | Uint8Array {
+export function typedArraysAreEqual(a: Uint8Array, b: Uint8Array) {
+
+    if (a.byteLength !== b.byteLength) return false;
+    return a.every((val, i) => val === b[i]);
+}
+
+export function arrayBuffersAreEqual(a: ArrayBuffer, b: ArrayBuffer) {
+
+    if (a.byteLength !== b.byteLength) return false;
+
+    const typedArrayA = new Uint8Array(a);
+    const typedArrayB = new Uint8Array(b);
+
+    return typedArrayA.every((value, i) => value === typedArrayB[i]);
+}
+
+function mapToBinary(value: unknown): void | ArrayBuffer {
+
     if (value === true) return TRUE_BINARY;
     if (value === false) return FALSE_BINARY;
     if (value === null) return NULL_BINARY;
@@ -30,15 +47,19 @@ function mapToBinary(value: unknown): void | Uint8Array {
 
 function mapToValue(value: unknown): IndexableTypeExtended | void {
 
-    if (!(value instanceof Uint8Array)) return;
-    const stringValue = value.toString();
-    if (stringValue === TRUE_CHAR_STRING) return true;
-    if (stringValue === FALSE_CHAR_STRING) return false;
-    if (stringValue === NULL_CHAR_STRING) return null;
+    if (!(value instanceof ArrayBuffer)) return;
+    const typedArray = new Uint8Array(value);
+
+    if (typedArraysAreEqual(typedArray, TRUE_TYPED_ARRAY)) return true;
+    if (typedArraysAreEqual(typedArray, FALSE_TYPED_ARRAY)) return false;
+    if (typedArraysAreEqual(typedArray, NULL_TYPED_ARRAY)) return null;
     return;
 }
 
 export function mapValuesToBinary<T extends Input>(input: T): T {
+
+    const mapped = mapToBinary(input);
+    if (mapped !== undefined) return mapped as unknown as T;
 
     if (isObject(input)) {
 
@@ -49,13 +70,13 @@ export function mapValuesToBinary<T extends Input>(input: T): T {
 
     }
 
-    const mapped = mapToBinary(input);
-    if (mapped !== undefined) return mapped as unknown as T;
-
     return input;
 }
 
 export function mapBinaryToValues<T extends Input>(input: T): T {
+
+    const mapped = mapToValue(input);
+    if (mapped !== undefined) return mapped as unknown as T;
 
     if (isObject(input)) {
 
@@ -66,9 +87,5 @@ export function mapBinaryToValues<T extends Input>(input: T): T {
 
     }
 
-    const mapped = mapToValue(input);
-    if (mapped !== undefined) return mapped as unknown as T;
-
     return input;
-
 }

@@ -1,5 +1,6 @@
 import { immutable } from '@pvermeer/dexie-immutable-addon';
 import { Dexie } from 'dexie';
+import { getCollectionExtended } from './collection.class';
 import { mapStringToValueOnReading, mapToStringOnCreation, mapToStringOnUpdating } from './hooks';
 import { getTableExtended } from './table.class';
 import { DexieExtended } from './types';
@@ -23,7 +24,7 @@ export function booleanNullIndex(db: Dexie): void {
     Object.defineProperties(db, {
         Table: { value: getTableExtended(db) },
         WhereClause: { value: getWhereClauseExtended(db) },
-        // Collection: { value: getCollectionExtended(db) }
+        Collection: { value: getCollectionExtended(db) }
     });
 
     db.on('ready', () => {

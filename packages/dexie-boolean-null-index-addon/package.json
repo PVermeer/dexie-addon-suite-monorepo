@@ -1,7 +1,7 @@
 {
   "name": "@pvermeer/dexie-boolean-null-index-addon",
   "version": "1.0.0",
-  "description": "Addon for Dexie.js database to add null indices",
+  "description": "Addon for Dexie.js database to add boolean and null indices",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

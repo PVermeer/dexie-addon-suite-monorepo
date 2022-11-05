@@ -1187,14 +1187,14 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                 });
                                 it(`should be omitted when query for ${type} with between()`, async () => {
 
-                                    db.friends.clear();
+                                    await db.friends.clear();
                                     const friends = mockFriends(5);
                                     friends[2].age = documentValue;
                                     friends[3].shoeSize = 900;
                                     await db.friends.bulkAdd(friends);
 
                                     const getFriends = await db.friends.where('[age+shoeSize]')
-                                        .between([50, 80], [800, 1000])
+                                        .between([0, 999], [800, 1000])
                                         .toArray();
 
                                     expect(getFriends.every(friend => friend.age !== documentValue)).withContext('With value age').toBeTrue();

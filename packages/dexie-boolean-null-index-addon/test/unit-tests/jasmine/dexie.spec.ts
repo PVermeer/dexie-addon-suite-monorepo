@@ -1,30 +1,30 @@
 import { Dexie as DexieImport } from 'dexie';
-import { nullIndex } from '../../../src';
+import { booleanNullIndex } from '../../../src';
 
-declare interface DexieNullIndexAddon { nullIndex: typeof nullIndex; }
+declare interface DexieBooleanNullIndexAddon { booleanNullIndex: typeof booleanNullIndex; }
 
 /*
  * Lib is not really meant for node but package should be able to be required in node.
  */
-describe('dexie-null-index-addon dexie.spec', () => {
+describe('dexie-boolean-null-index-addon dexie.spec', () => {
 
     describe('Dexie', () => {
         describe('Node require', () => {
             let DexieReq: typeof DexieImport;
-            let DexieNullIndexAddonReq: DexieNullIndexAddon;
+            let DexieBooleanNullIndexAddonReq: DexieBooleanNullIndexAddon;
             beforeAll(() => {
                 DexieReq = require('dexie');
-                DexieNullIndexAddonReq = require('../../../dist/index');
+                DexieBooleanNullIndexAddonReq = require('../../../dist/index');
             });
             it('should load Dexie.js', () => {
                 expect(DexieReq).toBeTruthy();
             });
             it('should load DexieNullIndexAddon.js', () => {
-                expect(DexieNullIndexAddonReq).toBeTruthy();
-                expect(DexieNullIndexAddonReq.nullIndex).toBeTruthy();
+                expect(DexieBooleanNullIndexAddonReq).toBeTruthy();
+                expect(DexieBooleanNullIndexAddonReq.booleanNullIndex).toBeTruthy();
             });
-            it('should be able to use null index addon', async () => {
-                const test = DexieNullIndexAddonReq.nullIndex.setOptions({ nullStringValue: 'some null string' });
+            it('should be able to use addon', async () => {
+                const test = DexieBooleanNullIndexAddonReq.booleanNullIndex;
                 expect(typeof test === 'function').toBeTrue();
             });
         });

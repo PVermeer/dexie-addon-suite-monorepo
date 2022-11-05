@@ -1,7 +1,7 @@
 import { IndexableTypeExtended, IndexableTypePartExtended } from './types';
 
 export { booleanNullIndex } from './boolean-null-index';
-export type { IndexableTypeExtended };
+export type { IndexableTypeExtended, IndexableTypePartExtended };
 
 declare module 'dexie' {
 
@@ -13,9 +13,9 @@ declare module 'dexie' {
     }
 
     interface WhereClause<T = any, TKey = IndexableType> {
-        anyOf(keys: ReadonlyArray<IndexableTypeExtended>): Collection<T, TKey>;
-        anyOf(...keys: Array<IndexableTypeExtended>): Collection<T, TKey>;
-        equals(key: IndexableTypeExtended): Collection<T, TKey>;
+        anyOf(keys: ReadonlyArray<IndexableTypeExtended | IndexableTypePartExtended[]>): Collection<T, TKey>;
+        anyOf(...keys: Array<IndexableTypeExtended | IndexableTypePartExtended[]>): Collection<T, TKey>;
+        equals(key: IndexableTypeExtended | IndexableTypePartExtended[]): Collection<T, TKey>;
         noneOf(keys: ReadonlyArray<IndexableTypeExtended>): Collection<T, TKey>;
         notEqual(key: IndexableTypeExtended): Collection<T, TKey>;
     }

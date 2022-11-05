@@ -287,6 +287,83 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                 expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
                             });
                         }));
+                        describe(`count() (${type})`, (() => {
+                            it('should be able to count', async () => {
+                                const friends = mockFriends(5);
+                                const id = await db.friends.bulkAdd(friends);
+
+                                await db.friends.update(id, { age: documentValue });
+                                const count = await db.friends.count();
+
+                                expect(count).toBe(5);
+                            });
+                        }));
+                        describe('each()', (() => {
+                            it(`should be included in ${type}`, async () => {
+
+                                const friends = mockFriends(5);
+                                friends[2].age = documentValue;
+                                await db.friends.bulkAdd(friends);
+
+                                const getFriends: Friend[] = [];
+
+                                await db.friends.each(friend => {
+                                    getFriends.push(friend);
+                                });
+
+                                expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                expect(getFriends.length).withContext('Wrong length').toBe(5);
+                            });
+                        }));
+                        describe('filter()', (() => {
+                            it(`should be able to filter out ${type}`, async () => {
+
+                                const friends = mockFriends(5);
+                                friends[2].age = documentValue;
+                                await db.friends.bulkAdd(friends);
+
+                                const getFriends = await db.friends.filter(friend => friend.age !== documentValue).toArray();
+
+                                expect(getFriends.every(friend => friend.age !== documentValue)).withContext('With value').toBeTrue();
+                                expect(getFriends.length).withContext('Wrong length').toBe(4);
+                            });
+                            it(`should be able to filter for ${type}`, async () => {
+
+                                const friends = mockFriends(5);
+                                friends[2].age = documentValue;
+                                await db.friends.bulkAdd(friends);
+
+                                const getFriends = await db.friends.filter(friend => friend.age === documentValue).toArray();
+
+                                expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                expect(getFriends.length).withContext('Wrong length').toBe(1);
+                            });
+                        }));
+                        describe('orderBy()', (() => {
+                            it(`should be able to order with ${type}`, async () => {
+
+                                const friends = mockFriends(5);
+                                friends[2].age = documentValue;
+                                await db.friends.bulkAdd(friends);
+
+                                const getFriends = await db.friends.orderBy('age').toArray();
+
+                                expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                expect(getFriends.length).withContext('Wrong length').toBe(5);
+                            });
+                            it(`should be able to order with other property`, async () => {
+
+                                const friends = mockFriends(5);
+                                friends[2].age = documentValue;
+                                await db.friends.bulkAdd(friends);
+
+                                const getFriends = await db.friends.orderBy('firstName').toArray();
+
+                                expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value').toBeTrue();
+                                expect(getFriends.length).withContext('Wrong length').toBe(5);
+                            });
+
+                        }));
                         describe('where()', () => {
                             let ids: number[];
                             let testId: number;
@@ -318,7 +395,6 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                 expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
                             });
                             it('should be able to query with multiple keys', async () => {
-                                // @ts-expect-error // Not officially supported by Dexie
                                 const getFriend = await db.friends.where(['age', 'shoeSize']).equals([documentValue, 12]).first() as Friend;
 
                                 expect(getFriend.age === documentValue).withContext('Read value').toBeTrue();
@@ -1073,6 +1149,80 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                     });
                                 }));
                             }));
+
+                            describe('Coumpound index', (() => {
+                                it(`should be able to query for ${type} with "[] notation"`, async () => {
+
+                                    const friends = mockFriends(5);
+                                    friends[2].age = documentValue;
+                                    friends[2].shoeSize = 900;
+                                    await db.friends.bulkAdd(friends);
+
+                                    const [addFriend] = mockFriends(1);
+                                    addFriend.age = 900;
+                                    await db.friends.add(addFriend);
+
+                                    const getFriends = await db.friends.where('[age+shoeSize]').equals([documentValue, 900]).toArray();
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === 900)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                });
+                                it(`should be able to query for ${type} with "{} notation"`, async () => {
+
+                                    const friends = mockFriends(5);
+                                    friends[2].age = documentValue;
+                                    friends[2].shoeSize = 900;
+                                    await db.friends.bulkAdd(friends);
+
+                                    const [addFriend] = mockFriends(1);
+                                    addFriend.age = 900;
+                                    await db.friends.add(addFriend);
+
+                                    const getFriends = await db.friends.where({ age: documentValue, shoeSize: 900 }).toArray();
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === 900)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                });
+                                it(`should be omitted when query for ${type} with between()`, async () => {
+
+                                    db.friends.clear();
+                                    const friends = mockFriends(5);
+                                    friends[2].age = documentValue;
+                                    friends[3].shoeSize = 900;
+                                    await db.friends.bulkAdd(friends);
+
+                                    const getFriends = await db.friends.where('[age+shoeSize]')
+                                        .between([50, 80], [800, 1000])
+                                        .toArray();
+
+                                    expect(getFriends.every(friend => friend.age !== documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === 900)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(4);
+                                });
+                                it(`should be able to query for ${type} with anyOf()`, async () => {
+
+                                    db.friends.clear();
+                                    const friends = mockFriends(5);
+                                    friends[2].age = documentValue;
+                                    friends[2].shoeSize = 900;
+                                    friends[4].age = 700;
+                                    friends[4].shoeSize = 800;
+                                    await db.friends.bulkAdd(friends);
+
+                                    const getFriends = await db.friends.where('[age+shoeSize]')
+                                        .anyOf([
+                                            [documentValue, 900],
+                                            [700, 800]
+                                        ])
+                                        .toArray();
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === 900)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(2);
+                                });
+                            }));
                         });
                         describe('Collection', (() => {
 
@@ -1097,6 +1247,16 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                     const getFriend = await db.friends.where('age')
                                         .equals(documentValue)
                                         .and(friend => friend.age === documentValue)
+                                        .first();
+                                    expect(getFriend!.age === documentValue).withContext('With value').toBeTrue();
+                                });
+                            }));
+                            describe('clone()', (() => {
+                                it(`should be able to query for ${type}`, async () => {
+
+                                    const getFriend = await db.friends.where('age')
+                                        .equals(documentValue)
+                                        .clone()
                                         .first();
                                     expect(getFriend!.age === documentValue).withContext('With value').toBeTrue();
                                 });
@@ -1240,6 +1400,17 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                     expect(getFriends.length).withContext('Wrong length').toBe(1);
                                 });
                             }));
+                            describe('first()', (() => {
+                                it(`should be able to query for ${type}`, async () => {
+
+                                    const getFriend = await db.friends.where('age')
+                                        .equals(documentValue)
+                                        .filter(friend => friend.age === documentValue)
+                                        .first();
+
+                                    expect(getFriend!.age === documentValue).withContext('With value').toBeTrue();
+                                });
+                            }));
                             describe('keys()', (() => {
                                 it(`should be able to query for ${type}`, async () => {
 
@@ -1260,6 +1431,17 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
 
                                     expect(getKeys.some(key => key === documentValue)).withContext('With value').toBeTrue();
                                     expect(getKeys.length).withContext('Wrong length').toBe(1);
+                                });
+                            }));
+                            describe('last()', (() => {
+                                it(`should be able to query for ${type}`, async () => {
+
+                                    const getFriend = await db.friends.where('age')
+                                        .equals(documentValue)
+                                        .filter(friend => friend.age === documentValue)
+                                        .last();
+
+                                    expect(getFriend!.age === documentValue).withContext('With value').toBeTrue();
                                 });
                             }));
                             describe(`modify() (${type})`, () => {
@@ -1342,6 +1524,19 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                     expect(getKeys.length).withContext('Wrong length').toBe(1);
                                 });
                             }));
+                            describe(`sortBy() (${type})`, () => {
+                                it(`should included "${dbStringValue}"`, async () => {
+
+                                    const [newFriend] = mockFriends(1);
+                                    newFriend.shoeSize = 900;
+                                    await db.friends.add(newFriend);
+
+                                    const getFriends = await db.friends.where('age').equals(documentValue).sortBy('age');
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                });
+                            });
                             describe('uniqueKeys()', (() => {
                                 it(`should be able to query for ${type}`, async () => {
 

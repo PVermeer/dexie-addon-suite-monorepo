@@ -732,9 +732,9 @@ describe('dexie-addon-suite addon-suite.spec', () => {
             spyOn(addonSuiteModule, 'loadAddon').and.callFake(key => {
                 addons.push(key);
             });
-            const func = addonSuite.setConfig({ immutable: false });
+            const func = addonSuite.setConfig({ immutable: false, booleanNullIndex: true });
             func(new Dexie('TestieDb'));
-            expect(addons).toEqual(['rxjs', 'populate', 'class']);
+            expect(addons).toEqual(['rxjs', 'populate', 'class', 'booleanNullIndex']);
         });
         it('should always load default addons', async () => {
             const addons: string[] = [];

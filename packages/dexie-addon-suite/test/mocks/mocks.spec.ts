@@ -154,9 +154,9 @@ const getDatabase = (
         this.on('blocked', () => false);
         this.version(1).stores({
             friends: config?.secretKey || config?.encrypted?.secretKey ?
-                '#id, &customId, $date, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]' :
+                '#id, &customId, $date, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, hairColor => hairColors.id, [id+group]' :
 
-                '++id, &customId, date, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]',
+                '++id, &customId, date, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, hairColor => hairColors.id, [id+group]',
 
             clubs: '++id, $name, theme => themes.id',
             themes: '++id, $name, style => styles.id',
@@ -182,16 +182,21 @@ export const databasesPositive = [
         immutable: true,
         encrypted: true,
         class: true,
+        booleanNullIndex: true,
         db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!, {
-            secretKey: Encryption.createRandomEncryptionKey()
+            secretKey: Encryption.createRandomEncryptionKey(),
+            booleanNullIndex: true
         })
     },
     {
-        desc: 'TestDatabase - populate / observable / immutable / class',
+        desc: 'TestDatabase - populate / observable / immutable / class / boolean-null-index',
         encrypted: false,
         immutable: true,
         class: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!)
+        booleanNullIndex: true,
+        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!, {
+            booleanNullIndex: true
+        })
     }
 ];
 

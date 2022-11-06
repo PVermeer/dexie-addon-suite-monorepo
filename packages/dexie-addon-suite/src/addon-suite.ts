@@ -1,3 +1,4 @@
+import { booleanNullIndex } from '@pvermeer/dexie-boolean-null-index-addon';
 import { classMap } from '@pvermeer/dexie-class-addon';
 import { encrypted, EncryptedOptions } from '@pvermeer/dexie-encrypted-addon';
 import { immutable } from '@pvermeer/dexie-immutable-addon';
@@ -10,17 +11,19 @@ export interface Config {
     encrypted?: EncryptedOptions;
     immutable?: boolean;
     class?: boolean;
+    booleanNullIndex?: boolean;
 }
 
 export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
 
     /** Default config */
-    const addons: { [prop: string]: boolean; } = {
+    const addons: { [prop: string]: boolean; } & Record<keyof Config, boolean> = {
         immutable: true,
         encrypted: false,
         rxjs: true,
         populate: true,
-        class: true
+        class: true,
+        booleanNullIndex: false
     };
     let secretKey: string | undefined;
 
@@ -66,6 +69,7 @@ export const loadAddon = (
         case 'rxjs': dexieRxjs(db); break;
         case 'populate': populate(db); break;
         case 'class': classMap(db); break;
+        case 'booleanNullIndex': booleanNullIndex(db); break;
     }
 };
 

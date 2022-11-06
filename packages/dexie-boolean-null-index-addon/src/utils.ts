@@ -5,9 +5,9 @@ import { IndexableTypeExtended } from "./types";
 // Keep it simple
 const textEncoder = new TextEncoder();
 
-export const TRUE_STRING = '__*true*___';
-export const FALSE_STRING = '__*false*___';
-export const NULL_STRING = '__*null*___';
+export const TRUE_STRING = '___*true*___';
+export const FALSE_STRING = '___*false*___';
+export const NULL_STRING = '___*null*___';
 
 export const TRUE_TYPED_ARRAY = textEncoder.encode(TRUE_STRING);
 export const FALSE_TYPED_ARRAY = textEncoder.encode(FALSE_STRING);

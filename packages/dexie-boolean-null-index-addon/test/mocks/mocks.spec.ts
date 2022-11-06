@@ -10,6 +10,7 @@ export interface Friend {
     lastName: string;
     shoeSize: number;
     date: Date | null | boolean;
+    uniqueValue: string | null | boolean;
 }
 
 class TestDatabase extends Dexie {
@@ -18,7 +19,7 @@ class TestDatabase extends Dexie {
         super(name);
         booleanNullIndex(this);
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
+            friends: '++id, firstName, lastName, shoeSize, *age, date, &uniqueValue, [age+shoeSize]',
             buddies: '++id, buddyName, buddyAge',
             dudes: '++id, dudeName, dudeAge',
             empty: ''
@@ -33,7 +34,7 @@ class TestDatabaseAddons extends Dexie {
             addons: [booleanNullIndex]
         });
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
+            friends: '++id, firstName, lastName, shoeSize, *age, date, &uniqueValue, [age+shoeSize]',
         });
     }
 }
@@ -60,7 +61,7 @@ export class TestDatabaseWithHooks extends Dexie {
         });
 
         this.version(1).stores({
-            friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
+            friends: '++id, firstName, lastName, shoeSize, *age, date, &uniqueValue, [age+shoeSize]',
         });
     }
 }
@@ -69,7 +70,7 @@ function testDatabaseJs(): TestDatabase {
         addons: [booleanNullIndex]
     });
     db.version(1).stores({
-        friends: '++id, firstName, lastName, shoeSize, *age, date, [age+shoeSize]',
+        friends: '++id, firstName, lastName, shoeSize, *age, date, &uniqueValue, [age+shoeSize]',
         buddies: '++id, buddyName, buddyAge',
         dudes: '++id, dudeName, dudeAge',
         empty: ''
@@ -98,7 +99,8 @@ export const mockFriends = (count = 5): Friend[] => {
         lastName: faker.name.lastName(),
         age: faker.datatype.number({ min: 50, max: 80 }),
         shoeSize: faker.datatype.number({ min: 5, max: 12 }),
-        date: faker.date.recent()
+        date: faker.date.recent(),
+        uniqueValue: faker.datatype.uuid()
     });
     return new Array(count).fill(null).map(() => friend());
 };

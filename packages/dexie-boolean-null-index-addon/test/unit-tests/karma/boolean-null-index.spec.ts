@@ -26,22 +26,20 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                     let friends: Friend[];
                     let id: number;
                     let ids: number[];
+                    let newFriends: Friend[];
                     beforeEach(async () => {
                         friends = mockFriends();
+                        newFriends = mockFriends();
                         ids = await db.friends.bulkAdd(friends, { allKeys: true });
                         id = ids[0];
                         const hooksSpy = spyOnAllFunctions(hooks);
                         Object.keys(hooksSpy).forEach(key => hooksSpy[key].and.callThrough());
                     });
                     describe('Creation', () => {
-                        let newFriends: Friend[];
-                        beforeEach(async () => {
-                            newFriends = mockFriends();
-                        });
                         afterEach(() => {
-                            expect(hooks.mapToStringOnCreation).toHaveBeenCalled();
-                            expect(hooks.mapToStringOnUpdating).not.toHaveBeenCalled();
-                            expect(hooks.mapStringToValueOnReading).not.toHaveBeenCalled();
+                            expect(hooks.mapToBinaryOnCreation).toHaveBeenCalled();
+                            expect(hooks.mapToBinaryOnUpdating).not.toHaveBeenCalled();
+                            expect(hooks.mapBinaryToValueOnReading).not.toHaveBeenCalled();
                         });
                         it('should be called on add()', async () => {
                             await db.friends.add(newFriends[0]);
@@ -58,15 +56,15 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                     });
                     describe('Updating', () => {
                         afterEach(() => {
-                            expect(hooks.mapToStringOnUpdating).toHaveBeenCalled();
-                            expect(hooks.mapToStringOnCreation).not.toHaveBeenCalled();
-                            expect(hooks.mapStringToValueOnReading).not.toHaveBeenCalled();
+                            expect(hooks.mapToBinaryOnUpdating).toHaveBeenCalled();
+                            expect(hooks.mapToBinaryOnCreation).not.toHaveBeenCalled();
+                            expect(hooks.mapBinaryToValueOnReading).not.toHaveBeenCalled();
                         });
                         it('should be called on update()', async () => {
-                            await db.friends.update(id, friends[1]);
+                            await db.friends.update(id, newFriends[0]);
                         });
                         it('should be called on put()', async () => {
-                            await db.friends.put({ ...friends[1], id });
+                            await db.friends.put({ ...newFriends[1], id });
                         });
                         it('should be called on bulkPut()', async () => {
                             const friends2 = mockFriends();
@@ -76,9 +74,9 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                     });
                     describe('Reading', () => {
                         afterEach(() => {
-                            expect(hooks.mapStringToValueOnReading).toHaveBeenCalled();
-                            expect(hooks.mapToStringOnUpdating).not.toHaveBeenCalled();
-                            expect(hooks.mapToStringOnCreation).not.toHaveBeenCalled();
+                            expect(hooks.mapBinaryToValueOnReading).toHaveBeenCalled();
+                            expect(hooks.mapToBinaryOnUpdating).not.toHaveBeenCalled();
+                            expect(hooks.mapToBinaryOnCreation).not.toHaveBeenCalled();
                         });
                         it('should be called on get()', async () => {
                             await db.friends.get(id);
@@ -1150,7 +1148,7 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                 }));
                             }));
 
-                            describe('Coumpound index', (() => {
+                            describe('Compound index', (() => {
                                 it(`should be able to query for ${type} with "[] notation"`, async () => {
 
                                     const friends = mockFriends(5);
@@ -1223,7 +1221,24 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                     expect(getFriends.length).withContext('Wrong length').toBe(2);
                                 });
                             }));
+
+                            describe('Unique index', (() => {
+                                it(`should not be able to add multiple ${type} to unique index`, async () => {
+
+                                    const friends = mockFriends(5);
+                                    friends[2].uniqueValue = documentValue;
+
+                                    await expectAsync(db.friends.bulkAdd(friends)).toBeResolved();
+
+                                    await db.friends.clear();
+
+                                    friends[3].uniqueValue = documentValue;
+
+                                    await expectAsync(db.friends.bulkAdd(friends)).toBeRejected();
+                                });
+                            }));
                         });
+
                         describe('Collection', (() => {
 
                             let ids: number[];
@@ -1540,7 +1555,8 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                             describe('uniqueKeys()', (() => {
                                 it(`should be able to query for ${type}`, async () => {
 
-                                    const { id, ...friend } = await db.friends.get(testId) as Friend;
+                                    const [friend] = mockFriends(1);
+                                    friend.age = documentValue;
                                     await db.friends.add(friend);
 
                                     const getKeysPre = await db.friends.where('age')
@@ -1571,7 +1587,8 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                             describe('until()', (() => {
                                 it(`should be able to query for ${type}`, async () => {
 
-                                    const { id, ...friend } = await db.friends.get(testId) as Friend;
+                                    const [friend] = mockFriends(1);
+                                    friend.age = documentValue;
                                     await db.friends.add(friend);
 
                                     const getFriends = await db.friends.where('age')
@@ -1591,6 +1608,7 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                 });
                             }));
                         }));
+
                     });
                 });
             });

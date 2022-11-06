@@ -1,7 +1,7 @@
 import { immutable } from '@pvermeer/dexie-immutable-addon';
 import { Dexie } from 'dexie';
 import { getCollectionExtended } from './collection.class';
-import { mapStringToValueOnReading, mapToStringOnCreation, mapToStringOnUpdating } from './hooks';
+import { mapBinaryToValueOnReading, mapToBinaryOnCreation, mapToBinaryOnUpdating } from './hooks';
 import { getTableExtended } from './table.class';
 import { DexieExtended } from './types';
 import { getWhereClauseExtended } from './where-clause.class';
@@ -38,7 +38,7 @@ export function booleanNullIndex(db: Dexie): void {
 
                 const document = transaction?.raw ?
                     obj :
-                    mapStringToValueOnReading(obj);
+                    mapBinaryToValueOnReading(obj);
 
                 if (originalReadHook) return originalReadHook(document);
                 return document;
@@ -53,14 +53,14 @@ export function booleanNullIndex(db: Dexie): void {
                 if (transaction?.raw) return;
 
                 // Must be assigned, changing reference breaks it
-                Object.assign(obj, mapToStringOnCreation(obj));
+                Object.assign(obj, mapToBinaryOnCreation(obj));
             });
 
             table.hook('updating', (changes, _primaryKey) => {
                 const transaction = Dexie.currentTransaction;
                 if (transaction?.raw) return;
 
-                const newChanges = mapToStringOnUpdating(changes as Record<string, unknown>);
+                const newChanges = mapToBinaryOnUpdating(changes as Record<string, unknown>);
                 return newChanges;
             });
         });

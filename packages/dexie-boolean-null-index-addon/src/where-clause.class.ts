@@ -3,11 +3,11 @@ import { DexieExtended } from "./types";
 import { mapValuesToBinary, MIN_BINARY } from "./utils";
 
 function compoundError() {
-    return new TypeError(`Dexie-Null-Index-Addon: Compound queries are not supported as these also do not work in Dexie.`);
+    return new TypeError(`Dexie-Boolean-Null-Index-Addon: Compound queries are not supported as these also do not work in Dexie.`);
 }
 
 function simpleTypeError() {
-    return new TypeError(`Dexie-Null-Index-Addon: Value must be of type 'string | number | Date'`);
+    return new TypeError(`Dexie-Boolean-Null-Index-Addon: Value must be of type 'string | number | Date'`);
 }
 
 function checkForSimpleValue(value: unknown) {

@@ -1,6 +1,6 @@
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
 import { Populated } from '@pvermeer/dexie-populate-addon';
-import { addonSuite } from '@pvermeer/dexie-suite-addon';
+import { addonSuite } from '@pvermeer/dexie-addon-suite';
 import type DexieType from 'dexie';
 import type { Table } from 'dexie';
 import type * as rxjsImport from 'rxjs';

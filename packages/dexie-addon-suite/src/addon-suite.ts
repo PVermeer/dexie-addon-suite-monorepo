@@ -6,6 +6,7 @@ import { populate } from '@pvermeer/dexie-populate-addon';
 import { dexieRxjs } from '@pvermeer/dexie-rxjs-addon';
 import { Dexie } from 'dexie';
 import { getPopulatedObservableTable } from './table-extended.class';
+import { DexieExtended } from './typings';
 
 export interface Config {
     encrypted?: EncryptedOptions;
@@ -15,6 +16,13 @@ export interface Config {
 }
 
 export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
+
+    // Register addon
+    const dbExtended = db as DexieExtended;
+    dbExtended.pVermeerAddonsRegistered = {
+        ...dbExtended.pVermeerAddonsRegistered,
+        dexieAddonSuite: true
+    };
 
     /** Default config */
     const addons: { [prop: string]: boolean; } & Record<keyof Config, boolean> = {
@@ -47,7 +55,7 @@ export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
     // Load addons
     Object.entries(addons).forEach(([key, value]) => {
         if (!value) { return; }
-        loadAddon(key, db, addons, secretKey);
+        loadAddon(key, db as DexieExtended, addons, secretKey);
     });
 
     // Overwrite Table to a populated observable table
@@ -59,10 +67,13 @@ export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
 
 export const loadAddon = (
     key: string,
-    db: Dexie,
+    db: DexieExtended,
     addons: { [prop: string]: boolean; },
     secretKey: string | undefined
 ) => {
+
+    if (db.pVermeerAddonsRegistered?.[key]) return;
+
     switch (key) {
         case 'immutable': immutable(db); break;
         case 'encrypted': encrypted(db, { immutable: addons.immutable, secretKey }); break;

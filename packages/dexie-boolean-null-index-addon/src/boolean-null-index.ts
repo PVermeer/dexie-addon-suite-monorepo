@@ -18,7 +18,9 @@ export function booleanNullIndex(db: Dexie): void {
     // Disable auto open, developer must open the database manually.
     db.close();
 
-    immutable(db);
+    if (!dbExtended.pVermeerAddonsRegistered.immutable) {
+        immutable(db);
+    }
 
     // Extend Dexie Classes
     Object.defineProperties(db, {

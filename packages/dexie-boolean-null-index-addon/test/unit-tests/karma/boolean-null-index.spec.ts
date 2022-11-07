@@ -15,11 +15,10 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
 
                 beforeEach(async () => {
                     db = database.db();
-                    await db.delete();
                     await db.open();
                     expect(db.isOpen()).toBeTrue();
                 });
-                afterAll(async () => {
+                afterEach(async () => {
                     await db.delete();
                 });
                 describe('Hooks', () => {
@@ -1262,16 +1261,6 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                                     const getFriend = await db.friends.where('age')
                                         .equals(documentValue)
                                         .and(friend => friend.age === documentValue)
-                                        .first();
-                                    expect(getFriend!.age === documentValue).withContext('With value').toBeTrue();
-                                });
-                            }));
-                            describe('clone()', (() => {
-                                it(`should be able to query for ${type}`, async () => {
-
-                                    const getFriend = await db.friends.where('age')
-                                        .equals(documentValue)
-                                        .clone()
                                         .first();
                                     expect(getFriend!.age === documentValue).withContext('With value').toBeTrue();
                                 });

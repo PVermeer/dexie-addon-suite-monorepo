@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.2...@pvermeer/dexie-rxjs-addon@1.0.3-beta.0) (2022-11-07)
+
+
+### Bug Fixes
+
+* **dexie-addon-suite:** integration with dexie-boolean-null-index-addon ([4bc539d](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/4bc539d80f00c7444fa54455ca49815b3c8c3d8a))
+
+
+
+
+
 ## [1.0.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.1...@pvermeer/dexie-rxjs-addon@1.0.2) (2022-07-22)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

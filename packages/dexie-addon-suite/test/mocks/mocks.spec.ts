@@ -183,7 +183,7 @@ export const databasesPositive = [
         encrypted: true,
         class: true,
         booleanNullIndex: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase 2', {
+        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase 1', {
             secretKey: Encryption.createRandomEncryptionKey(),
             booleanNullIndex: true
         })

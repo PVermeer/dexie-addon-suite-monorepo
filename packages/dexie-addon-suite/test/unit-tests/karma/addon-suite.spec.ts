@@ -63,7 +63,6 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                 let styleIds: number[];
 
                 beforeEach(async () => {
-                    await db?.delete();
                     subs = new Subscription();
                     db = database.db(Dexie);
                     await db.open();
@@ -132,8 +131,11 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                 });
                 afterEach(async () => {
                     subs.unsubscribe();
-                });
-                afterAll(async () => {
+
+                    await Promise.all(db.tables.map(table => {
+                        if (table.name.startsWith('_')) return;
+                        return table.clear();
+                    }));
                     await db.delete();
                 });
 
@@ -620,7 +622,7 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                                     const method = _method.method(db);
                                     const orderedFriends = await firstValueFrom(method.orderBy('age').toArray().pipe(take(1)));
 
-                                    expect(orderedFriends.every((friend, i) => i > 0 ? friend.age >= orderedFriends[i - 1].age : true));
+                                    expect(orderedFriends.every((friend, i) => i > 0 ? <number>friend.age >= <number>orderedFriends[i - 1].age : true));
                                     const friendPop = orderedFriends.find(x => x.id === id)!;
                                     expect(friendPop.group instanceof Group).toBeTrue();
                                     expect(friendPop).toEqual(friendExpectedPop);
@@ -700,145 +702,134 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                         ] as const;
 
                         valueTypes.forEach(({ type, dbStringValue, dbBinaryValue, documentValue }) => {
-                            let friends: Friend[];
-                            let id: string;
-                            const ageSet = 900;
-                            const shoeSizeSet = 900;
 
-                            const setupDb = (async () => {
+                            describe(`${type}`, () => {
+                                let friends: Friend[];
+                                let id: string;
+                                const ageSet = 900;
+                                const shoeSizeSet = 900;
 
-                                await db.friends.clear();
-                                friends = mockFriends(5);
+                                beforeEach(async () => {
 
-                                friends[2].age = documentValue;
-                                friends[2].shoeSize = shoeSizeSet;
+                                    await db.friends.clear();
+                                    friends = mockFriends(5);
 
-                                friends[4].age = ageSet;
-                                friends[4].shoeSize = shoeSizeSet;
-                                id = await db.friends.bulkAdd(friends, { allKeys: true }).then(ids => ids[2]);
-                            });
+                                    friends[2].age = documentValue;
+                                    friends[2].shoeSize = shoeSizeSet;
 
-
-                            describe('Hooks', () => {
-                                it(`should map ${type} to binary '${dbStringValue}' and back`, async () => {
-
-                                    await setupDb();
-
-                                    const getFriend = await db.friends.get(id);
-
-                                    expect(getFriend!.age === documentValue).withContext('Read value').toBeTrue();
-
-                                    let friendRaw: any;
-
-                                    await db.transaction('readonly', db.friends, async (transaction) => {
-                                        transaction.raw = true;
-                                        friendRaw = await db.friends.get({ age: documentValue }) as Friend;
-                                    });
-
-                                    expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
+                                    friends[4].age = ageSet;
+                                    friends[4].shoeSize = shoeSizeSet;
+                                    id = await db.friends.bulkAdd(friends, { allKeys: true }).then(ids => ids[2]);
                                 });
 
-                                if (database.class) {
-                                    it(`should map ${type} to binary '${dbStringValue}' and back with class map`, async () => {
-
-                                        await setupDb();
+                                describe('Hooks', () => {
+                                    it(`should map ${type} to binary '${dbStringValue}' and back`, async () => {
 
                                         const getFriend = await db.friends.get(id);
 
-                                        expect(getFriend!.age).toBe(documentValue);
-                                        expect(getFriend).toBeInstanceOf(Friend);
-                                        expect(getFriend?.doSomething).toBeDefined();
-                                    });
-                                }
+                                        expect(getFriend!.age === documentValue).withContext('Read value').toBeTrue();
 
-                            });
+                                        let friendRaw: any;
 
-                            describe('Query', () => {
-                                it(`should be able to query ${type}`, async () => {
+                                        await db.transaction('readonly', db.friends, async (transaction) => {
+                                            transaction.raw = true;
+                                            friendRaw = await db.friends.get({ age: documentValue }) as Friend;
+                                        });
 
-                                    await setupDb();
-
-                                    const getFriend = await db.friends.where({ age: documentValue }).first() as Friend;
-
-                                    expect(getFriend.age === documentValue).withContext('Read value').toBeTrue();
-
-                                    let friendRaw: any;
-
-                                    await db.transaction('readonly', db.friends, async (transaction) => {
-                                        transaction.raw = true;
-                                        friendRaw = await db.friends.get({ age: documentValue }) as Friend;
+                                        expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
                                     });
 
-                                    expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
+                                    if (database.class) {
+                                        it(`should map ${type} to binary '${dbStringValue}' and back with class map`, async () => {
+
+                                            const getFriend = await db.friends.get(id);
+
+                                            expect(getFriend!.age).toBe(documentValue);
+                                            expect(getFriend).toBeInstanceOf(Friend);
+                                            expect(getFriend?.doSomething).toBeDefined();
+                                        });
+                                    }
+
                                 });
+
+                                describe('Query', () => {
+                                    it(`should be able to query ${type}`, async () => {
+
+                                        const getFriend = await db.friends.where({ age: documentValue }).first() as Friend;
+
+                                        expect(getFriend.age === documentValue).withContext('Read value').toBeTrue();
+
+                                        let friendRaw: any;
+
+                                        await db.transaction('readonly', db.friends, async (transaction) => {
+                                            transaction.raw = true;
+                                            friendRaw = await db.friends.get({ age: documentValue }) as Friend;
+                                        });
+
+                                        expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
+                                    });
+                                });
+
+                                describe('Compound index', (() => {
+                                    it(`should be able to query for ${type} with "[] notation"`, async () => {
+
+                                        const getFriends = await db.friends.where('[age+shoeSize]').equals([documentValue, shoeSizeSet]).toArray();
+
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                        expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                    });
+                                    it(`should be able to query for ${type} with "{} notation"`, async () => {
+
+                                        const getFriends = await db.friends.where({ age: documentValue, shoeSize: shoeSizeSet }).toArray();
+
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                        expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                    });
+                                    it(`should be omitted when query for ${type} with between()`, async () => {
+
+                                        const getFriends = await db.friends.where('[age+shoeSize]')
+                                            .between([ageSet - 1, shoeSizeSet - 1], [ageSet + 1, shoeSizeSet + 1])
+                                            .toArray();
+
+                                        expect(getFriends.every(friend => friend.age !== documentValue)).withContext('With value age').toBeTrue();
+                                        expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                    });
+                                    it(`should be able to query for ${type} with anyOf()`, async () => {
+
+                                        const getFriends = await db.friends.where('[age+shoeSize]')
+                                            .anyOf([
+                                                [documentValue, shoeSizeSet],
+                                                [ageSet, shoeSizeSet]
+                                            ])
+                                            .toArray();
+
+                                        expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                        expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                        expect(getFriends.length).withContext('Wrong length').toBe(2);
+                                    });
+                                }));
+
+                                describe('Unique index', (() => {
+                                    it(`should not be able to add multiple ${type} to unique index`, async () => {
+
+                                        await db.friends.clear();
+
+                                        const friends = mockFriends(5);
+                                        friends[2].customId = documentValue;
+
+                                        await expectAsync(db.friends.bulkAdd(friends)).toBeResolved();
+
+                                        await db.friends.clear();
+
+                                        friends[3].customId = documentValue;
+
+                                        await expectAsync(db.friends.bulkAdd(friends)).toBeRejected();
+                                    });
+                                }));
                             });
-
-                            describe('Compound index', (() => {
-                                it(`should be able to query for ${type} with "[] notation"`, async () => {
-
-                                    await setupDb();
-
-                                    const getFriends = await db.friends.where('[age+shoeSize]').equals([documentValue, shoeSizeSet]).toArray();
-
-                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
-                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
-                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
-                                });
-                                it(`should be able to query for ${type} with "{} notation"`, async () => {
-
-                                    await setupDb();
-
-                                    const getFriends = await db.friends.where({ age: documentValue, shoeSize: shoeSizeSet }).toArray();
-
-                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
-                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
-                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
-                                });
-                                it(`should be omitted when query for ${type} with between()`, async () => {
-
-                                    await setupDb();
-
-                                    const getFriends = await db.friends.where('[age+shoeSize]')
-                                        .between([ageSet - 1, shoeSizeSet - 1], [ageSet + 1, shoeSizeSet + 1])
-                                        .toArray();
-
-                                    expect(getFriends.every(friend => friend.age !== documentValue)).withContext('With value age').toBeTrue();
-                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
-                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
-                                });
-                                it(`should be able to query for ${type} with anyOf()`, async () => {
-
-                                    await setupDb();
-
-                                    const getFriends = await db.friends.where('[age+shoeSize]')
-                                        .anyOf([
-                                            [documentValue, shoeSizeSet],
-                                            [ageSet, shoeSizeSet]
-                                        ])
-                                        .toArray();
-
-                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
-                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
-                                    expect(getFriends.length).withContext('Wrong length').toBe(2);
-                                });
-                            }));
-
-                            describe('Unique index', (() => {
-                                it(`should not be able to add multiple ${type} to unique index`, async () => {
-
-                                    const friends = mockFriends(5);
-                                    friends[2].customId = documentValue;
-
-                                    await expectAsync(db.friends.bulkAdd(friends)).toBeResolved();
-
-                                    await db.friends.clear();
-
-                                    friends[3].customId = documentValue;
-
-                                    await expectAsync(db.friends.bulkAdd(friends)).toBeRejected();
-                                });
-                            }));
-
                         });
                     });
                 }
@@ -980,8 +971,6 @@ describe('dexie-addon-suite addon-suite.spec', () => {
         });
         it('should load addons only once', async () => {
 
-            console.log(classModule);
-
             const modules = [
                 spyOn(booleanNullIndexModule, 'booleanNullIndex').and.callThrough(),
                 spyOn(classModule, 'classMap').and.callThrough(),
@@ -999,6 +988,8 @@ describe('dexie-addon-suite addon-suite.spec', () => {
             await db.open();
 
             modules.forEach(spy => expect(spy).toHaveBeenCalledTimes(1));
+
+            await db.delete();
         });
     });
 });

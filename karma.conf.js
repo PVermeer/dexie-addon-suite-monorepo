@@ -35,7 +35,8 @@ module.exports = function (config) {
             'karma-chrome-launcher',
             'karma-firefox-launcher',
             'karma-mocha-reporter',
-            'karma-jasmine-html-reporter'
+            'karma-jasmine-html-reporter',
+            'karma-jasmine-seed-reporter'
         ],
         preprocessors: {
             "**/*.ts": ['webpack'],
@@ -80,7 +81,12 @@ module.exports = function (config) {
             stats: 'errors-only'
         },
         client: {
-            clearContext: false // leave Jasmine Spec Runner output visible in browser
+            clearContext: false, // leave Jasmine Spec Runner output visible in browser
+            jasmine: {
+                random: true,
+                seed: process.env['JASMINE_SEED'],
+                // seed: '34226'
+            }
         },
         customLaunchers: {
             ChromeDebug: {
@@ -106,7 +112,7 @@ module.exports = function (config) {
         browsers: [
             'ChromeDebug'
         ],
-        reporters: ['mocha', 'kjhtml'],
+        reporters: ['mocha', 'kjhtml', 'jasmine-seed'],
         mochaReporter: {
             ignoreSkipped: true
         },

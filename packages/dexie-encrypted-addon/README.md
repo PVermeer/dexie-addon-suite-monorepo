@@ -3,7 +3,7 @@ Dexie Encrypted Addon
 
 [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
 [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/beta.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
-![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/test.yml/badge.svg?branch=master)
+![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/ci.yml/badge.svg?branch=master)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -186,7 +186,7 @@ Addon is export as namespace DexieEncryptedAddon
 
         <script>
             // Generate a random key
-            const secret = Encryption.createRandomEncryptionKey();
+            const secret = DexieEncryptedAddon.Encryption.createRandomEncryptionKey();
 
             // Define your database
             const db = new Dexie("FriendDatabase", {

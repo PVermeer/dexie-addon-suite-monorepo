@@ -1,8 +1,8 @@
-Dexie Immutable Addon
+Dexie Boolean Null Index Addon
 ======
 
-[![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
-[![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/beta.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
+[![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-boolean-null-index-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-boolean-null-index-addon)
+[![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-boolean-null-index-addon/beta.svg)](https://www.npmjs.com/package/@pvermeer/dexie-boolean-null-index-addon)
 ![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/ci.yml/badge.svg?branch=master)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -13,11 +13,11 @@ This addon can be used as a stand-alone addon for Dexie.js, yet is also part of 
 Install over npm
 ----------------
 ```
-npm install @pvermeer/dexie-immutable-addon
+npm install @pvermeer/dexie-boolean-null-index-addon
 ```
 
 #### Dexie.js
-Dexie Immutable Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie Null Index Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 ```
 npm install dexie
 ```
@@ -27,21 +27,28 @@ Documentation
 
 ### How to use
 #### Addon
-Add immutable() to your Dexie database. See below examples and https://dexie.org for more info.
+Add `booleanNullIndex()` to your Dexie database. See below examples and https://dexie.org for more info.
 
-This addon just overwrites the save methods of Dexie.js and uses the `lodash` cloneDeep method before saving records to IndexedDb. This prevents the original input object to be modified by Dexie.
+This addon uses hooks to update read and write operations. It save `null`, `true` and `false` as a binary value (`ArrayBuffer`) that IndexedDB can index. It maps the binary value back to `null`, `true` and `false` on read.
 
-For example: an `++id` in your Table schema and using `add()` mutates the input object to `{ id: <some number>, ...originalObject }`, while `bulkAdd()` does not mutate the input objects. In combination with other addons, that mutate input (e.g.: encryption), this could lead to some weird and unexpected behavior.
+Some methods of `Table`, `WhereClause` and `Collection` are overwritten so everything works as expected per the Dexie documentation.
+
+#### Wait for open
+Always open the database yourself. Dexie does not wait for all hooks to be subscribed (bug?).
+```ts
+await db.open();
+```
+To help with this, the option 'autoOpen' has been disabled.
 
 ### Create Dexie database
 #### ESM
 ```js
 import Dexie from 'dexie';
-import { immutable } from '@pvermeer/dexie-immutable-addon';
+import { booleanNullIndex } from '@pvermeer/dexie-boolean-null-index-addon';
 
 // Declare Database
 const db = new Dexie("FriendDatabase", {
-    addons: [immutable]
+    addons: [booleanNullIndex]
 });
 db.version(1).stores({
     friends: '++id, firstName, lastName, shoeSize, age'
@@ -58,7 +65,7 @@ db.open()
 #### Typescript
 ```ts
 import Dexie from 'dexie';
-import { immutable } from '@pvermeer/dexie-immutable-addon';
+import { booleanNullIndex } from '@pvermeer/dexie-boolean-null-index-addon';
 
 // Declare Database
 class FriendsDatabase extends Dexie {
@@ -68,7 +75,7 @@ class FriendsDatabase extends Dexie {
     constructor(name: string) {
         super(name);
 
-        immutable(this);
+        booleanNullIndex(this);
 
         this.version(1).stores({
             friends: '++id, firstName, lastName, shoeSize, age'
@@ -88,9 +95,9 @@ db.open()
 
 #### HTML import
 
-Bundled & minified package: <https://unpkg.com/@pvermeer/dexie-immutable-addon@latest/dist/dexie-immutable-addon.min.js>.
+Bundled & minified package: <https://unpkg.com/@pvermeer/dexie-boolean-null-index-addon@latest/dist/dexie-boolean-null-index-addon.min.js>.
 
-Addon is export as namespace DexieImmutableAddon
+Addon is exported as namespace `DexieBooleanNullIndexAddon`.
 
 ```html
 <!doctype html>
@@ -99,13 +106,13 @@ Addon is export as namespace DexieImmutableAddon
         <!-- Include Dexie (@next if v3 is still in RC) -->
         <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script> 
 
-        <!-- Include DexieImmutableAddon (always after Dexie, it's a dependency) -->
-        <script src="https://unpkg.com/@pvermeer/dexie-immutable-addon@latest/dist/dexie-immutable-addon.min.js"></script>
+        <!-- Include DexieBooleanNullIndexAddon (always after Dexie, it's a dependency) -->
+        <script src="https://unpkg.com/@pvermeer/dexie-boolean-null-index-addon@latest/dist/dexie-boolean-null-index-addon.min.js"></script>
 
         <script>
             // Define your database
             const db = new Dexie("FriendDatabase", {
-                addons: [DexieImmutableAddon.immutable]
+                addons: [DexieBooleanNullIndexAddon.booleanNullIndex]
             });
             db.version(1).stores({
                 friends: '++id, firstName, lastName, shoeSize, age'
@@ -128,9 +135,9 @@ API
 ---
 The packet exposes one export:
 
-#### immutable - addon function
+#### booleanNullIndex - addon function
 ```ts
-function immutable(db: Dexie): void;
+function booleanNullIndex(db: Dexie): void;
 ```
 
 ---------------------------------------------------

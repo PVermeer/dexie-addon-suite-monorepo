@@ -1,13 +1,20 @@
+import * as booleanNullIndexModule from '@pvermeer/dexie-boolean-null-index-addon/src/boolean-null-index';
+import * as classModule from '@pvermeer/dexie-class-addon/src/class';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
+import * as encryptedModule from '@pvermeer/dexie-encrypted-addon/src/encrypted';
+import * as immutableModule from '@pvermeer/dexie-immutable-addon/src/immutable';
 import { Populated } from '@pvermeer/dexie-populate-addon';
+import * as populateModule from '@pvermeer/dexie-populate-addon/src/populate';
+import * as rxjsModule from '@pvermeer/dexie-rxjs-addon/src/dexie-rxjs';
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { arrayBuffersAreEqual, FALSE_BINARY, FALSE_STRING, NULL_BINARY, NULL_STRING, TRUE_BINARY, TRUE_STRING } from '../../../../dexie-boolean-null-index-addon/src/utils';
 import * as addonSuiteModule from '../../../src/addon-suite';
 import { addonSuite } from '../../../src/index';
 import { PopulateTableObservable } from '../../../src/populate-table-observable.class';
-import { Club, databasesPositive, Friend, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
+import { Club, databasesPositive, Friend, getDatabase, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
 
 function flatPromise() {
     let resolve: ((value?: unknown) => void) | undefined;
@@ -33,7 +40,6 @@ describe('dexie-addon-suite addon-suite.spec', () => {
 
     describe('Suite', () => {
         databasesPositive.forEach((database, _i) => {
-            // if (_i !== 1) { return; }
             describe(database.desc, () => {
                 let db: ReturnType<typeof database.db>;
 
@@ -57,7 +63,8 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                 let styleIds: number[];
 
                 beforeEach(async () => {
-                    await Dexie.delete(database.desc);
+                    await db?.delete();
+                    subs = new Subscription();
                     db = database.db(Dexie);
                     await db.open();
                     expect(db.isOpen()).toBeTrue();
@@ -122,13 +129,12 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                     friendExpectedPop.hasFriends[0]!.memberOf = clubs.slice(3) as any;
                     friendExpectedPop.hasFriends[0]!.group = groups[2] as any;
                     friendExpectedPop.hasFriends[0]!.hairColor = hairColors[2] as any;
-
-                    subs = new Subscription();
                 });
                 afterEach(async () => {
                     subs.unsubscribe();
+                });
+                afterAll(async () => {
                     await db.delete();
-                    expect(db.isOpen()).toBeFalse();
                 });
 
                 if (database.immutable) {
@@ -662,6 +668,7 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                         expect(typeof friend?.group === 'number').toBeTrue();
                     });
                 });
+
                 if (database.class) {
                     describe('Class', () => {
                         it('should be able to add() and get()', async () => {
@@ -680,6 +687,158 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                             expect(getFriend).toBeInstanceOf(Friend);
                             expect(getFriend?.doSomething).toBeDefined();
                             expect(getFriend?.date).toBeInstanceOf(Date);
+                        });
+                    });
+                }
+
+                if (database.booleanNullIndex) {
+                    describe('BooleanNullIndex', () => {
+                        const valueTypes = [
+                            { type: 'null', dbStringValue: NULL_STRING, dbBinaryValue: NULL_BINARY, documentValue: null },
+                            { type: 'true', dbStringValue: TRUE_STRING, dbBinaryValue: TRUE_BINARY, documentValue: true },
+                            { type: 'false', dbStringValue: FALSE_STRING, dbBinaryValue: FALSE_BINARY, documentValue: false },
+                        ] as const;
+
+                        valueTypes.forEach(({ type, dbStringValue, dbBinaryValue, documentValue }) => {
+                            let friends: Friend[];
+                            let id: string;
+                            const ageSet = 900;
+                            const shoeSizeSet = 900;
+
+                            const setupDb = (async () => {
+
+                                await db.friends.clear();
+                                friends = mockFriends(5);
+
+                                friends[2].age = documentValue;
+                                friends[2].shoeSize = shoeSizeSet;
+
+                                friends[4].age = ageSet;
+                                friends[4].shoeSize = shoeSizeSet;
+                                id = await db.friends.bulkAdd(friends, { allKeys: true }).then(ids => ids[2]);
+                            });
+
+
+                            describe('Hooks', () => {
+                                it(`should map ${type} to binary '${dbStringValue}' and back`, async () => {
+
+                                    await setupDb();
+
+                                    const getFriend = await db.friends.get(id);
+
+                                    expect(getFriend!.age === documentValue).withContext('Read value').toBeTrue();
+
+                                    let friendRaw: any;
+
+                                    await db.transaction('readonly', db.friends, async (transaction) => {
+                                        transaction.raw = true;
+                                        friendRaw = await db.friends.get({ age: documentValue }) as Friend;
+                                    });
+
+                                    expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
+                                });
+
+                                if (database.class) {
+                                    it(`should map ${type} to binary '${dbStringValue}' and back with class map`, async () => {
+
+                                        await setupDb();
+
+                                        const getFriend = await db.friends.get(id);
+
+                                        expect(getFriend!.age).toBe(documentValue);
+                                        expect(getFriend).toBeInstanceOf(Friend);
+                                        expect(getFriend?.doSomething).toBeDefined();
+                                    });
+                                }
+
+                            });
+
+                            describe('Query', () => {
+                                it(`should be able to query ${type}`, async () => {
+
+                                    await setupDb();
+
+                                    const getFriend = await db.friends.where({ age: documentValue }).first() as Friend;
+
+                                    expect(getFriend.age === documentValue).withContext('Read value').toBeTrue();
+
+                                    let friendRaw: any;
+
+                                    await db.transaction('readonly', db.friends, async (transaction) => {
+                                        transaction.raw = true;
+                                        friendRaw = await db.friends.get({ age: documentValue }) as Friend;
+                                    });
+
+                                    expect(arrayBuffersAreEqual(friendRaw.age, dbBinaryValue)).withContext('Db value').toBeTrue();
+                                });
+                            });
+
+                            describe('Compound index', (() => {
+                                it(`should be able to query for ${type} with "[] notation"`, async () => {
+
+                                    await setupDb();
+
+                                    const getFriends = await db.friends.where('[age+shoeSize]').equals([documentValue, shoeSizeSet]).toArray();
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                });
+                                it(`should be able to query for ${type} with "{} notation"`, async () => {
+
+                                    await setupDb();
+
+                                    const getFriends = await db.friends.where({ age: documentValue, shoeSize: shoeSizeSet }).toArray();
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                });
+                                it(`should be omitted when query for ${type} with between()`, async () => {
+
+                                    await setupDb();
+
+                                    const getFriends = await db.friends.where('[age+shoeSize]')
+                                        .between([ageSet - 1, shoeSizeSet - 1], [ageSet + 1, shoeSizeSet + 1])
+                                        .toArray();
+
+                                    expect(getFriends.every(friend => friend.age !== documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(1);
+                                });
+                                it(`should be able to query for ${type} with anyOf()`, async () => {
+
+                                    await setupDb();
+
+                                    const getFriends = await db.friends.where('[age+shoeSize]')
+                                        .anyOf([
+                                            [documentValue, shoeSizeSet],
+                                            [ageSet, shoeSizeSet]
+                                        ])
+                                        .toArray();
+
+                                    expect(getFriends.some(friend => friend.age === documentValue)).withContext('With value age').toBeTrue();
+                                    expect(getFriends.some(friend => friend.shoeSize === shoeSizeSet)).withContext('With shoeSize').toBeTrue();
+                                    expect(getFriends.length).withContext('Wrong length').toBe(2);
+                                });
+                            }));
+
+                            describe('Unique index', (() => {
+                                it(`should not be able to add multiple ${type} to unique index`, async () => {
+
+                                    const friends = mockFriends(5);
+                                    friends[2].customId = documentValue;
+
+                                    await expectAsync(db.friends.bulkAdd(friends)).toBeResolved();
+
+                                    await db.friends.clear();
+
+                                    friends[3].customId = documentValue;
+
+                                    await expectAsync(db.friends.bulkAdd(friends)).toBeRejected();
+                                });
+                            }));
+
                         });
                     });
                 }
@@ -735,9 +894,9 @@ describe('dexie-addon-suite addon-suite.spec', () => {
             spyOn(addonSuiteModule, 'loadAddon').and.callFake(key => {
                 addons.push(key);
             });
-            const func = addonSuite.setConfig({ immutable: false });
+            const func = addonSuite.setConfig({ immutable: false, booleanNullIndex: true });
             func(new Dexie('TestieDb'));
-            expect(addons).toEqual(['rxjs', 'populate', 'class']);
+            expect(addons).toEqual(['rxjs', 'populate', 'class', 'booleanNullIndex']);
         });
         it('should always load default addons', async () => {
             const addons: string[] = [];
@@ -819,6 +978,27 @@ describe('dexie-addon-suite addon-suite.spec', () => {
             });
             expect(addons).toEqual(['encrypted', 'rxjs', 'populate', 'class']);
         });
-    });
+        it('should load addons only once', async () => {
 
+            console.log(classModule);
+
+            const modules = [
+                spyOn(booleanNullIndexModule, 'booleanNullIndex').and.callThrough(),
+                spyOn(classModule, 'classMap').and.callThrough(),
+                spyOn(encryptedModule, 'encrypted').and.callThrough(),
+                spyOn(immutableModule, 'immutable').and.callThrough(),
+                spyOn(populateModule, 'populate').and.callThrough(),
+                spyOn(rxjsModule, 'dexieRxjs').and.callThrough()
+            ];
+
+            const db = getDatabase(Dexie, 'TestDatabase', {
+                secretKey: Encryption.createRandomEncryptionKey(),
+                booleanNullIndex: true
+            });
+
+            await db.open();
+
+            modules.forEach(spy => expect(spy).toHaveBeenCalledTimes(1));
+        });
+    });
 });

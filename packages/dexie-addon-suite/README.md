@@ -3,7 +3,7 @@ Dexie Addon Suite
 
 [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
 [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/beta.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
-![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/test.yml/badge.svg?branch=master)
+![master](https://github.com/pvermeer/dexie-addon-suite-monorepo/actions/workflows/ci.yml/badge.svg?branch=master)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -11,8 +11,9 @@ Dexie Addon Suite combines the Dexie-addons from:
 - **[dexie-immutable-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-immutable-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-immutable-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-immutable-addon)
 - **[dexie-encrypted-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-encrypted-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-encrypted-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-encrypted-addon)
 - **[dexie-rxjs-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-rxjs-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-rxjs-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-rxjs-addon)
-- **[dexie-populate-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-populate-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
-- **[dexie-class-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-class-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
+- **[dexie-populate-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-populate-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-populate-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-populate-addon)
+- **[dexie-class-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-class-addon)**; [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-class-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-class-addon)
+- **[dexie-boolean-null-index-addon](https://github.com/PVermeer/dexie-addon-suite-monorepo/tree/master/packages/dexie-boolean-null-index-addon)**. [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-boolean-null-index-addon/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-boolean-null-index-addon)
 
 
 Adds new functionality:
@@ -75,6 +76,7 @@ interface Config {
 	encrypted?: EncryptedOptions;
 	immutable?: boolean;
     class?: boolean;
+    booleanNullIndex?: boolean;
 }
 
 function addonSuite(db: Dexie, config?: Config | EncryptedOptions);
@@ -88,6 +90,7 @@ new Dexie("FriendDatabase", {
 - Provide `secretKey` to enable encryption. (*see below and dexie-encrypted-addon on how to use*)
 - Provide `immutable: false` to disable immutability. (*not recommended in combination with encryption*)
 - Provide `class: false` to disable class mapping. (*class constructor and serializer will not be called anymore*)
+- Provide `booleanNullIndex: true` to disable indexing of boolean and null values. (*null and boolean values will be mapped to binary (`BufferArray`) so indexedDB can index these*)
 
 Rxjs and Populate are mandatory, could not (yet) figure out conditional typings for these.
 

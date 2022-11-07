@@ -1,7 +1,7 @@
 {
-  "name": "@pvermeer/dexie-immutable-addon",
-  "version": "1.1.1",
-  "description": "Addon for Dexie.js database to add immutability",
+  "name": "@pvermeer/dexie-boolean-null-index-addon",
+  "version": "1.0.0",
+  "description": "Addon for Dexie.js database to add boolean and null indices",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -12,8 +12,11 @@
     "dexie.js",
     "indexeddb",
     "database",
-    "immutable",
-    "immutability"
+    "null",
+    "boolean",
+    "true",
+    "false",
+    "index"
   ],
   "files": [
     "dist",
@@ -36,7 +39,9 @@
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
   "dependencies": {
-    "lodash.clonedeep": "^4.5.0",
+    "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
+    "lodash.clonedeepwith": "^4.5.0",
+    "lodash.isobject": "^3.0.2",
     "tslib": "^2.3.1"
   },
   "peerDependencies": {

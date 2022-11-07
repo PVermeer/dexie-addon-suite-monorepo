@@ -1,4 +1,4 @@
-import { Collection, Dexie, IndexableTypeArray, Table } from 'dexie';
+import { Collection, Dexie, Table } from 'dexie';
 import { IDatabaseChange } from 'dexie-observable/api';
 import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
@@ -6,6 +6,7 @@ import { merge, Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
+import { ReturnTypeDexiePromise_rxjs } from './utility-types';
 import { mixinClass } from './utils';
 
 // Type check for when dexie would update the Collection interface
@@ -94,7 +95,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         return last$;
     }
 
-    public keys(options?: Options): Observable<IndexableTypeArray> {
+    public keys(options?: Options): Observable<ReturnTypeDexiePromise_rxjs<Collection['keys']>> {
         const keys$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().keys()),
@@ -114,7 +115,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         return primaryKeys$;
     }
 
-    public uniqueKeys(options?: Options): Observable<IndexableTypeArray> {
+    public uniqueKeys(options?: Options): Observable<ReturnTypeDexiePromise_rxjs<Collection['uniqueKeys']>> {
         const uniqueKeys$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().uniqueKeys()),

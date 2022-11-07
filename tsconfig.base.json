@@ -19,8 +19,14 @@
             "dom"
         ],
         "paths": {
-            "@pvermeer/dexie-suite-addon": [
+            "@pvermeer/dexie-addon-suite": [
                 "./packages/dexie-addon-suite/src"
+            ],
+            "@pvermeer/dexie-boolean-null-index-addon": [
+                "./packages/dexie-boolean-null-index-addon/src"
+            ],
+            "@pvermeer/dexie-class-addon": [
+                "./packages/dexie-class-addon/src"
             ],
             "@pvermeer/dexie-encrypted-addon": [
                 "./packages/dexie-encrypted-addon/src"

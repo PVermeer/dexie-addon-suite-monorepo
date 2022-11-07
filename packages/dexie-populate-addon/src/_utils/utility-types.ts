@@ -1,3 +1,6 @@
+import { PromiseExtended } from "dexie";
+
+export type ReturnTypeDexiePromise_populate<P extends (...args: any[]) => any> = ReturnType<P> extends PromiseExtended<infer T> ? T : ReturnType<P>;
 
 export type Unpacked<T> =
     T extends (infer U)[] ? U :

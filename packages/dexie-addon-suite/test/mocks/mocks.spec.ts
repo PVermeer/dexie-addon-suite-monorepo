@@ -93,11 +93,11 @@ export class Group {
 }
 export class Friend implements OnSerialize {
     id?: string;
-    age: number;
+    customId: number | boolean | null;
+    age: number | boolean | null;
     firstName: string;
     lastName: string;
     shoeSize: number;
-    customId: number;
     date: Date;
     hasFriends: Ref<Friend, number>[];
     memberOf: Ref<Club, number>[];
@@ -135,7 +135,7 @@ export class Friend implements OnSerialize {
     }
 }
 
-const getDatabase = (
+export const getDatabase = (
     dexie: typeof Dexie,
     name: string,
     config?: Config & EncryptedOptions
@@ -154,9 +154,9 @@ const getDatabase = (
         this.on('blocked', () => false);
         this.version(1).stores({
             friends: config?.secretKey || config?.encrypted?.secretKey ?
-                '#id, &customId, $date, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]' :
+                '#id, &customId, $date, $firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, hairColor => hairColors.id, [id+group], [age+shoeSize]' :
 
-                '++id, &customId, date, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]',
+                '++id, &customId, date, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, hairColor => hairColors.id, [id+group], [age+shoeSize]',
 
             clubs: '++id, $name, theme => themes.id',
             themes: '++id, $name, style => styles.id',
@@ -182,27 +182,32 @@ export const databasesPositive = [
         immutable: true,
         encrypted: true,
         class: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!, {
-            secretKey: Encryption.createRandomEncryptionKey()
+        booleanNullIndex: true,
+        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase 2', {
+            secretKey: Encryption.createRandomEncryptionKey(),
+            booleanNullIndex: true
         })
     },
     {
-        desc: 'TestDatabase - populate / observable / immutable / class',
+        desc: 'TestDatabase - populate / observable / immutable / class / boolean-null-index',
         encrypted: false,
         immutable: true,
         class: true,
-        db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!)
+        booleanNullIndex: true,
+        db: (dexie: typeof Dexie) => getDatabase(dexie, 'TestDatabase 2', {
+            booleanNullIndex: true
+        })
     }
 ];
 
 let customId = 1000000;
 export const mockFriends = (count = 5): Friend[] => {
     const friend = () => new Friend({
+        customId,
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         age: faker.datatype.number({ min: 1, max: 80 }),
         shoeSize: faker.datatype.number({ min: 5, max: 12 }),
-        customId,
         hasFriends: [],
         memberOf: [],
         group: null,

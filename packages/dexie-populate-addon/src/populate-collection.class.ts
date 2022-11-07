@@ -1,8 +1,9 @@
-import { Collection, Dexie, IndexableTypeArray, Table } from 'dexie';
+import { Collection, Dexie, Table } from 'dexie';
 import cloneDeep from 'lodash.clonedeep';
 import { PopulatedWhereClause } from './populate-where-clause.class';
 import { Populate } from './populate.class';
 import { DexieExtended, Populated, PopulateOptions } from './types';
+import { ReturnTypeDexiePromise_populate } from './_utils/utility-types';
 import { mixinClass } from './_utils/utils';
 
 // Type check for when dexie would update the Collection interface
@@ -49,15 +50,15 @@ export class PopulatedCollection<T, TKey, B extends boolean, K extends string> i
         return populated;
     }
 
-    public async keys(): Promise<IndexableTypeArray> {
+    public async keys(): Promise<ReturnTypeDexiePromise_populate<Collection<T, TKey>['keys']>> {
         return this.cloneAsCollection().keys();
     }
 
-    public async primaryKeys(): Promise<TKey[]> {
+    public async primaryKeys(): Promise<ReturnTypeDexiePromise_populate<Collection<T, TKey>['primaryKeys']>> {
         return this.cloneAsCollection().primaryKeys();
     }
 
-    public uniqueKeys(): Promise<IndexableTypeArray> {
+    public uniqueKeys(): Promise<ReturnTypeDexiePromise_populate<Collection<T, TKey>['uniqueKeys']>> {
         return this.cloneAsCollection().uniqueKeys();
     }
 
@@ -90,6 +91,8 @@ export class PopulatedCollection<T, TKey, B extends boolean, K extends string> i
     ) {
         // Mixin with Collection
         mixinClass(this, this._collection);
+
+        this.uniqueKeys();
     }
 
 }

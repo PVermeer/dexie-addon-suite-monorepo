@@ -1,7 +1,7 @@
 {
-  "name": "@pvermeer/dexie-addon-suite",
-  "version": "1.0.2",
-  "description": "Suite of the dexie addons",
+  "name": "@pvermeer/dexie-boolean-null-index-addon",
+  "version": "1.0.0",
+  "description": "Addon for Dexie.js database to add boolean and null indices",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -12,14 +12,11 @@
     "dexie.js",
     "indexeddb",
     "database",
-    "addon",
-    "suite",
-    "rxjs",
-    "populate",
-    "immutable",
-    "encrypted",
-    "observable",
-    "relational"
+    "null",
+    "boolean",
+    "true",
+    "false",
+    "index"
   ],
   "files": [
     "dist",
@@ -42,18 +39,13 @@
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
   "dependencies": {
-    "@pvermeer/dexie-boolean-null-index-addon": "file:../dexie-rxjs-addon",
-    "@pvermeer/dexie-class-addon": "file:../dexie-class-addon",
-    "@pvermeer/dexie-encrypted-addon": "file:../dexie-encrypted-addon",
     "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
-    "@pvermeer/dexie-populate-addon": "file:../dexie-populate-addon",
-    "@pvermeer/dexie-rxjs-addon": "file:../dexie-rxjs-addon",
-    "lodash.isequal": "^4.5.0",
+    "lodash.clonedeepwith": "^4.5.0",
+    "lodash.isobject": "^3.0.2",
     "tslib": "^2.3.1"
   },
   "peerDependencies": {
-    "dexie": "^3.0.3",
-    "rxjs": "^7.4.0"
+    "dexie": "^3.0.3"
   },
   "repository": {
     "type": "git",

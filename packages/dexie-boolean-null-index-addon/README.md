@@ -133,11 +133,17 @@ Addon is exported as namespace `DexieBooleanNullIndexAddon`.
 
 API
 ---
-The packet exposes one export:
+The packet exposes two exports:
 
 #### booleanNullIndex - addon function
 ```ts
 function booleanNullIndex(db: Dexie): void;
+
+```
+#### IndexValueEncoder
+Constants and encode / decode methods that this addon uses.
+```ts
+class IndexValueEncoder { };
 ```
 
 ---------------------------------------------------

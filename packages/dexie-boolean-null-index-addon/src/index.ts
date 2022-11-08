@@ -1,6 +1,7 @@
 import { IndexableTypeExtended, IndexableTypePartExtended } from './types';
 
 export { booleanNullIndex } from './boolean-null-index';
+export { IndexValueEncoder } from './index-value-encoder.class';
 export type { IndexableTypeExtended, IndexableTypePartExtended };
 
 declare module 'dexie' {

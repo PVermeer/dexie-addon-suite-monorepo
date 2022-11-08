@@ -1,3 +1,4 @@
+import { IndexValueEncoder } from '@pvermeer/dexie-boolean-null-index-addon';
 import * as booleanNullIndexModule from '@pvermeer/dexie-boolean-null-index-addon/src/boolean-null-index';
 import * as classModule from '@pvermeer/dexie-class-addon/src/class';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
@@ -10,11 +11,14 @@ import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { arrayBuffersAreEqual, FALSE_BINARY, FALSE_STRING, NULL_BINARY, NULL_STRING, TRUE_BINARY, TRUE_STRING } from '../../../../dexie-boolean-null-index-addon/src/utils';
 import * as addonSuiteModule from '../../../src/addon-suite';
 import { addonSuite } from '../../../src/index';
 import { PopulateTableObservable } from '../../../src/populate-table-observable.class';
 import { Club, databasesPositive, Friend, getDatabase, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
+
+const indexValueEncoder = IndexValueEncoder.Get();
+// @ts-expect-error private
+const arrayBuffersAreEqual = indexValueEncoder.arrayBuffersAreEqual;
 
 function flatPromise() {
     let resolve: ((value?: unknown) => void) | undefined;
@@ -696,9 +700,24 @@ describe('dexie-addon-suite addon-suite.spec', () => {
                 if (database.booleanNullIndex) {
                     describe('BooleanNullIndex', () => {
                         const valueTypes = [
-                            { type: 'null', dbStringValue: NULL_STRING, dbBinaryValue: NULL_BINARY, documentValue: null },
-                            { type: 'true', dbStringValue: TRUE_STRING, dbBinaryValue: TRUE_BINARY, documentValue: true },
-                            { type: 'false', dbStringValue: FALSE_STRING, dbBinaryValue: FALSE_BINARY, documentValue: false },
+                            {
+                                type: 'null',
+                                dbStringValue: IndexValueEncoder.NULL_STRING,
+                                dbBinaryValue: IndexValueEncoder.NULL_BINARY,
+                                documentValue: null
+                            },
+                            {
+                                type: 'true',
+                                dbStringValue: IndexValueEncoder.TRUE_STRING,
+                                dbBinaryValue: IndexValueEncoder.TRUE_BINARY,
+                                documentValue: true
+                            },
+                            {
+                                type: 'false',
+                                dbStringValue: IndexValueEncoder.FALSE_STRING,
+                                dbBinaryValue: IndexValueEncoder.FALSE_BINARY,
+                                documentValue: false
+                            }
                         ] as const;
 
                         valueTypes.forEach(({ type, dbStringValue, dbBinaryValue, documentValue }) => {

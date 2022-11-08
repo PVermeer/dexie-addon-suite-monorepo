@@ -1,5 +1,5 @@
 import { Collection, Dexie, IndexableType, Table, WhereClause } from "dexie";
-import { IndexValueEncoder } from ".";
+import { IndexValueEncoder } from "./index-value-encoder.class";
 import { DexieExtended } from "./types";
 
 function compoundError() {

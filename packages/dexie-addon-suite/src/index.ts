@@ -1,3 +1,4 @@
+import { IndexValueEncoder } from '@pvermeer/dexie-boolean-null-index-addon';
 import { OnSerialize } from '@pvermeer/dexie-class-addon';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
 import type { PopulateOptions } from '@pvermeer/dexie-populate-addon';
@@ -15,10 +16,9 @@ export type { } from '@pvermeer/dexie-immutable-addon';
 // export type { } from '@pvermeer/dexie-populate-addon';
 // export type { } from '@pvermeer/dexie-rxjs-addon';
 // ----
-
 export { addonSuite } from './addon-suite';
 export type { ObservableTablePopulated, PopulatedTableObservable } from './table-extended.class';
-export { Encryption };
+export { Encryption, IndexValueEncoder };
 export type { Ref, Populated, PopulateOptions, OnSerialize };
 
 declare module 'dexie' {

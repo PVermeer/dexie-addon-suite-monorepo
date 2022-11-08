@@ -1,7 +1,9 @@
 
 import { Collection, DBCoreKeyRange, Dexie, IndexableType, IndexableTypeArray, PromiseExtended, ThenShortcut, WhereClause } from 'dexie';
+import { IndexValueEncoder } from './index-value-encoder.class';
 import { DexieExtended } from './types';
-import { mapBinaryToValues } from './utils';
+
+const indexValueEncoder = IndexValueEncoder.Get();
 
 export interface NullIndexCollection<T, TKey> extends Collection<T, TKey> { }
 
@@ -15,7 +17,7 @@ export function getCollectionExtended(db: Dexie) {
         public override and(filter: (x: T) => boolean): Collection<T, TKey> {
 
             return super.and(value => {
-                const mappedValue = mapBinaryToValues(value);
+                const mappedValue = indexValueEncoder.mapBinaryToValues(value);
                 return filter(mappedValue);
             });
         }
@@ -24,8 +26,8 @@ export function getCollectionExtended(db: Dexie) {
             : PromiseExtended<void> {
 
             return super.eachKey((key, cursor) => {
-                const mappedKey = mapBinaryToValues(key);
-                const mappedCursor = mapBinaryToValues(cursor);
+                const mappedKey = indexValueEncoder.mapBinaryToValues(key);
+                const mappedCursor = indexValueEncoder.mapBinaryToValues(cursor);
                 return callback(mappedKey as IndexableType, mappedCursor as any);
             });
         }
@@ -34,8 +36,8 @@ export function getCollectionExtended(db: Dexie) {
             : PromiseExtended<void> {
 
             return super.eachPrimaryKey((key, cursor) => {
-                const mappedKey = mapBinaryToValues(key);
-                const mappedCursor = mapBinaryToValues(cursor);
+                const mappedKey = indexValueEncoder.mapBinaryToValues(key);
+                const mappedCursor = indexValueEncoder.mapBinaryToValues(cursor);
                 return callback(mappedKey, mappedCursor as any);
             });
         }
@@ -44,8 +46,8 @@ export function getCollectionExtended(db: Dexie) {
             : PromiseExtended<void> {
 
             return super.eachUniqueKey((key, cursor) => {
-                const mappedKey = mapBinaryToValues(key);
-                const mappedCursor = mapBinaryToValues(cursor);
+                const mappedKey = indexValueEncoder.mapBinaryToValues(key);
+                const mappedCursor = indexValueEncoder.mapBinaryToValues(cursor);
                 return callback(mappedKey as IndexableType, mappedCursor as any);
             });
         }
@@ -53,7 +55,7 @@ export function getCollectionExtended(db: Dexie) {
         public override filter(filter: (x: T) => boolean): Collection<T, TKey> {
 
             return super.filter(value => {
-                const mappedValue = mapBinaryToValues(value);
+                const mappedValue = indexValueEncoder.mapBinaryToValues(value);
                 return filter(mappedValue);
             });
         }
@@ -62,11 +64,11 @@ export function getCollectionExtended(db: Dexie) {
             : PromiseExtended<R> | PromiseExtended<IndexableTypeArray> {
 
             if (thenShortcut) return super.keys(keys => {
-                const mappedKeys = mapBinaryToValues(keys);
+                const mappedKeys = indexValueEncoder.mapBinaryToValues(keys);
                 return thenShortcut(mappedKeys as any);
             });
             return super.keys().then(keys => {
-                const mappedKeys = mapBinaryToValues(keys);
+                const mappedKeys = indexValueEncoder.mapBinaryToValues(keys);
                 return mappedKeys as any;
             });
         }
@@ -74,7 +76,7 @@ export function getCollectionExtended(db: Dexie) {
         public override until(filter: (value: T) => boolean, includeStopEntry?: boolean): Collection<T, TKey> {
 
             return super.until(value => {
-                const mappedValue = mapBinaryToValues(value);
+                const mappedValue = indexValueEncoder.mapBinaryToValues(value);
                 return filter(mappedValue);
             }, includeStopEntry);
         }

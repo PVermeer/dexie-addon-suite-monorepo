@@ -340,9 +340,11 @@ export type Populated<T, B extends boolean = false, O extends string = string>;
 /**
  * Class with cryptic methods
  */
-export class Encryption { } // See dexie-encrypted-addon
+export class Encryption { } // See dexie-encrypted-addon.
 
-export interface OnSerialize { } // Add to database classes that use serialization. See dexie-class-addon
+export interface OnSerialize { } // Add to database classes that use serialization. See dexie-class-addon.
+
+export class IndexValueEncoder { }; // Boolean-null index encoder. See dexie-boolean-null-index-addon.
 
 export as namespace DexieAddonSuite;
 ```

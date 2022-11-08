@@ -1,6 +1,8 @@
 import { Collection, Dexie, PromiseExtended, TableSchema, ThenShortcut, Transaction, WhereClause } from 'dexie';
+import { IndexValueEncoder } from './index-value-encoder.class';
 import { DexieExtended } from './types';
-import { mapValuesToBinary } from './utils';
+
+const indexValueEncoder = IndexValueEncoder.Get();
 
 export function getTableExtended(db: Dexie) {
 
@@ -18,7 +20,7 @@ export function getTableExtended(db: Dexie) {
             thenShortcut?: ThenShortcut<T | undefined, R>
         ): PromiseExtended<T | undefined | R> {
 
-            const newIndexOrequalityCriterias = mapValuesToBinary(keyOrEqualityCriterias);
+            const newIndexOrequalityCriterias = indexValueEncoder.mapValuesToBinary(keyOrEqualityCriterias);
 
             if (thenShortcut) return super.get(newIndexOrequalityCriterias, thenShortcut);
             return super.get(newIndexOrequalityCriterias);
@@ -35,7 +37,7 @@ export function getTableExtended(db: Dexie) {
             indexOrequalityCriterias: string | string[] | { [key: string]: any; }
         ): WhereClause<T, TKey> | Collection<T, TKey> {
 
-            const newIndexOrequalityCriterias = mapValuesToBinary(indexOrequalityCriterias);
+            const newIndexOrequalityCriterias = indexValueEncoder.mapValuesToBinary(indexOrequalityCriterias);
 
             // No combined overload in Dexie, so strong typed
             return super.where(newIndexOrequalityCriterias as any) as WhereClause<T, TKey> | Collection<T, TKey>;

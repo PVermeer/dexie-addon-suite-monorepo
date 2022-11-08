@@ -1,8 +1,12 @@
 import faker from 'faker/locale/en';
-import { IndexableTypeExtended } from '../../../src';
 import * as hooks from '../../../src/hooks';
-import { arrayBuffersAreEqual, FALSE_BINARY, FALSE_STRING, NULL_BINARY, NULL_STRING, TRUE_BINARY, TRUE_STRING } from '../../../src/utils';
+import { IndexValueEncoder } from '../../../src/index-value-encoder.class';
+import { IndexableTypeExtended } from '../../../src/types';
 import { databasesPositive, Friend, mockFriends, TestDatabaseWithHooks } from '../../mocks/mocks.spec';
+
+const indexValueEncoder = IndexValueEncoder.Get();
+// @ts-expect-error private
+const arrayBuffersAreEqual = indexValueEncoder.arrayBuffersAreEqual;
 
 describe('dexie-boolean-null-index-addon null-index.spec', () => {
 
@@ -90,9 +94,24 @@ describe('dexie-boolean-null-index-addon null-index.spec', () => {
                 describe('Methods', () => {
 
                     const valueTypes = [
-                        { type: 'null', dbStringValue: NULL_STRING, dbBinaryValue: NULL_BINARY, documentValue: null },
-                        { type: 'true', dbStringValue: TRUE_STRING, dbBinaryValue: TRUE_BINARY, documentValue: true },
-                        { type: 'false', dbStringValue: FALSE_STRING, dbBinaryValue: FALSE_BINARY, documentValue: false },
+                        {
+                            type: 'null',
+                            dbStringValue: IndexValueEncoder.NULL_STRING,
+                            dbBinaryValue: IndexValueEncoder.NULL_BINARY,
+                            documentValue: null
+                        },
+                        {
+                            type: 'true',
+                            dbStringValue: IndexValueEncoder.TRUE_STRING,
+                            dbBinaryValue: IndexValueEncoder.TRUE_BINARY,
+                            documentValue: true
+                        },
+                        {
+                            type: 'false',
+                            dbStringValue: IndexValueEncoder.FALSE_STRING,
+                            dbBinaryValue: IndexValueEncoder.FALSE_BINARY,
+                            documentValue: false
+                        }
                     ] as const;
 
                     valueTypes.forEach(({ type, dbStringValue, dbBinaryValue, documentValue }) => {

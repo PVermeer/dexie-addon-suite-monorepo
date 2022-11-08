@@ -5,6 +5,17 @@ import { Populated, Ref } from '@pvermeer/dexie-populate-addon';
 import { Observable } from 'rxjs';
 import type { ObservableTablePopulated, PopulatedTableObservable } from './table-extended.class';
 
+// Merge types from all packages
+export type { } from '@pvermeer/dexie-boolean-null-index-addon';
+export type { } from '@pvermeer/dexie-class-addon';
+export type { } from '@pvermeer/dexie-encrypted-addon';
+export type { } from '@pvermeer/dexie-immutable-addon';
+// ----
+// Do not merge types from these packages (overwritten with new functionality by addon-suite)
+// export type { } from '@pvermeer/dexie-populate-addon';
+// export type { } from '@pvermeer/dexie-rxjs-addon';
+// ----
+
 export { addonSuite } from './addon-suite';
 export type { ObservableTablePopulated, PopulatedTableObservable } from './table-extended.class';
 export { Encryption };

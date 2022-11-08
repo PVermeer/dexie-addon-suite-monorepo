@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-beta.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.2...@pvermeer/dexie-addon-suite@1.1.0-beta.3) (2022-11-08)
+
+
+### Features
+
+* **dexie-boolean-null-index-addon:** moved encoding to own class ([3652bf4](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/3652bf485d72d52f659509497fc06d7506197b06))
+
+
+
+
+
 # [1.1.0-beta.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.1...@pvermeer/dexie-addon-suite@1.1.0-beta.2) (2022-11-08)
 
 

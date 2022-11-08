@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-boolean-null-index-addon@1.1.0-beta.0...@pvermeer/dexie-boolean-null-index-addon@1.1.0-beta.1) (2022-11-08)
+
+
+### Bug Fixes
+
+* **dexie-boolean-null-index-addon:** wrong import ([5c68b38](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/5c68b3817e9726f71249ef6bb9e6f0ef495d1636))
+
+
+### Features
+
+* **dexie-boolean-null-index-addon:** moved encoding to own class ([3652bf4](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/3652bf485d72d52f659509497fc06d7506197b06))
+
+
+
+
+
 # 1.1.0-beta.0 (2022-11-07)
 
 

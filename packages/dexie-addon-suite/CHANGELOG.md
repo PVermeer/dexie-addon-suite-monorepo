@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.0...@pvermeer/dexie-addon-suite@1.1.0-beta.1) (2022-11-08)
+
+
+### Bug Fixes
+
+* **dexie-addon-suite:** wrong path in package.json for index addon ([f56f188](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/f56f188309805d2f7931b4e8e27208cc89fd76ef))
+
+
+
+
+
 # [1.1.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.2...@pvermeer/dexie-addon-suite@1.1.0-beta.0) (2022-11-07)
 
 

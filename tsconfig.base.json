@@ -19,7 +19,7 @@
             "dom"
         ],
         "paths": {
-            "@pvermeer/dexie-suite-addon": [
+            "@pvermeer/dexie-addon-suite": [
                 "./packages/dexie-addon-suite/src"
             ],
             "@pvermeer/dexie-encrypted-addon": [

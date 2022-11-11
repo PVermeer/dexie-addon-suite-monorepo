@@ -39,11 +39,11 @@
     "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
     "@stablelib/base64": "^1.0.1",
     "@stablelib/utf8": "^1.0.1",
-    "tslib": "^2.3.1",
+    "tslib": "^2.4.1",
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
-    "dexie": "^3.0.3"
+    "dexie": "^3.2.2"
   },
   "repository": {
     "type": "git",

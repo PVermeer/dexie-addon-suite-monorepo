@@ -6,7 +6,10 @@
   ],
   "ignoreChanges": [
     "**/*.spec.ts",
-    "**/CHANGELOG.md"
+    "**/CHANGELOG.md",
+    ".github/**/*",
+    ".husky/**/*",
+    ".vscode/**/*"
   ],
   "command": {
     "version": {

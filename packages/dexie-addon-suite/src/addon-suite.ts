@@ -5,6 +5,7 @@ import { populate } from '@pvermeer/dexie-populate-addon';
 import { dexieRxjs } from '@pvermeer/dexie-rxjs-addon';
 import { Dexie } from 'dexie';
 import { getPopulatedObservableTable } from './table-extended.class';
+import { DexieExtended } from './typings';
 
 export interface Config {
     encrypted?: EncryptedOptions;
@@ -13,6 +14,13 @@ export interface Config {
 }
 
 export function addonSuite(db: Dexie, config?: Config | EncryptedOptions) {
+
+    // Register addon
+    const dbExtended = db as DexieExtended;
+    dbExtended.pVermeerAddonsRegistered = {
+        ...dbExtended.pVermeerAddonsRegistered,
+        dexieAddonSuite: true
+    };
 
     /** Default config */
     const addons: { [prop: string]: boolean; } = {

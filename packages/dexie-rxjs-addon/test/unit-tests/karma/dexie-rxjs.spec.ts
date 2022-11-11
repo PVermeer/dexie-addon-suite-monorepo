@@ -3,7 +3,7 @@ import { IDatabaseChange } from 'dexie-observable/api';
 import faker from 'faker/locale/nl';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
-import { databasesNegative, databasesPositive, Friend, methods, mockFriends } from '../../mocks/mocks.spec';
+import { databasesPositive, Friend, methods, mockFriends } from '../../mocks/mocks.spec';
 
 type FlatPromise<T = unknown> = {
     promise: Promise<T>;
@@ -663,23 +663,7 @@ describe('dexie-rxjs-addon dexie-rxjs.spec', () => {
                         else expect(keys![0]).toBe(id);
                     });
                 });
-
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                describe('Fixes', () => {
-                });
-            });
-        });
-        databasesNegative.forEach(database => {
-            describe(database.desc, () => {
-                let db: ReturnType<typeof database.db>;
-                beforeEach(async () => {
-                    db = database.db(Dexie);
-                });
-                afterEach(async () => {
-                    await db.delete();
-                });
             });
         });
     });
-
 });

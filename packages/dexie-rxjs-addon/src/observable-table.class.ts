@@ -79,7 +79,7 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
             filter(x => {
                 if (typeof keyOrequalityCriterias === 'object' && typeof keyOrequalityCriterias !== null) {
 
-                    return Object.entries(keyOrequalityCriterias).some(([key, value]) =>
+                    return Object.entries(keyOrequalityCriterias as any).some(([key, value]) =>
                         x.some(y => {
                             const obj = 'obj' in y ? y.obj : y.oldObj;
                             return obj[key] && obj[key] === value ? true :
@@ -94,7 +94,7 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
             }),
             debounceTime(50),
             startWith(null),
-            mergeMap(() => this._table.get(keyOrequalityCriterias)),
+            mergeMap(() => this._table.get(keyOrequalityCriterias as any)),
             distinctUntilChanged(isEqual),
             shareReplay({ bufferSize: 1, refCount: true })
         );

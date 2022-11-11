@@ -1,7 +1,8 @@
 import { Dexie } from 'dexie';
 import { DexieExtended } from './types';
 
-export interface TableExtended {
+// @ts-expect-error // Unused type parameters, these must match with Dexie.Table
+export interface TableExtended<T, TKey> {
     /**
         Override mapToClass method to actually call the class constructor
      */
@@ -14,7 +15,7 @@ export function getTableExtended<T, TKey>(db: Dexie) {
     const dbExt = db as DexieExtended;
     const TableClass = dbExt.Table;
 
-    return class TableExt extends TableClass<T, TKey> implements TableExtended {
+    return class TableExt extends TableClass<T, TKey> implements TableExtended<T, TKey> {
 
         public override mapToClass<T extends new (args: any) => any>(constructor: T): T {
             super.mapToClass(constructor);

@@ -14,10 +14,6 @@ const config = {
         {
             filePath: path.join(packagePath, 'src', 'index.ts'),
             outFile: path.join(packagePath, 'dist', 'index.d.ts'),
-            monorepo: {
-                packagesPath: path.join(packagePath, '..'),
-                packageJsonPath: packagePath + '/package.json'
-            },
             output: {
                 umdModuleName: configLib.umdName,
                 inlineDeclareExternals: true,

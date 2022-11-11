@@ -9,7 +9,7 @@ declare module 'dexie' {
     /**
      * Extended Table class with class methods
      */
-    interface Table<T, TKey> extends TableExtended { }
+    interface Table<T, TKey> extends TableExtended<T, TKey> { }
 
     /**
      * Extend Transaction interface

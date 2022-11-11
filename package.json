@@ -9,6 +9,7 @@
     "lerna": "lerna",
     "bootstrap": "lerna bootstrap || npx lerna bootstrap",
     "bootstrap:ci": "lerna bootstrap --ci || npx lerna bootstrap --ci",
+    "bootstrap:no-ci": "lerna bootstrap --no-ci || npx lerna bootstrap --no-ci",
     "init": "semantic-release-cli setup",
     "lint": "lerna run lint",
     "build": "git fetch origin master && lerna run build --include-dependencies --since",

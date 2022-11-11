@@ -31,13 +31,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: wagoid/commitlint-github-action@v4.1.12
 
-      - name: Install CI
-        if: "!contains(github.event.pull_request.title, '[dependency update]')"
-        run: npm run bootstrap:ci
-
       - name: Install
-        if: "contains(github.event.pull_request.title, '[dependency update]')"
-        run: npm run bootstrap:no-ci
+        run: npm run bootstrap:ci
 
       - name: Test
         run: npm run test

@@ -251,9 +251,6 @@ describe('dexie-immutable-addon immutable.spec', () => {
             });
         });
         describe('Negative', () => {
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            describe('Faulty databases', () => {
-            });
             describe('Mutable database', () => {
                 let db: TestDatabaseNotImmutable;
                 beforeEach(() => {

@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import { TableExtended } from './table-extended.class';
 
 export { dexieRxjs } from './dexie-rxjs';
@@ -14,7 +13,7 @@ declare module 'dexie' {
          * Get on('changes') from 'dexie-observable' as an RxJs observable and observe changes.
          * @link https://dexie.org/docs/Observable/Dexie.Observable
          */
-        changes$: Observable<(import('dexie-observable/api').IDatabaseChange[])>;
+        changes$: import('rxjs').Observable<(import('dexie-observable/api').IDatabaseChange[]) >;
     }
     interface Table<T, TKey> extends TableExtended<T, TKey> { }
 }

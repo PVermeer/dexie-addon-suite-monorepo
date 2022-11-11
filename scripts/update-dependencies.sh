@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+onlyUpdate="false"
+if [ "$1" == "only-update" ]; then
+    onlyUpdate="true"
+fi
+
 echo -e "\n"
 echo "Checking dependencies"
 echo -e "\n"
@@ -30,6 +35,10 @@ else
     echo "Failed"
     echo -e "\n"
 
+    exit 1
+fi
+
+if [ "$onlyUpdate" == "true" ]; then
     exit 1
 fi
 

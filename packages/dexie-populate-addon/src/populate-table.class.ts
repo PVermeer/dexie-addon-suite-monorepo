@@ -33,7 +33,7 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string> impleme
     get(keyOrequalityCriterias: TKey | { [key: string]: any; }): Promise<Populated<T, B, K> | undefined>;
 
     public async get(keyOrequalityCriterias: TKey | { [key: string]: any; }) {
-        const result = await this._table.get(keyOrequalityCriterias) as T;
+        const result = await this._table.get(keyOrequalityCriterias as any);
         const [populated] = await Populate.populateResult(result, this._table, this._keys, this._options);
         return populated;
     }

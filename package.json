@@ -19,7 +19,8 @@
     "test:master": "npm run build:master && lerna run test --stream --since master",
     "version": "bash ./scripts/version.sh",
     "release": "bash ./scripts/release.sh",
-    "prepare": "husky install && patch-package"
+    "deps:update:latest:ci": "bash ./scripts/update-dependencies.sh only-update",
+    "prepare": "husky install && patch-package --error-on-fail"
   },
   "workspaces": [
     "packages/*"
@@ -70,6 +71,7 @@
     "lerna": "^4.0.0",
     "license-webpack-plugin": "^4.0.0",
     "nodemon": "^2.0.15",
+    "npm-check-updates": "^16.3.20",
     "patch-package": "^6.4.7",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",

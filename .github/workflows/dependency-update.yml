@@ -1,0 +1,16 @@
+name: Dependency update
+
+on:
+  schedule:
+    - cron: "15 5 * * MON"
+  workflow_dispatch:
+
+jobs:
+  updateDependenciesMatrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [master, beta]
+    uses: ./.github/workflows/dependency-update-on-branch.yml
+    with:
+      branch: ${{ matrix.branch }}

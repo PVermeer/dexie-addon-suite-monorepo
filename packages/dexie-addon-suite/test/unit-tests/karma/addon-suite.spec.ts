@@ -1,5 +1,10 @@
+import * as classModule from '@pvermeer/dexie-class-addon/src/class';
 import { Encryption } from '@pvermeer/dexie-encrypted-addon';
+import * as encryptedModule from '@pvermeer/dexie-encrypted-addon/src/encrypted';
+import * as immutableModule from '@pvermeer/dexie-immutable-addon/src/immutable';
 import { Populated } from '@pvermeer/dexie-populate-addon';
+import * as populateModule from '@pvermeer/dexie-populate-addon/src/populate';
+import * as rxjsModule from '@pvermeer/dexie-rxjs-addon/src/dexie-rxjs';
 import { Dexie } from 'dexie';
 import faker from 'faker/locale/nl';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
@@ -7,7 +12,7 @@ import { take } from 'rxjs/operators';
 import * as addonSuiteModule from '../../../src/addon-suite';
 import { addonSuite } from '../../../src/index';
 import { PopulateTableObservable } from '../../../src/populate-table-observable.class';
-import { Club, databasesPositive, Friend, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
+import { Club, databasesPositive, Friend, getDatabase, Group, HairColor, mockClubs, mockFriends, mockGroups, mockHairColors, mockStyles, mockThemes, Style, Theme } from '../../mocks/mocks.spec';
 
 function flatPromise() {
     let resolve: ((value?: unknown) => void) | undefined;
@@ -816,6 +821,25 @@ describe('dexie-addon-suite addon-suite.spec', () => {
             });
             expect(addons).toEqual(['encrypted', 'rxjs', 'populate', 'class']);
         });
-    });
+        it('should load addons only once', async () => {
 
+            console.log(classModule);
+
+            const modules = [
+                spyOn(classModule, 'classMap').and.callThrough(),
+                spyOn(encryptedModule, 'encrypted').and.callThrough(),
+                spyOn(immutableModule, 'immutable').and.callThrough(),
+                spyOn(populateModule, 'populate').and.callThrough(),
+                spyOn(rxjsModule, 'dexieRxjs').and.callThrough()
+            ];
+
+            const db = getDatabase(Dexie, 'TestDatabase', {
+                secretKey: Encryption.createRandomEncryptionKey(),
+            });
+
+            await db.open();
+
+            modules.forEach(spy => expect(spy).toHaveBeenCalledTimes(1));
+        });
+    });
 });

@@ -135,7 +135,7 @@ export class Friend implements OnSerialize {
     }
 }
 
-const getDatabase = (
+export const getDatabase = (
     dexie: typeof Dexie,
     name: string,
     config?: Config & EncryptedOptions

@@ -9,6 +9,10 @@ export function immutable(db: Dexie) {
 
     // Register addon
     const dbExtended: DexieExtended = db;
+    if (dbExtended.pVermeerAddonsRegistered?.immutable) {
+        return;
+    }
+
     dbExtended.pVermeerAddonsRegistered = {
         ...dbExtended.pVermeerAddonsRegistered,
         immutable: true

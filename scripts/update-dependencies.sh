@@ -30,6 +30,16 @@ if npx npm-check-updates --configFilePath ./scripts --configFileName npm-check-u
     echo -e "\n"
     echo "Updated all package.json's"
     echo -e "\n"
+
+    echo -e "\n"
+    echo "Updating package-lock.json"
+    echo -e "\n"
+
+    npm i --package-lock-only --ignore-scripts
+
+    echo -e "\n"
+    echo "Updated package-lock.json"
+    echo -e "\n"
 else
     echo -e "\n"
     echo "Failed"

@@ -10,7 +10,7 @@ echo -e "\n"
 echo "Checking dependencies"
 echo -e "\n"
 
-if npm-check-updates --configFilePath ./scripts --configFileName npm-check-updates-rc.json --dep prod,dev,peer,bundle,optional --deep --errorLevel 2; then
+if npx npm-check-updates --configFilePath ./scripts --configFileName npm-check-updates-rc.json --dep prod,dev,peer,bundle,optional --deep --errorLevel 2; then
     echo -e "\n"
     echo "No dependency updates found"
     echo -e "\n"
@@ -26,7 +26,7 @@ echo -e "\n"
 echo "Updating all dependency versions"
 echo -e "\n"
 
-if npm-check-updates --configFilePath ./scripts --configFileName npm-check-updates-rc.json --dep prod,dev,peer,bundle,optional --deep -u; then
+if npx npm-check-updates --configFilePath ./scripts --configFileName npm-check-updates-rc.json --dep prod,dev,peer,bundle,optional --deep -u; then
     echo -e "\n"
     echo "Updated all package.json's"
     echo -e "\n"
@@ -39,7 +39,7 @@ else
 fi
 
 if [ "$onlyUpdate" == "true" ]; then
-    exit 1
+    exit 0
 fi
 
 echo -e "\n"

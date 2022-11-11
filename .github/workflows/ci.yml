@@ -59,26 +59,3 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run release -- branch=$BRANCH
-
-  updateDependencies:
-    name: Dependency update test
-    runs-on: ubuntu-latest
-    if: "contains(github.event.pull_request.title, '[dependency update]') && !contains(github.event.head_commit.message, '[skip ci]')"
-    env:
-      CI: true
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "lts/*"
-
-      - name: Install
-        run: npm run bootstrap:no-ci
-
-      - name: Test
-        run: npm run test

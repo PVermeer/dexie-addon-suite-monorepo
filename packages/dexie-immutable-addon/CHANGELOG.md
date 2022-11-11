@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2-beta.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.2-beta.1...@pvermeer/dexie-immutable-addon@1.1.2-beta.2) (2022-11-11)
+
+
+### Bug Fixes
+
+* **dexie-addon-suite:** should load addons only once + test ([b429843](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/b429843445fdb08053c21b600c180a117689d056))
+
+
+
+
+
 ## [1.1.2-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.1...@pvermeer/dexie-immutable-addon@1.1.2-beta.1) (2022-11-09)
 
 

@@ -49,7 +49,7 @@ describe('dexie-addon-suite html.spec', () => {
                 script.onload = () => resolve();
                 document.head.append(script);
             });
-        });
+        }, 10000);
         describe('Load', () => {
             it('should load Dexie.js', () => {
                 expect(Dexie).toBeTruthy();

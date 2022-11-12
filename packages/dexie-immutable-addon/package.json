@@ -40,7 +40,7 @@
     "tslib": "^2.4.1"
   },
   "peerDependencies": {
-    "dexie": "^3.2.2"
+    "dexie": "^3.0.0"
   },
   "repository": {
     "type": "git",

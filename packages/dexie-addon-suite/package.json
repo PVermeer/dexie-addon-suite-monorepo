@@ -51,8 +51,8 @@
     "tslib": "^2.4.1"
   },
   "peerDependencies": {
-    "dexie": "^3.2.2",
-    "rxjs": "^7.5.7"
+    "dexie": "^3.0.0",
+    "rxjs": "^7.0.0"
   },
   "repository": {
     "type": "git",

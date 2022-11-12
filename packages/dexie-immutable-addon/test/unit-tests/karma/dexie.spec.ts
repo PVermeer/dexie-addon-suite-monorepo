@@ -43,7 +43,7 @@ describe('dexie-immutable-addon dexie.spec', () => {
                         scriptAddon.onload = () => resolve();
                         document.head.append(scriptAddon);
                     });
-            });
+            }, 10000);
             it('should load Dexie.js', () => {
                 expect(Dexie).toBeTruthy();
             });

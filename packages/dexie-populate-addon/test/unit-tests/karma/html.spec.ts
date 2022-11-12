@@ -28,7 +28,7 @@ describe('dexie-populate-addon html.spec', () => {
                 script.onload = () => resolve();
                 document.head.append(script);
             });
-        });
+        }, 10000);
         it('should load Dexie.js', () => {
             expect(Dexie).toBeTruthy();
         });

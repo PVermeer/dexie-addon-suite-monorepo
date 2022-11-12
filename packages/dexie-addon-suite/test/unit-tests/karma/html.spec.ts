@@ -27,14 +27,14 @@ describe('dexie-addon-suite html.spec', () => {
     describe('HTML script tag', () => {
         beforeAll(async () => {
             await Promise.all([
-                await new Promise<void>(resolve => {
+                new Promise<void>(resolve => {
                     const script = document.createElement('script');
                     script.src = 'https://unpkg.com/dexie/dist/dexie.js';
                     script.type = 'text/javascript';
                     script.onload = () => resolve();
                     document.head.append(script);
                 }),
-                await new Promise<void>(resolve => {
+                new Promise<void>(resolve => {
                     const script = document.createElement('script');
                     script.src = 'https://unpkg.com/rxjs/dist/bundles/rxjs.umd.min.js';
                     script.type = 'text/javascript';
@@ -49,7 +49,8 @@ describe('dexie-addon-suite html.spec', () => {
                 script.onload = () => resolve();
                 document.head.append(script);
             });
-        });
+            console.log('DONE');
+        }, 10000);
         describe('Load', () => {
             it('should load Dexie.js', () => {
                 expect(Dexie).toBeTruthy();

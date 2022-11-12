@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2-beta.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.2-beta.2...@pvermeer/dexie-immutable-addon@1.1.2-beta.3) (2022-11-12)
+
+
+### Bug Fixes
+
+* manual peer dependency management ([abc2c30](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/abc2c30fc1841ff6b43de67b3ef4cbc4040808c0))
+
+
+
+
+
 ## [1.1.2-beta.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.2-beta.1...@pvermeer/dexie-immutable-addon@1.1.2-beta.2) (2022-11-11)
 
 

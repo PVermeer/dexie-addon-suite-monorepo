@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-beta.6](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.5...@pvermeer/dexie-addon-suite@1.1.0-beta.6) (2022-11-12)
+
+
+### Bug Fixes
+
+* manual peer dependency management ([abc2c30](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/abc2c30fc1841ff6b43de67b3ef4cbc4040808c0))
+
+
+
+
+
 # [1.1.0-beta.5](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.4...@pvermeer/dexie-addon-suite@1.1.0-beta.5) (2022-11-11)
 
 

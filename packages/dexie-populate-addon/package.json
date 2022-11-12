@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-populate-addon",
-  "version": "1.0.2",
+  "version": "1.0.3-beta.3",
   "description": "Addon for Dexie.js database to populate relationships",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -41,7 +41,7 @@
     "lodash.flatten": "^4.4.0",
     "lodash.isequal": "^4.5.0",
     "lodash.uniqby": "^4.7.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.1"
   },
   "peerDependencies": {
     "dexie": "^3.0.0"

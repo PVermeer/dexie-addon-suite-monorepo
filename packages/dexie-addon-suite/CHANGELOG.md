@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-beta.6](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.5...@pvermeer/dexie-addon-suite@1.1.0-beta.6) (2022-11-12)
+
+
+### Bug Fixes
+
+* manual peer dependency management ([abc2c30](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/abc2c30fc1841ff6b43de67b3ef4cbc4040808c0))
+
+
+
+
+
+# [1.1.0-beta.5](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.4...@pvermeer/dexie-addon-suite@1.1.0-beta.5) (2022-11-11)
+
+
+### Bug Fixes
+
+* **dexie-addon-suite:** addon-suite -addon is now also registered ([4072ca2](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/4072ca2de215f7d5becc13262d033750bfe9d549))
+* **dexie-addon-suite:** load types from all packages ([556862c](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/556862cece9d95355668f8f2d8c6a9a1d64d0c8e))
+* **dexie-addon-suite:** should load addons only once + test ([b429843](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/b429843445fdb08053c21b600c180a117689d056))
+
+
+
+
+
+# [1.1.0-beta.4](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.2...@pvermeer/dexie-addon-suite@1.1.0-beta.4) (2022-11-09)
+
+
+### Bug Fixes
+
+* revert boolean-null-index-addon ([592f3a8](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/592f3a8770cfdba81b0c1ac5d84f2e5a85609963))
+
+
+
+
+
 ## [1.0.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.0.1...@pvermeer/dexie-addon-suite@1.0.2) (2022-07-22)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3-beta.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.3-beta.2...@pvermeer/dexie-rxjs-addon@1.0.3-beta.3) (2022-11-12)
+
+
+### Bug Fixes
+
+* manual peer dependency management ([abc2c30](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/abc2c30fc1841ff6b43de67b3ef4cbc4040808c0))
+
+
+
+
+
+## [1.0.3-beta.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.3-beta.1...@pvermeer/dexie-rxjs-addon@1.0.3-beta.2) (2022-11-11)
+
+**Note:** Version bump only for package @pvermeer/dexie-rxjs-addon
+
+
+
+
+
+## [1.0.3-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.2...@pvermeer/dexie-rxjs-addon@1.0.3-beta.1) (2022-11-09)
+
+
+### Bug Fixes
+
+* revert boolean-null-index-addon ([592f3a8](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/592f3a8770cfdba81b0c1ac5d84f2e5a85609963))
+
+
+
+
+
 ## [1.0.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.1...@pvermeer/dexie-rxjs-addon@1.0.2) (2022-07-22)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

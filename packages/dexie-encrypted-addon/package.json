@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-encrypted-addon",
-  "version": "2.0.2",
+  "version": "2.0.3-beta.3",
   "description": "Addon for Dexie.js database to add encryption",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -39,7 +39,7 @@
     "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
     "@stablelib/base64": "^1.0.1",
     "@stablelib/utf8": "^1.0.1",
-    "tslib": "^2.3.1",
+    "tslib": "^2.4.1",
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {

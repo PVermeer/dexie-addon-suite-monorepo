@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-beta.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.3-beta.2...@pvermeer/dexie-encrypted-addon@2.0.3-beta.3) (2022-11-12)
+
+
+### Bug Fixes
+
+* manual peer dependency management ([abc2c30](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/abc2c30fc1841ff6b43de67b3ef4cbc4040808c0))
+
+
+
+
+
+## [2.0.3-beta.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.3-beta.1...@pvermeer/dexie-encrypted-addon@2.0.3-beta.2) (2022-11-11)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
+
+
+
+
+## [2.0.3-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.2...@pvermeer/dexie-encrypted-addon@2.0.3-beta.1) (2022-11-09)
+
+
+### Bug Fixes
+
+* **dexie-encrypted-addon:** readme html example namespace ([620651a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/620651a8e4ebb542d2ccbd6c230372936063037e))
+* revert boolean-null-index-addon ([592f3a8](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/592f3a8770cfdba81b0c1ac5d84f2e5a85609963))
+
+
+
+
+
 ## [2.0.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.1...@pvermeer/dexie-encrypted-addon@2.0.2) (2022-07-22)
 
 **Note:** Version bump only for package @pvermeer/dexie-encrypted-addon

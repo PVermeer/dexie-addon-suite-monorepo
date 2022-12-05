@@ -76,7 +76,6 @@
     "nodemon": "^2.0.20",
     "npm-check-updates": "^16.3.22",
     "patch-package": "^6.5.0",
-    "rxjs": "^7.5.7",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0",

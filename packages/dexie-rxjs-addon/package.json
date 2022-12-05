@@ -46,6 +46,9 @@
     "dexie": "^3.0.0",
     "rxjs": "^7.0.0"
   },
+  "devDependencies": {
+    "rxjs": "^7.5.7"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/PVermeer/dexie-addon-suite-monorepo.git"

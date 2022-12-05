@@ -23,9 +23,6 @@
     "deps:update:latest:ci": "bash ./scripts/update-dependencies.sh only-update",
     "prepare": "husky install && patch-package --error-on-fail"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "dependencies": {
     "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
     "@pvermeer/dexie-class-addon": "file:packages/dexie-class-addon",

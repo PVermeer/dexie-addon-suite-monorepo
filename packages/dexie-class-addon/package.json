@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-class-addon",
-  "version": "1.0.3-beta.3",
+  "version": "1.0.3-beta.4",
   "description": "Addon for Dexie.js database to add true class mapping",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

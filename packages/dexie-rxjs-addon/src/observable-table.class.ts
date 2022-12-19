@@ -3,11 +3,11 @@ import { IDatabaseChange } from 'dexie-observable/api';
 import isEqual from 'lodash.isequal';
 import uniqWith from 'lodash.uniqwith';
 import { Observable } from 'rxjs';
-import { buffer, debounceTime, distinctUntilChanged, filter, map, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
+import { buffer, debounceTime, filter, map, mergeMap, share, shareReplay, startWith } from 'rxjs/operators';
 import { ObservableCollection } from './observable-collection.class';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
-import { mixinClass } from './utils';
+import { distinctUntilChangedIsEqual, mixinClass } from './utils';
 
 // Type check for when dexie would update the Table interface
 type TableMapObservable = Omit<
@@ -32,7 +32,7 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
 
     private _table$: Observable<T[]> = this._tableChanges$.pipe(
         mergeMap(() => this._table.toArray()),
-        distinctUntilChanged(isEqual),
+        distinctUntilChangedIsEqual(),
         shareReplay({ bufferSize: 1, refCount: true })
     );
 
@@ -95,7 +95,7 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
             debounceTime(50),
             startWith(null),
             mergeMap(() => this._table.get(keyOrequalityCriterias as any)),
-            distinctUntilChanged(isEqual),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
     }

@@ -1,12 +1,11 @@
 import { Collection, Dexie, IndexableTypeArray, Table } from 'dexie';
 import { IDatabaseChange } from 'dexie-observable/api';
 import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
 import { merge, Observable, OperatorFunction } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
+import { debounceTime, filter, first, mergeMap, share, shareReplay, skip, startWith } from 'rxjs/operators';
 import { ObservableWhereClause } from './observable-where-clause.class';
 import { DexieExtended } from './types';
-import { mixinClass } from './utils';
+import { distinctUntilChangedIsEqual, mixinClass } from './utils';
 
 // Type check for when dexie would update the Collection interface
 type CollectionMapObservable = Omit<
@@ -48,7 +47,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const _collection$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().toArray()),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return _collection$;
@@ -58,7 +57,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const sortBy$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().sortBy(keyPath)),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return sortBy$;
@@ -68,7 +67,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const count$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().count()),
-            distinctUntilChanged(),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return count$;
@@ -78,7 +77,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const first$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().first()),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return first$;
@@ -88,7 +87,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const last$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().last()),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return last$;
@@ -98,7 +97,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const keys$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().keys()),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return keys$;
@@ -108,7 +107,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const primaryKeys$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().primaryKeys()),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return primaryKeys$;
@@ -118,7 +117,7 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
         const uniqueKeys$ = this._tableChanges$.pipe(
             debounceTimeWhen(options?.debounceTime),
             mergeMap(() => this.cloneAsCollection().uniqueKeys()),
-            distinctUntilChanged((a, b) => isEqual(a, b)),
+            distinctUntilChangedIsEqual(),
             shareReplay({ bufferSize: 1, refCount: true })
         );
         return uniqueKeys$;

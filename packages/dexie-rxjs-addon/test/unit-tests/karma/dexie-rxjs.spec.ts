@@ -509,6 +509,37 @@ describe('dexie-rxjs-addon dexie-rxjs.spec', () => {
                                     expect(a).not.toBe(b);
                                 });
                             }
+
+                            describe('distinctUntilChangedIsEqual', () => {
+                                it('should not use the reference passed to the user to determine changes', async () => {
+                                    let friendObs: Friend;
+                                    const waits = new Array(2).fill(null).map(() => flatPromise());
+                                    let emitCount = 0;
+            
+                                    subs.add(method$(id, customId).subscribe(friend => {
+                                        if (!friend) return;
+            
+                                        emitCount++;
+                                        friendObs = friend as Friend;
+            
+                                        switch(emitCount) {
+                                            case 1: waits[0].resolve(); break;
+                                            case 2: waits[1].resolve();
+                                        }
+                                    }));
+            
+                                    await waits[0].promise;
+                                    expect(emitCount).toBe(1);
+
+                                    friendObs!.firstName = '99999999';
+                                    await db.friends.update(id, { firstName: '99999999' });
+
+                                    setTimeout(() => waits[1].resolve(), 500);
+                                    await waits[1].promise;
+                                    expect(emitCount).toBe(2);
+                                },99999999);
+                            });
+            
                         });
                     });
 

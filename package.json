@@ -13,6 +13,9 @@
     "init": "semantic-release-cli setup",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
+    "eslint": "eslint --max-warnings=0 --config .eslintrc.json --ignore-path .gitignore",
+    "eslint:fix": "npm run eslint -- --fix",
+    "eslint:commit": "npm run eslint:fix -- --rule import/no-extraneous-dependencies:off",
     "format": "npm run prettier .",
     "format:write": "npm run prettier:write .",
     "prettier": "prettier --ignore-unknown --check --config .prettierrc.json --ignore-path .gitignore",
@@ -30,7 +33,7 @@
   },
   "lint-staged": {
     "*": "npm run prettier:write",
-    "*.ts": "npm run eslint:fix"
+    "*.ts": "npm run eslint:commit"
   },
   "dependencies": {
     "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",

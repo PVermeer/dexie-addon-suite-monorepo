@@ -3,7 +3,7 @@
   "ignorePatterns": ["**/*.js"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "../../tsconfig.base.json"
+    "project": "./tsconfig.base.json"
   },
   "plugins": ["@typescript-eslint", "import", "ban"],
   "extends": [
@@ -26,19 +26,6 @@
   },
   "rules": {
     "@typescript-eslint/semi": ["warn", "always"],
-    "@typescript-eslint/member-delimiter-style": [
-      "warn",
-      {
-        "multiline": {
-          "delimiter": "semi",
-          "requireLast": true
-        },
-        "singleline": {
-          "delimiter": "semi",
-          "requireLast": true
-        }
-      }
-    ],
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",

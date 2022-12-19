@@ -35,7 +35,7 @@
     "build": "bash ../../scripts/build-package.sh",
     "lint": "npm run eslint .",
     "lint:fix": "npm run eslint:fix .",
-    "eslint": "eslint --max-warnings=0 --config ../../.eslintrc.json --ignore-path ../../.gitignore",
+    "eslint": "eslint --max-warnings=0 --config ../../.eslintrc.json --ignore-path ../../.gitignore --parser-options project:../../tsconfig.base.json",
     "eslint:fix": "npm run eslint -- --fix",
     "test": "npm run lint && npm run test:jasmine && npm run test:karma",
     "test:karma": "karma start ../../karma.conf.js  --context=$PWD",

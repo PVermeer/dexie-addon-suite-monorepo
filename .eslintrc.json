@@ -5,7 +5,7 @@
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "./tsconfig.base.json"
+        "project": "../../tsconfig.base.json"
     },
     "plugins": [
         "@typescript-eslint",
@@ -16,7 +16,8 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:import/recommended",
-        "plugin:import/typescript"
+        "plugin:import/typescript",
+        "prettier"
     ],
     "settings": {
         "import/parsers": {

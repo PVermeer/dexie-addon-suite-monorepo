@@ -12,6 +12,11 @@
     "bootstrap:no-ci": "lerna bootstrap --no-ci || npx lerna bootstrap --no-ci",
     "init": "semantic-release-cli setup",
     "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix",
+    "format": "npm run prettier .",
+    "format:write": "npm run prettier:write .",
+    "prettier": "prettier --ignore-unknown --check --config .prettierrc.json --ignore-path .gitignore",
+    "prettier:write": "npm run prettier -- --write",
     "build": "git fetch origin master && lerna run build --include-dependencies --since",
     "build:beta": "git fetch origin beta && lerna run build --include-dependencies --since beta",
     "build:master": "git fetch origin master && lerna run build --include-dependencies --since master",
@@ -22,6 +27,10 @@
     "release": "bash ./scripts/release.sh",
     "deps:update:latest:ci": "bash ./scripts/update-dependencies.sh only-update",
     "prepare": "husky install && patch-package --error-on-fail"
+  },
+  "lint-staged": {
+    "*": "npm run prettier:write",
+    "*.ts": "npm run eslint:fix"
   },
   "dependencies": {
     "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
@@ -50,6 +59,7 @@
     "dts-bundle-generator": "^7.0.0",
     "esbuild": "^0.15.13",
     "eslint": "^8.27.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-ban": "^1.6.0",
     "eslint-plugin-import": "^2.26.0",
@@ -73,6 +83,7 @@
     "nodemon": "^2.0.20",
     "npm-check-updates": "^16.3.22",
     "patch-package": "^6.5.0",
+    "prettier": "^2.8.1",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0",

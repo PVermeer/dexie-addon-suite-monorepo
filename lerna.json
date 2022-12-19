@@ -1,9 +1,7 @@
 {
   "version": "independent",
   "npmClient": "npm",
-  "packages": [
-    "packages/*"
-  ],
+  "packages": ["packages/*"],
   "ignoreChanges": [
     "**/*.spec.ts",
     "**/CHANGELOG.md",
@@ -13,11 +11,7 @@
   ],
   "command": {
     "version": {
-      "allowBranch": [
-        "master",
-        "beta",
-        "next"
-      ],
+      "allowBranch": ["master", "beta", "next"],
       "conventionalCommits": true,
       "message": "chore: new releases [skip ci]"
     }

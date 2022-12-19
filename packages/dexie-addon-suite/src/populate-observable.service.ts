@@ -1,9 +1,9 @@
 import { Populate, Populated, PopulateOptions, PopulateTree } from '@pvermeer/dexie-populate-addon';
 import { Table } from 'dexie';
-import isEqual from 'lodash.isequal';
 import { Observable } from 'rxjs';
-import { distinctUntilChanged, filter, mergeMap, share, startWith, switchMap } from 'rxjs/operators';
+import { filter, mergeMap, share, startWith, switchMap } from 'rxjs/operators';
 import { DexieExtended } from './typings';
+import { distinctUntilChangedIsEqual } from './utils';
 
 export function populateObservable<T, TKey, B extends boolean, K extends string>(
     observable: Observable<T>,
@@ -36,7 +36,7 @@ export function populateObservable<T, TKey, B extends boolean, K extends string>
                 if (i > 0) { popResult = await Populate.populateResultWithTree<T, TKey, B, K>(result, table, keys, options); }
                 return popResult.populated;
             }),
-            distinctUntilChanged<Populated<T, B, string> | Populated<T, B, string>[] | undefined>(isEqual),
+            distinctUntilChangedIsEqual<Populated<T, B, string> | Populated<T, B, string>[] | undefined>(),
             share()
         ))
     );

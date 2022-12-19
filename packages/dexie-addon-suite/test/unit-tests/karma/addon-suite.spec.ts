@@ -727,6 +727,68 @@ describe('dexie-addon-suite addon-suite.spec', () => {
 
                     expect(friendRaw2).toEqual({ ...friendRaw, firstName: 'firstName' } as Friend);
                 });
+
+                describe('distinctUntilChangedIsEqual', () => {
+                    it('should not use the reference passed to the user to determine changes', async () => {
+                        let friendObs: Populated<Friend>;
+                        const waits = new Array(2).fill(null).map(() => flatPromise());
+                        let emitCount = 0;
+
+                        subs.add(db.friends.$.populate().get(id).subscribe(friend => {
+                            if (!friend) return;
+
+                            emitCount++;
+                            friendObs = friend;
+
+                            switch(emitCount) {
+                                case 1: waits[0].resolve(); break;
+                                case 2: waits[1].resolve();
+                            }
+                        }));
+
+                        await waits[0].promise;
+                        expect(emitCount).toBe(1);
+
+                        friendObs!.firstName = '99999999';
+                        friendObs!.group!.name = '99999999';
+                        await db.friends.update(id, { firstName: '99999999' });
+                        await db.groups.update(friendObs!.group!.id!, { name: '99999999' });
+
+                        setTimeout(() => waits[1].resolve(), 500);
+                        await waits[1].promise;
+                        expect(emitCount).toBe(2);
+                    },99999999);
+
+                    it('should not use the reference passed to the user to determine populated changes', async () => {
+                        let friendObs: Populated<Friend>;
+                        const waits = new Array(2).fill(null).map(() => flatPromise());
+                        let emitCount = 0;
+
+                        subs.add(db.friends.$.populate().get(id).subscribe(friend => {
+                            if (!friend) return;
+
+                            emitCount++;
+                            friendObs = friend;
+
+                            switch(emitCount) {
+                                case 1: waits[0].resolve(); break;
+                                case 2: waits[1].resolve();
+                            }
+                        }));
+
+                        await waits[0].promise;
+                        expect(emitCount).toBe(1);
+
+                        friendObs!.group!.name = '99999999';
+                        await db.groups.update(friendObs!.group!.id!, { name: '99999999' });
+
+                        setTimeout(() => waits[1].resolve(), 500);
+                        await waits[1].promise;
+                        expect(emitCount).toBe(2);
+                    },99999999);
+
+                });
+
             });
         });
     });

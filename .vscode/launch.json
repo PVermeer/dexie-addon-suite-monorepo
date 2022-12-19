@@ -1,31 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Attach to Karma",
-            "type": "chrome",
-            "request": "attach",
-            "url": "http://localhost:9876/debug.html",
-            "address": "localhost",
-            "port": 9333,
-            "sourceMapPathOverrides": {
-                "webpack://?:*/*": "${workspaceFolder}/packages/*"
-            }
-        },
-        {
-            "name": "Attach to Jasmine (nodemon)",
-            "type": "node",
-            "internalConsoleOptions": "neverOpen",
-            "address": "localhost",
-            "port": 9334,
-            "request": "attach",
-            "restart": true,
-            "skipFiles": [
-                "<node_internals>/**"
-            ]
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Karma",
+      "type": "chrome",
+      "request": "attach",
+      "url": "http://localhost:9876/debug.html",
+      "address": "localhost",
+      "port": 9333,
+      "sourceMapPathOverrides": {
+        "webpack://?:*/*": "${workspaceFolder}/packages/*"
+      }
+    },
+    {
+      "name": "Attach to Jasmine (nodemon)",
+      "type": "node",
+      "internalConsoleOptions": "neverOpen",
+      "address": "localhost",
+      "port": 9334,
+      "request": "attach",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
 }

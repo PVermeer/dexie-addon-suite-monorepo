@@ -1,6 +1,3 @@
 {
-  "reject": [
-    "faker",
-    "@types/faker"
-  ]
+  "reject": ["faker", "@types/faker"]
 }

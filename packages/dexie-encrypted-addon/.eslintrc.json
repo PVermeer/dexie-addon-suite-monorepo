@@ -1,20 +1,15 @@
 // This is only used for vscode eslint extension
 {
-    "extends": "../../.eslintrc.json",
-    "rules": {
-        "import/no-extraneous-dependencies": [
-            "error",
-            {
-                "peerDependencies": true,
-                "optionalDependencies": false,
-                "devDependencies": [
-                    "**/*.spec.ts"
-                ],
-                "packageDir": [
-                    "./packages/dexie-encrypted-addon",
-                    "./"
-                ]
-            }
-        ]
-    }
+  "extends": "../../.eslintrc.json",
+  "rules": {
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "peerDependencies": true,
+        "optionalDependencies": false,
+        "devDependencies": ["**/*.spec.ts"],
+        "packageDir": ["./packages/dexie-encrypted-addon", "./"]
+      }
+    ]
+  }
 }

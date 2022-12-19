@@ -33,8 +33,10 @@
   },
   "scripts": {
     "build": "bash ../../scripts/build-package.sh",
-    "lint": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './tsconfig.json'\"} ./src && npm run lint:test",
-    "lint:test": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './test/tsconfig.json'\"} ./test",
+    "lint": "npm run eslint .",
+    "lint:fix": "npm run eslint:fix .",
+    "eslint": "eslint --max-warnings=0 --config ../../.eslintrc.json --ignore-path ../../.gitignore --parser-options project:../../tsconfig.base.json",
+    "eslint:fix": "npm run eslint -- --fix",
     "test": "npm run lint && npm run test:jasmine && npm run test:karma",
     "test:karma": "karma start ../../karma.conf.js  --context=$PWD",
     "test:karma:debug": "karma start ../../karma.conf.js --context=$PWD --debug",
@@ -48,6 +50,7 @@
     "@pvermeer/dexie-populate-addon": "file:../dexie-populate-addon",
     "@pvermeer/dexie-rxjs-addon": "file:../dexie-rxjs-addon",
     "lodash.isequal": "^4.5.0",
+    "lodash.clonedeep": "^4.5.0",
     "tslib": "^2.4.1"
   },
   "peerDependencies": {
@@ -55,7 +58,7 @@
     "rxjs": "^7.0.0"
   },
   "devDependencies": {
-    "rxjs": "^7.5.7"
+    "rxjs": "^7.8.0"
   },
   "repository": {
     "type": "git",

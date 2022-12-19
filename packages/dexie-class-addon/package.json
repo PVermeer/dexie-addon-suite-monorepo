@@ -28,8 +28,10 @@
   },
   "scripts": {
     "build": "bash ../../scripts/build-package.sh",
-    "lint": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './tsconfig.json'\"} ./src && npm run lint:test",
-    "lint:test": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './test/tsconfig.json'\"} ./test",
+    "lint": "npm run eslint .",
+    "lint:fix": "npm run eslint:fix .",
+    "eslint": "eslint --max-warnings=0 --config ../../.eslintrc.json --ignore-path ../../.gitignore --parser-options project:../../tsconfig.base.json",
+    "eslint:fix": "npm run eslint -- --fix",
     "test": "npm run lint && npm run test:jasmine && npm run test:karma",
     "test:karma": "karma start ../../karma.conf.js  --context=$PWD",
     "test:karma:debug": "karma start ../../karma.conf.js --context=$PWD --debug",
@@ -37,7 +39,7 @@
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
   "dependencies": {
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.1"
   },
   "peerDependencies": {
     "dexie": "^3.0.0"

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-beta.8](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.7...@pvermeer/dexie-addon-suite@1.1.0-beta.8) (2022-12-19)
+
+### Bug Fixes
+
+- **dexie-addon-suite:** change equality checks no longer use user reference ([4aaaa49](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/4aaaa4947f9c2a979a856d51204689221a3e14ac))
+
 # [1.1.0-beta.7](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0-beta.6...@pvermeer/dexie-addon-suite@1.1.0-beta.7) (2022-12-05)
 
 ### Reverts

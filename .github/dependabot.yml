@@ -7,13 +7,12 @@ updates:
     target-branch: master
     commit-message:
       prefix: "build"
-      include: "scope"
     allow:
-      - dependency-type: direct
       - dependency-type: production
     ignore:
       - dependency-name: "tslib"
 
+  # Still need to copy the above for the beta branch
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -21,9 +20,7 @@ updates:
     target-branch: beta
     commit-message:
       prefix: "build"
-      include: "scope"
     allow:
-      - dependency-type: direct
       - dependency-type: production
     ignore:
       - dependency-name: "tslib"

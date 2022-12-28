@@ -1,0 +1,29 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: master
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    allow:
+      - dependency-type: direct
+      - dependency-type: production
+    ignore:
+      - dependency-name: "tslib"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: beta
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    allow:
+      - dependency-type: direct
+      - dependency-type: production
+    ignore:
+      - dependency-name: "tslib"

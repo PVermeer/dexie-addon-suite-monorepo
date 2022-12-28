@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.3-beta.4...@pvermeer/dexie-encrypted-addon@2.0.3) (2022-12-28)
+
+**Note:** Version bump only for package @pvermeer/dexie-encrypted-addon
+
 ## [2.0.3-beta.4](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@2.0.3-beta.3...@pvermeer/dexie-encrypted-addon@2.0.3-beta.4) (2022-12-19)
 
 **Note:** Version bump only for package @pvermeer/dexie-encrypted-addon

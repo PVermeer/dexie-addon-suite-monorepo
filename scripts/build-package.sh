@@ -35,4 +35,4 @@ catch || {
 }
 
 echo "Package $package build successful"
-exit 0;
+exit 0

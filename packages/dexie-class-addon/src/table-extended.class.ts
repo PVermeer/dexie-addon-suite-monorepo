@@ -1,39 +1,42 @@
-import { Dexie } from 'dexie';
-import { DexieExtended } from './types';
+import { Dexie } from "dexie";
+import { DexieExtended } from "./types";
 
-export interface TableExtended {
-    /**
+// @ts-expect-error // Unused type parameters, these must match with Dexie.Table
+export interface TableExtended<T, TKey> {
+  /**
         Override mapToClass method to actually call the class constructor
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types 
-    mapToClass(constructor: Function): Function; // Dexie is using Function type, must match
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  mapToClass(constructor: Function): Function; // Dexie is using Function type, must match
 }
 
 export function getTableExtended<T, TKey>(db: Dexie) {
+  const dbExt = db as DexieExtended;
+  const TableClass = dbExt.Table;
 
-    const dbExt = db as DexieExtended;
-    const TableClass = dbExt.Table;
+  return class TableExt
+    extends TableClass<T, TKey>
+    implements TableExtended<T, TKey>
+  {
+    public override mapToClass<T extends new (args: any) => any>(
+      constructor: T
+    ): T {
+      super.mapToClass(constructor);
 
-    return class TableExt extends TableClass<T, TKey> implements TableExtended {
+      // Override the readhook and just call the constructor
+      const readHook = (obj: any) => {
+        const transaction = Dexie.currentTransaction;
+        if (!obj || transaction?.raw) return obj;
 
-        public override mapToClass<T extends new (args: any) => any>(constructor: T): T {
-            super.mapToClass(constructor);
+        const res = new constructor(obj);
+        return res;
+      };
 
-            // Override the readhook and just call the constructor
-            const readHook = (obj: any) => {
-                const transaction = Dexie.currentTransaction;
-                if (!obj || transaction?.raw) return obj;
-
-                const res = new constructor(obj);
-                return res;
-            };
-
-            if (this.schema.readHook) this.hook.reading.unsubscribe(this.schema.readHook);
-            this.schema.readHook = readHook;
-            this.hook("reading", readHook);
-            return constructor;
-        }
-
-    };
-
+      if (this.schema.readHook)
+        this.hook.reading.unsubscribe(this.schema.readHook);
+      this.schema.readHook = readHook;
+      this.hook("reading", readHook);
+      return constructor;
+    }
+  };
 }

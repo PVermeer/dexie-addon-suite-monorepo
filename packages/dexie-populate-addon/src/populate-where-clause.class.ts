@@ -1,47 +1,65 @@
-import { Dexie, Table, WhereClause } from 'dexie';
-import { PopulatedCollection } from './populate-collection.class';
-import { DexieExtended, PopulateOptions } from './types';
-import { mixinClass } from './_utils/utils';
+import { Dexie, Table, WhereClause } from "dexie";
+import { PopulatedCollection } from "./populate-collection.class";
+import { DexieExtended, PopulateOptions } from "./types";
+import { mixinClass } from "./_utils/utils";
 
 // Define the PopulatedWhereClause class here so we can get the keys without circulair troubles in TS 4.
 // Implement it in the class
 interface PopulatedWhereClauseI {
-    Collection: any;
+  Collection: any;
 }
 
-type WhereClauseRecordPopulate<T, TKey, B extends boolean, K extends string, U = Omit<WhereClause, keyof PopulatedWhereClauseI>> = {
-    [P in keyof U]: U[P] extends (...args: infer A) => any ?
-    (...args: A) => PopulatedCollection<T, TKey, B, K> : U[P]
+type WhereClauseRecordPopulate<
+  T,
+  TKey,
+  B extends boolean,
+  K extends string,
+  U = Omit<WhereClause, keyof PopulatedWhereClauseI>
+> = {
+  [P in keyof U]: U[P] extends (...args: infer A) => any
+    ? (...args: A) => PopulatedCollection<T, TKey, B, K>
+    : U[P];
 };
 
 // Cannot extend directly because Dexie does not export the classes, only interfaces
 // So interface and mixin is used
-export interface PopulatedWhereClause<T, TKey, B extends boolean, K extends string> extends WhereClauseRecordPopulate<T, TKey, B, K> { }
-export class PopulatedWhereClause<T, TKey, B extends boolean, K extends string> implements PopulatedWhereClauseI {
+export interface PopulatedWhereClause<
+  T,
+  TKey,
+  B extends boolean,
+  K extends string
+> extends WhereClauseRecordPopulate<T, TKey, B, K> {}
+export class PopulatedWhereClause<T, TKey, B extends boolean, K extends string>
+  implements PopulatedWhereClauseI
+{
+  get Collection() {
+    const dbExt = this._db as DexieExtended;
+    const table = this._table;
+    const keys = this._keys;
+    const options = this._options;
+    // Hijack Collection class getter.
+    return class Callable {
+      constructor(...args: ConstructorParameters<typeof dbExt.Collection>) {
+        const collection = new dbExt.Collection<T, TKey>(...args);
+        return new PopulatedCollection<T, TKey, B, K>(
+          dbExt,
+          table,
+          collection,
+          keys,
+          options
+        );
+      }
+    };
+  }
 
-    get Collection() {
-        const dbExt = this._db as DexieExtended;
-        const table = this._table;
-        const keys = this._keys;
-        const options = this._options;
-        // Hijack Collection class getter.
-        return class Callable {
-            constructor(...args: ConstructorParameters<typeof dbExt.Collection>) {
-                const collection = new dbExt.Collection<T, TKey>(...args);
-                return new PopulatedCollection<T, TKey, B, K>(dbExt, table, collection, keys, options);
-            }
-        };
-    }
-
-    constructor(
-        protected _db: Dexie,
-        protected _table: Table<T, TKey>,
-        protected _whereClause: WhereClause<T, TKey>,
-        protected _keys: K[] | undefined,
-        protected _options: PopulateOptions<B> | undefined
-    ) {
-        // Mixin with WhereClause
-        mixinClass(this, this._whereClause);
-    }
-
+  constructor(
+    protected _db: Dexie,
+    protected _table: Table<T, TKey>,
+    protected _whereClause: WhereClause<T, TKey>,
+    protected _keys: K[] | undefined,
+    protected _options: PopulateOptions<B> | undefined
+  ) {
+    // Mixin with WhereClause
+    mixinClass(this, this._whereClause);
+  }
 }

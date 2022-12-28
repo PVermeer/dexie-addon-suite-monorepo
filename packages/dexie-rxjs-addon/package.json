@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-rxjs-addon",
-  "version": "1.0.2",
+  "version": "1.0.3-beta.5",
   "description": "Addon for Dexie.js database to add rxjs observables",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -27,8 +27,10 @@
   },
   "scripts": {
     "build": "bash ../../scripts/build-package.sh",
-    "lint": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './tsconfig.json'\"} ./src && npm run lint:test",
-    "lint:test": "eslint -c ../../.eslintrc.json --parser-options \"{'project': './test/tsconfig.json'\"} ./test",
+    "lint": "npm run eslint .",
+    "lint:fix": "npm run eslint:fix .",
+    "eslint": "eslint --max-warnings=0 --config ../../.eslintrc.json --ignore-path ../../.gitignore --parser-options project:../../tsconfig.base.json",
+    "eslint:fix": "npm run eslint -- --fix",
     "test": "npm run lint && npm run test:jasmine && npm run test:karma",
     "test:karma": "karma start ../../karma.conf.js  --context=$PWD",
     "test:karma:debug": "karma start ../../karma.conf.js --context=$PWD --debug",
@@ -40,11 +42,14 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "lodash.uniqwith": "^4.5.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.1"
   },
   "peerDependencies": {
-    "dexie": "^3.0.3",
-    "rxjs": "^7.4.0"
+    "dexie": "^3.0.0",
+    "rxjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "rxjs": "^7.8.0"
   },
   "repository": {
     "type": "git",

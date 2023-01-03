@@ -945,7 +945,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
             setTimeout(() => waits[1].resolve(), 500);
             await waits[1].promise;
             expect(emitCount).toBe(2);
-          }, 99999999);
+          });
 
           it("should not use the reference passed to the user to determine populated changes", async () => {
             let friendObs: Populated<Friend>;
@@ -980,7 +980,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
             setTimeout(() => waits[1].resolve(), 500);
             await waits[1].promise;
             expect(emitCount).toBe(2);
-          }, 99999999);
+          });
         });
       });
     });

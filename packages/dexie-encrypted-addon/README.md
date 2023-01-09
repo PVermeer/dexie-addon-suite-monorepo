@@ -48,7 +48,7 @@ As mentioned in the provided link add:
 ```
 
 to your angular.json file.
-The [tweetnacl package](https://www.npmjs.com/package/tweetnacl) handles te encryption and is not bundled in the main npm package (it is bundled in the min version) so it will be updated on patches.
+The [tweetnacl package](https://www.npmjs.com/package/tweetnacl) handles the encryption and is not bundled in the main npm package (it is bundled in the min version) so it will be updated on patches.
 
 ## Documentation
 

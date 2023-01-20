@@ -1,5 +1,7 @@
-const path = require("path");
+// @ts-check
 const packagePath = process.env["packagePath"];
+if (!packagePath) throw new Error("package path is undefined");
+const path = require("path");
 const configLib = require("./build-package-config")(packagePath);
 
 /** @type import('dts-bundle-generator/config-schema').BundlerConfig */

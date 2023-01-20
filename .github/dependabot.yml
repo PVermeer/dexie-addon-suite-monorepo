@@ -6,24 +6,10 @@ updates:
       interval: "weekly"
     target-branch: master
     commit-message:
-      prefix: "build"
-      include: "scope"
+      prefix: "fix"
     allow:
-      - dependency-type: direct
       - dependency-type: production
-    ignore:
-      - dependency-name: "tslib"
-
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    target-branch: beta
-    commit-message:
-      prefix: "build"
-      include: "scope"
-    allow:
-      - dependency-type: direct
-      - dependency-type: production
+      - dependency-name: "rxjs"
+        dependency-type: "development"
     ignore:
       - dependency-name: "tslib"

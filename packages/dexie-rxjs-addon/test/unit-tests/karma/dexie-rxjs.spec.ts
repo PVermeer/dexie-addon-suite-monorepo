@@ -646,7 +646,7 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
                   setTimeout(() => waits[1].resolve(), 500);
                   await waits[1].promise;
                   expect(emitCount).toBe(2);
-                }, 99999999);
+                });
               });
             });
           });

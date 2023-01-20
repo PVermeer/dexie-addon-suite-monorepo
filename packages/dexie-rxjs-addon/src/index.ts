@@ -1,11 +1,18 @@
+import { IDatabaseChange } from "dexie-observable/api";
 import { TableExtended } from "./table-extended.class";
 
+export type {
+  DatabaseChangeType,
+  ICreateChange,
+  IDatabaseChange,
+  IDeleteChange,
+  IUpdateChange,
+} from "dexie-observable/api";
 export { dexieRxjs } from "./dexie-rxjs";
 export { ObservableCollection } from "./observable-collection.class";
 export { ObservableTable } from "./observable-table.class";
 export { ObservableWhereClause } from "./observable-where-clause.class";
 export type { TableExtended } from "./table-extended.class";
-export * from "dexie-observable/api";
 
 declare module "dexie" {
   interface Database {
@@ -13,9 +20,7 @@ declare module "dexie" {
      * Get on('changes') from 'dexie-observable' as an RxJs observable and observe changes.
      * @link https://dexie.org/docs/Observable/Dexie.Observable
      */
-    changes$: import("rxjs").Observable<
-      import("dexie-observable/api").IDatabaseChange[]
-    >;
+    changes$: import("rxjs").Observable<IDatabaseChange[]>;
   }
   interface Table<T, TKey> extends TableExtended<T, TKey> {}
 }

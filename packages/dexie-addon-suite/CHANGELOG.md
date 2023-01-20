@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.1...@pvermeer/dexie-addon-suite@1.2.0-beta.0) (2023-01-20)
+
+### Features
+
+- **dexie-addon-suite:** database change types are now exported ([8ead356](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/8ead3567bca976af03cfd94049046d7f61d2f1c4))
+
 ## [1.1.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.0...@pvermeer/dexie-addon-suite@1.1.1) (2023-01-09)
 
 **Note:** Version bump only for package @pvermeer/dexie-addon-suite

@@ -15,8 +15,9 @@ export type {} from "@pvermeer/dexie-immutable-addon";
 // This import / export is necessary because there is no support for ts-paths or monorepos
 // See https://github.com/timocov/dts-bundle-generator/issues/93
 // eslint-disable-next-line import/no-extraneous-dependencies
+export { DatabaseChangeType } from "dexie-observable/api";
+// eslint-disable-next-line import/no-extraneous-dependencies
 export type {
-  DatabaseChangeType,
   ICreateChange,
   IDatabaseChange,
   IDeleteChange,

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.2.0-beta.0...@pvermeer/dexie-addon-suite@1.2.0-beta.1) (2023-01-22)
+
+### Bug Fixes
+
+- **dexie-rxjs-addon:** enum DatabaseChangeType is now exported as value ([9257010](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/9257010da69d263403802e631270fe2c919af002))
+
 # [1.2.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.1.1...@pvermeer/dexie-addon-suite@1.2.0-beta.0) (2023-01-20)
 
 ### Features

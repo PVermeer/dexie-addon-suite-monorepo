@@ -1,8 +1,8 @@
 import { IDatabaseChange } from "dexie-observable/api";
 import { TableExtended } from "./table-extended.class";
 
+export { DatabaseChangeType } from "dexie-observable/api";
 export type {
-  DatabaseChangeType,
   ICreateChange,
   IDatabaseChange,
   IDeleteChange,

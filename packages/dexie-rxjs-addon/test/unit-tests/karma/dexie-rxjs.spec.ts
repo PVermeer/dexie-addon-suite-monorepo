@@ -51,9 +51,14 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
           customId = friend.customId;
 
           const initFriendPromise = flatPromise(); // Change output might be delayed
-          db.friends.$.get(database.customId ? customId : 1)
-            .pipe(filter((x) => !!x))
-            .subscribe(initFriendPromise.resolve);
+          subs.add(
+            db.friends.$.get(database.customId ? customId : 1)
+              .pipe(
+                filter((x) => !!x),
+                take(1)
+              )
+              .subscribe(initFriendPromise.resolve)
+          );
 
           id = await db.friends.add(friend);
 
@@ -79,8 +84,18 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
           });
           it(`should have same behavior as db.on('changes')`, async () => {
             const emitEventPromise = new Promise((resolve) => {
-              db.on("changes").subscribe((data) => resolve(data));
+              const dexieChangesSub = db.on("changes");
+
+              /**
+               * The documentation refers to yourListenerFunction as the function you pass as a second argument to hook('creating'). You would need to give that function a name or store a reference to it somewhere in order to unsubscribe to it.
+               */
+              function listenerFunction(data: any) {
+                dexieChangesSub.unsubscribe(listenerFunction);
+                resolve(data);
+              }
+              dexieChangesSub.subscribe(listenerFunction);
             });
+
             const emitObsPromise = new Promise((resolve) => {
               subs.add(db.changes$.subscribe((data) => resolve(data)));
             });
@@ -674,7 +689,7 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
             });
             it("should emit the correct value", async () => {
               const changesPromise = flatPromise<IDatabaseChange[]>();
-              obs$.pipe(take(1)).subscribe(changesPromise.resolve);
+              subs.add(obs$.pipe(take(1)).subscribe(changesPromise.resolve));
 
               const [newFriend] = mockFriends(1);
               await db.friends.add(newFriend);
@@ -687,7 +702,7 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
             });
             it("should not emit other table changes", async () => {
               const changesPromise = flatPromise<IDatabaseChange[]>();
-              obs$.pipe(take(1)).subscribe(changesPromise.resolve);
+              subs.add(obs$.pipe(take(1)).subscribe(changesPromise.resolve));
 
               const [newFriend] = mockFriends(1);
               await db.friends.add(newFriend);

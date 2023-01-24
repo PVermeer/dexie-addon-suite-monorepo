@@ -7,6 +7,8 @@ updates:
     target-branch: master
     commit-message:
       prefix: "fix"
+      prefix-development: "build"
+      include: "scope"
     allow:
       - dependency-type: production
       - dependency-name: "rxjs"

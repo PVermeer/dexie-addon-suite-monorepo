@@ -14,6 +14,7 @@ jobs:
     env:
       CI: true
       BRANCH: ${{ github.ref_name }}
+      PR_OPENED_BY: ${{ github.event.pull_request.user.login }}
 
     steps:
       - name: Checkout
@@ -40,11 +41,11 @@ jobs:
         run: mv __tsconfig.json__ tsconfig.json
 
       - name: Install
-        if: ${{ github.actor != 'dependabot[bot]' }}
+        if: ${{ env.PR_OPENED_BY != 'dependabot[bot]' }}
         run: npm run bootstrap:ci
 
       - name: Install (Dependabot)
-        if: ${{ github.actor == 'dependabot[bot]' }}
+        if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
         run: npm run bootstrap:ci || npm run bootstrap:no-ci
 
       - name: Test

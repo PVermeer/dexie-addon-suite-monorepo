@@ -14,12 +14,14 @@ jobs:
     env:
       CI: true
       BRANCH: ${{ github.ref_name }}
+      PR_OPENED_BY: ${{ github.event.pull_request.user.login }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - uses: actions/setup-node@v3
         with:
@@ -40,16 +42,27 @@ jobs:
         run: mv __tsconfig.json__ tsconfig.json
 
       - name: Install
+        if: ${{ env.PR_OPENED_BY != 'dependabot[bot]' }}
         run: npm run bootstrap:ci
+
+      - name: Install (Dependabot)
+        if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
+        run: npm run bootstrap:ci || npm run bootstrap:no-ci
 
       - name: Test
         run: npm run test
 
       - name: Configure git user
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' }} || ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
         run: |
           git config --global user.email "ci@ci.com"
-          git config --global user.name "@$GITHUB_ACTOR"
+          git config --global user.name "ci"
+
+      - name: Commit changes (Dependabot)
+        if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
+        run: |
+          git commit -am "fix: changes from dependabot install [skip ci]"
+          git push
 
       - name: Version
         if: ${{ github.event_name == 'push' }}

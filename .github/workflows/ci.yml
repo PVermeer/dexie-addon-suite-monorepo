@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - uses: actions/setup-node@v3
         with:
@@ -52,10 +53,16 @@ jobs:
         run: npm run test
 
       - name: Configure git user
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' }} || ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
         run: |
           git config --global user.email "ci@ci.com"
-          git config --global user.name "@$GITHUB_ACTOR"
+          git config --global user.name "ci"
+
+      - name: Commit changes (Dependabot)
+        if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
+        run: |
+          git commit -am "fix: changes from dependabot install [skip ci]"
+          git push
 
       - name: Version
         if: ${{ github.event_name == 'push' }}

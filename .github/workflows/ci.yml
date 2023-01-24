@@ -61,7 +61,8 @@ jobs:
       - name: Commit changes (Dependabot)
         if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
         run: |
-          git commit -am "fix: changes from dependabot install [skip ci]"
+          git add -A
+          git diff-index --quiet HEAD || commit -m "fix: changes from dependabot install [skip ci]"
           git push
 
       - name: Version

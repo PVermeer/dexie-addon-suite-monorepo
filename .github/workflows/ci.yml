@@ -40,7 +40,12 @@ jobs:
         run: mv __tsconfig.json__ tsconfig.json
 
       - name: Install
+        if: ${{ github.actor != 'dependabot[bot]' }}
         run: npm run bootstrap:ci
+
+      - name: Install (Dependabot)
+        if: ${{ github.actor == 'dependabot[bot]' }}
+        run: npm run bootstrap:ci || npm run bootstrap:no-ci
 
       - name: Test
         run: npm run test

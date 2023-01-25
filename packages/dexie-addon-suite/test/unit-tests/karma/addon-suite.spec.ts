@@ -912,7 +912,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
         describe("distinctUntilChangedIsEqual", () => {
           it("should not use the reference passed to the user to determine changes", async () => {
             let friendObs: Populated<Friend>;
-            const waits = new Array(2).fill(null).map(() => flatPromise());
+            const waits = new Array(3).fill(null).map(() => flatPromise());
             let emitCount = 0;
 
             subs.add(
@@ -930,6 +930,9 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                       break;
                     case 2:
                       waits[1].resolve();
+                      break;
+                    case 3:
+                      waits[2].resolve();
                   }
                 })
             );
@@ -940,11 +943,12 @@ describe("dexie-addon-suite addon-suite.spec", () => {
             friendObs!.firstName = "99999999";
             friendObs!.group!.name = "99999999";
             await db.friends.update(id, { firstName: "99999999" });
-            await db.groups.update(friendObs!.group!.id!, { name: "99999999" });
-
-            setTimeout(() => waits[1].resolve(), 500);
             await waits[1].promise;
             expect(emitCount).toBe(2);
+
+            await db.groups.update(friendObs!.group!.id!, { name: "99999999" });
+            await waits[2].promise;
+            expect(emitCount).toBe(3);
           });
 
           it("should not use the reference passed to the user to determine populated changes", async () => {
@@ -976,8 +980,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
 
             friendObs!.group!.name = "99999999";
             await db.groups.update(friendObs!.group!.id!, { name: "99999999" });
-
-            setTimeout(() => waits[1].resolve(), 500);
             await waits[1].promise;
             expect(emitCount).toBe(2);
           });

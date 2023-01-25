@@ -15,6 +15,12 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 - **dexie-addon-suite:** database change types are now exported ([8ead356](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/8ead3567bca976af03cfd94049046d7f61d2f1c4))
 
+## [1.0.4](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.3...@pvermeer/dexie-rxjs-addon@1.0.4) (2023-01-24)
+
+### Bug Fixes
+
+- bump dexie-observable from 3.0.0-beta.11 to 4.0.0-beta.13 ([2bea96b](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/2bea96b742d4b9e6d77813db9d384a740ee9e1fa))
+
 ## [1.0.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.0.3-beta.5...@pvermeer/dexie-rxjs-addon@1.0.3) (2022-12-28)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

@@ -657,8 +657,6 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
 
                   friendObs!.firstName = "99999999";
                   await db.friends.update(id, { firstName: "99999999" });
-
-                  setTimeout(() => waits[1].resolve(), 500);
                   await waits[1].promise;
                   expect(emitCount).toBe(2);
                 });

@@ -85,7 +85,7 @@ module.exports = function (config) {
       jasmine: {
         random: true,
         seed: process.env["JASMINE_SEED"],
-        // seed: '34226'
+        seed: "28209",
       },
     },
     customLaunchers: {

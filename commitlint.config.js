@@ -5,7 +5,7 @@ const configLernaScopes = require("@commitlint/config-lerna-scopes");
 const scopeEnum = async (context) => {
   const lernaScopes = await configLernaScopes.rules["scope-enum"](context);
   const [level, applicable, scopes] = lernaScopes;
-  return [level, applicable, [...scopes, "deps"]];
+  return [level, applicable, [...scopes, "deps", "deps-dev"]];
 };
 
 module.exports = {

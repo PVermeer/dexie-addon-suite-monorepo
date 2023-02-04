@@ -52,7 +52,12 @@ jobs:
         run: npm run bootstrap:ci || npm run bootstrap:no-ci
 
       - name: Test
+        if: ${{ env.PR_OPENED_BY != 'dependabot[bot]' }}
         run: npm run test
+
+      - name: Test (Dependabot)
+        if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
+        run: npm run test:full
 
       - name: Configure git user
         if: ${{ github.event_name == 'push' }} || ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}

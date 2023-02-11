@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.3-beta.0...@pvermeer/dexie-immutable-addon@1.1.3) (2023-02-04)
+
+**Note:** Version bump only for package @pvermeer/dexie-immutable-addon
+
 ## [1.1.3-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.2...@pvermeer/dexie-immutable-addon@1.1.3-beta.0) (2023-01-20)
 
 **Note:** Version bump only for package @pvermeer/dexie-immutable-addon

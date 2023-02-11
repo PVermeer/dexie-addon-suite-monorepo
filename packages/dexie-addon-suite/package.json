@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-addon-suite",
-  "version": "1.2.0-beta.2",
+  "version": "1.2.0",
   "description": "Suite of the dexie addons",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -44,11 +44,11 @@
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
   "dependencies": {
-    "@pvermeer/dexie-class-addon": "file:../dexie-class-addon",
-    "@pvermeer/dexie-encrypted-addon": "file:../dexie-encrypted-addon",
-    "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
-    "@pvermeer/dexie-populate-addon": "file:../dexie-populate-addon",
-    "@pvermeer/dexie-rxjs-addon": "file:../dexie-rxjs-addon",
+    "@pvermeer/dexie-class-addon": "*",
+    "@pvermeer/dexie-encrypted-addon": "*",
+    "@pvermeer/dexie-immutable-addon": "*",
+    "@pvermeer/dexie-populate-addon": "*",
+    "@pvermeer/dexie-rxjs-addon": "*",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "tslib": "^2.4.1"

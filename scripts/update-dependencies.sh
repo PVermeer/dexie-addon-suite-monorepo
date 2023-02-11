@@ -61,7 +61,7 @@ echo -e "\n"
 echo "Installing all dependencies"
 echo -e "\n"
 
-if npm run bootstrap; then
+if npm i; then
     echo -e "\n"
     echo "Installed new dependencies versions"
     echo -e "\n"

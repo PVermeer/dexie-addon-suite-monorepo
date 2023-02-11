@@ -45,11 +45,11 @@ jobs:
 
       - name: Install
         if: ${{ env.PR_OPENED_BY != 'dependabot[bot]' }}
-        run: npm run bootstrap:ci
+        run: npm ci
 
       - name: Install (Dependabot)
         if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
-        run: npm run bootstrap:ci || npm run bootstrap:no-ci
+        run: npm ci || npm i
 
       - name: Test
         if: ${{ env.PR_OPENED_BY != 'dependabot[bot]' }}

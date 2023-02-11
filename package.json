@@ -7,9 +7,6 @@
   "license": "MIT",
   "scripts": {
     "lerna": "lerna",
-    "bootstrap": "lerna bootstrap || npx -y lerna bootstrap",
-    "bootstrap:ci": "lerna bootstrap --ci || npx -y lerna bootstrap --ci",
-    "bootstrap:no-ci": "lerna bootstrap --no-ci || npx -y lerna bootstrap --no-ci",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "eslint": "eslint --max-warnings=0 --config .eslintrc.json --ignore-path .gitignore",
@@ -33,18 +30,14 @@
     "deps:update:latest:ci": "bash ./scripts/update-dependencies.sh only-update",
     "prepare": "husky install && patch-package --error-on-fail"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "lint-staged": {
     "*": "npm run prettier:write",
     "*.ts": "npm run eslint:commit"
   },
-  "dependencies": {
-    "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
-    "@pvermeer/dexie-class-addon": "file:packages/dexie-class-addon",
-    "@pvermeer/dexie-encrypted-addon": "file:packages/dexie-encrypted-addon",
-    "@pvermeer/dexie-immutable-addon": "file:packages/dexie-immutable-addon",
-    "@pvermeer/dexie-populate-addon": "file:packages/dexie-populate-addon",
-    "@pvermeer/dexie-rxjs-addon": "file:packages/dexie-rxjs-addon"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",

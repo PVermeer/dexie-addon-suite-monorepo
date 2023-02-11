@@ -38,7 +38,7 @@
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
   "dependencies": {
-    "@pvermeer/dexie-immutable-addon": "*",
+    "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
     "@stablelib/base64": "^1.0.1",
     "@stablelib/utf8": "^1.0.1",
     "tslib": "^2.4.1",

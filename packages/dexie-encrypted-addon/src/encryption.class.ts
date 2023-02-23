@@ -80,11 +80,8 @@ export class Encryption {
     return JSON.parse(base64DecryptedMessage);
   }
 
-  constructor(secret?: string) {
-    secret
-      ? (this._secret = secret)
-      : (this._secret = Encryption.createRandomEncryptionKey());
-
+  constructor(secret: string) {
+    this._secret = secret;
     this._keyUint8Array = decodeBase64(this._secret);
   }
 }

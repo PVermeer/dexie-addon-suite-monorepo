@@ -16,7 +16,9 @@ export class TestDatabase extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string, secret?: string) {
     super(name);
-    encrypted(this, { secretKey: secret });
+    encrypted(this, {
+      secretKey: secret || Encryption.createRandomEncryptionKey(),
+    });
     this.version(1).stores({
       friends: "++#id, firstName, $lastName, $shoeSize, age",
       buddies: "++id, buddyName, buddyAge",
@@ -40,7 +42,11 @@ class TestDatabaseAddonsNoSecret extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name, {
-      addons: [encrypted],
+      addons: [
+        encrypted.setOptions({
+          secretKey: Encryption.createRandomEncryptionKey(),
+        }),
+      ],
     });
     this.version(1).stores({
       friends: "++#id, firstName, $lastName, $shoeSize, age",
@@ -51,7 +57,7 @@ class TestDatabaseNoEncryptedKeys extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name);
-    encrypted(this);
+    encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
     this.version(1).stores({
       friends: "++#id, firstName, lastName, shoeSize, age",
     });
@@ -61,7 +67,7 @@ class TestDatabaseNoHashPrimary extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name);
-    encrypted(this);
+    encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
     this.version(1).stores({
       friends: "++id, firstName, lastName, shoeSize, age",
     });
@@ -71,15 +77,34 @@ class TestDatabaseNoIndexes extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name);
-    encrypted(this);
+    encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
     this.version(1).stores({
       friends: "",
     });
   }
 }
+
+export class TestDatabaseFalsySecret extends Dexie {
+  public friends: Dexie.Table<Friend, string>;
+  constructor(name: string) {
+    super(name);
+    encrypted(this, { secretKey: "" });
+    this.version(1).stores({
+      friends: "++#id, firstName, $lastName, $shoeSize, age",
+      buddies: "++id, buddyName, buddyAge",
+      dudes: "++id, $dudeName, $dudeAge",
+      empty: "",
+    });
+  }
+}
+
 function testDatabaseJs(): TestDatabase {
   const db = new Dexie("TestDatabaseJs", {
-    addons: [encrypted],
+    addons: [
+      encrypted.setOptions({
+        secretKey: Encryption.createRandomEncryptionKey(),
+      }),
+    ],
   });
   db.version(1).stores({
     friends: "++#id, firstName, $lastName, $shoeSize, age",
@@ -89,6 +114,7 @@ function testDatabaseJs(): TestDatabase {
   });
   return db as TestDatabase;
 }
+
 function testDatabaseJsWithSecret(): TestDatabase {
   const secret = Encryption.createRandomEncryptionKey();
   const db = new Dexie("TestDatabaseJs", {
@@ -106,7 +132,8 @@ function testDatabaseJsWithSecret(): TestDatabase {
 export const databasesPositive = [
   {
     desc: "TestDatabase",
-    db: () => new TestDatabase("TestDatabase"),
+    db: () =>
+      new TestDatabase("TestDatabase", Encryption.createRandomEncryptionKey()),
   },
   {
     desc: "TestDatabaseNoEncryptedKeys",
@@ -148,7 +175,10 @@ export class TestDatabaseNotImmutable extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name);
-    encrypted(this, { immutable: false });
+    encrypted(this, {
+      secretKey: Encryption.createRandomEncryptionKey(),
+      immutable: false,
+    });
     this.version(1).stores({
       friends: "++#id, firstName, $lastName, $shoeSize, age",
     });

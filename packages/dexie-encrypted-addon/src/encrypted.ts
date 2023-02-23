@@ -21,7 +21,7 @@ type DexieExtended = Dexie & {
  * @immutable Set to false to disable immutable state on document creation and updates
  */
 export interface EncryptedOptions {
-  secretKey?: string;
+  secretKey: string;
   immutable?: boolean;
 }
 
@@ -59,7 +59,7 @@ export interface EncryptedOptions {
  * @param options Set secret key and / or immutable create methods.
  * @returns The secret key (provided or generated)
  */
-export function encrypted(db: Dexie, options?: EncryptedOptions) {
+export function encrypted(db: Dexie, options: EncryptedOptions) {
   // Register addon
   const dbExtended: DexieExtended = db;
   dbExtended.pVermeerAddonsRegistered = {
@@ -87,6 +87,10 @@ export function encrypted(db: Dexie, options?: EncryptedOptions) {
   }
 
   let encryptSchema: ModifiedKeysTable | undefined;
+
+  if (!secret) {
+    throw new Error("DEXIE ENCRYPT ADDON: Secret key is not provided");
+  }
   const encryption = new Encryption(secret);
 
   // Get the encryption keys from the schema and return the function with a clean schema.

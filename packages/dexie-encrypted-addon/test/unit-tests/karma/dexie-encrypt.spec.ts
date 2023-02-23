@@ -9,6 +9,7 @@ import {
   Friend,
   mockFriends,
   TestDatabase,
+  TestDatabaseFalsySecret,
 } from "../../mocks/mocks.spec";
 
 describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
@@ -416,7 +417,6 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
             await new Promise((resolve) => (request.onsuccess = resolve));
             const friendRaw = request.result as Friend;
             let transactionFriend: Friend | undefined;
-            let transactionFriend2: Friend | undefined;
 
             await db.transaction(
               "readonly",
@@ -438,7 +438,6 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
 
                 transactionFriend.firstName = "firstName";
                 await db.friends.put(transactionFriend, id);
-                transactionFriend2 = (await db.friends.get(id)) as Friend;
               }
             );
 
@@ -458,7 +457,10 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
       });
     });
     it("should encrypt lastName", async () => {
-      const db = new TestDatabase("TestEncryptLastName");
+      const db = new TestDatabase(
+        "TestEncryptLastName",
+        Encryption.createRandomEncryptionKey()
+      );
       await db.open();
       expect(db.isOpen()).toBeTrue();
       const iDb = db.backendDB();
@@ -495,6 +497,13 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
               );
             });
           });
+        });
+      });
+      describe("Falsy secret", () => {
+        it("should throw on database creation when a falsy secret is set", async () => {
+          expect(
+            () => new TestDatabaseFalsySecret("FalseSecretDatabase")
+          ).toThrowError("DEXIE ENCRYPT ADDON: Secret key is not provided");
         });
       });
     });

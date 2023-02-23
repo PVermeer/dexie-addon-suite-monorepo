@@ -73,7 +73,7 @@ _see individual package readme for more info_
 
 ```ts
 interface EncryptedOptions {
-  secretKey?: string;
+  secretKey: string;
   immutable?: boolean;
 }
 
@@ -346,7 +346,7 @@ The package main exports:
 ```ts
 function addonSuite(db: Dexie, config?: Config | EncryptedOptions): void;
 namespace addonSuite {
-	const setConfig: (config: EncryptedOptions | Config) => (db: Dexie) => string;
+	const setConfig: (config?: EncryptedOptions | Config) => (db: Dexie) => string;
 }
 
 /**

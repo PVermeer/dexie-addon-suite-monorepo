@@ -75,7 +75,10 @@ export const loadAddon = (
       immutable(db);
       break;
     case "encrypted":
-      encrypted(db, { immutable: addons.immutable, secretKey });
+      encrypted(db, {
+        immutable: addons.immutable,
+        secretKey: secretKey || "",
+      });
       break;
     case "rxjs":
       dexieRxjs(db);
@@ -89,5 +92,5 @@ export const loadAddon = (
   }
 };
 
-addonSuite.setConfig = (config: Config | EncryptedOptions) => (db: Dexie) =>
+addonSuite.setConfig = (config?: Config | EncryptedOptions) => (db: Dexie) =>
   addonSuite(db, config);

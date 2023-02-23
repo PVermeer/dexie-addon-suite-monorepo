@@ -106,7 +106,7 @@ This behavior can be disabled via the options object provided to the addon:
 
 ```ts
 interface EncryptedOptions {
-  secretKey?: string;
+  secretKey: string;
   immutable?: boolean; // Default true
 }
 ```
@@ -167,7 +167,7 @@ const secret = Encryption.createRandomEncryptionKey();
 // Declare Database
 class FriendsDatabase extends Dexie {
   public friends: Dexie.Table<Friend, string>;
-  constructor(name: string, secret?: string) {
+  constructor(name: string, secret: string) {
     super(name);
     encrypted(this, { secretKey: secret });
     this.version(1).stores({
@@ -235,7 +235,7 @@ The packet exposes two exports:
  * @immutable Set to false to disable immutable state on document creation and updates.
  */
 interface EncryptedOptions {
-  secretKey?: string;
+  secretKey: string;
   immutable?: boolean;
 }
 /**
@@ -243,7 +243,7 @@ interface EncryptedOptions {
  * @param options Set secret key and / or immutable create methods.
  * @returns The secret key (provided or generated)
  */
-function encrypted(db: Dexie, options?: EncryptedOptions): string;
+function encrypted(db: Dexie, options: EncryptedOptions): string;
 /**
  * Namespace to set options and return the addon function when used in (ES2016 / ES7)
  */
@@ -281,7 +281,7 @@ class Encryption {
    */
   public decrypt(messageWithNonce: string): any;
 
-  constructor(secret?: string);
+  constructor(secret: string);
 }
 ```
 

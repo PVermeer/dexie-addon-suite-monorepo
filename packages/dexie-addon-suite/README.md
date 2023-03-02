@@ -238,10 +238,9 @@ class FriendsDatabase extends Dexie {
   public groups: Dexie.Table<Group, number>;
   public styles: Dexie.Table<Style, number>;
 
-  constructor(name: string) {
+  constructor(name: string, secretKey: string) {
     super(name);
 
-    const secretKey = Encryption.createRandomEncryptionKey(); // Might wanna save this somewhere
     addonSuite(this, { secretKey });
 
     this.version(1).stores({
@@ -261,7 +260,12 @@ class FriendsDatabase extends Dexie {
   }
 }
 
-const db = new FriendDatabase("FriendsDatabase");
+// Generate a random key (only on first use the database)
+const newSecret = Encryption.createRandomEncryptionKey();
+// Save this key somewhere secure and trusted to be used on reopening the database
+
+const secretKey = "[key fetched from a secure location]";
+const db = new FriendDatabase("FriendsDatabase", secretKey);
 
 // Open the database
 db.open().then(() => {
@@ -276,7 +280,11 @@ db.open().then(() => {
 import Dexie from "dexie";
 import { addonSuite, Encryption } from "@pvermeer/dexie-addon-suite";
 
-const secretKey = Encryption.createRandomEncryptionKey(); // Might wanna store this somewhere
+// Generate a random key (only on first use the database)
+const newSecret = Encryption.createRandomEncryptionKey();
+// Save this key somewhere secure and trusted to be used on reopening the database
+
+const secretKey = "[key fetched from a secure location]";
 
 // Declare Database
 const db = new Dexie("FriendDatabase", {
@@ -314,7 +322,11 @@ Addon is exported as namespace DexieAddonSuite
     <script src="https://unpkg.com/@pvermeer/dexie-addon-suite@latest/dist/dexie-addon-suite.min.js"></script>
 
     <script>
-      const secretKey = DexieAddonSuite.Encryption.createRandomEncryptionKey(); // Might wanna save this somewhere
+      // Generate a random key (only on first use the database)
+      const newSecret = DexieAddonSuite.Encryption.createRandomEncryptionKey();
+      // Save this key somewhere secure and trusted to be used on reopening the database
+
+      const secretKey = "[key fetched from a secure location]";
 
       // Define your database
       const db = new Dexie("FriendDatabase", {

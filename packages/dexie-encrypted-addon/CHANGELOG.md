@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0-beta.2](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@3.0.0-beta.1...@pvermeer/dexie-encrypted-addon@3.0.0-beta.2) (2023-03-04)
+
+### Bug Fixes
+
+- **dexie-encrypted-addon:** now a warning is showed when db needs updating + versioning in docs ([80e7156](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/80e7156c41ce3370ea6afc57ba41ac31297b671b))
+
 # [3.0.0-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-encrypted-addon@3.0.0-beta.0...@pvermeer/dexie-encrypted-addon@3.0.0-beta.1) (2023-03-04)
 
 - feat(dexie-encrypted-addon)!: now throws when a key change is detected on open ([20eb073](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/20eb0739282c1972f15efc7f11104c08459d09ec)), closes [#30](https://github.com/PVermeer/dexie-addon-suite-monorepo/issues/30)

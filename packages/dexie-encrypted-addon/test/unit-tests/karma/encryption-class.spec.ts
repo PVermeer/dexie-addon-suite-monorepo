@@ -1,3 +1,4 @@
+import { EncryptionError } from "../../../src/errors";
 import { secretbox } from "tweetnacl";
 import { Encryption } from "../../../src/encryption.class";
 
@@ -8,7 +9,7 @@ describe("dexie-encrypted-addon encryption-class.spec", () => {
       const encryption = new Encryption(Encryption.createRandomEncryptionKey());
       const messageEncrypted = encryption.encrypt("sdhfuisdfsdf");
       expect(() => encryption.decrypt(messageEncrypted)).toThrowError(
-        "Could not decrypt message!"
+        new EncryptionError("Could not decrypt message!").message
       );
     });
     it("should encrypt / decrypt all falsy values except undefined", () => {

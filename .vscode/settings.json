@@ -2,5 +2,7 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.detectIndentation": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.ignorePath": ".gitignore"
+  "prettier.ignorePath": ".gitignore",
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "javascript.preferences.importModuleSpecifier": "shortest"
 }

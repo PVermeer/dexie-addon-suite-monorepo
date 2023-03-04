@@ -4,6 +4,7 @@ import {
 } from "@stablelib/base64";
 import { decode as decodeUtf8, encode as encodeUtf8 } from "@stablelib/utf8";
 import { hash, randomBytes, secretbox } from "tweetnacl";
+import { EncryptionError } from "./errors";
 
 /**
  * Class with cryptic methods
@@ -71,10 +72,7 @@ export class Encryption {
     );
 
     const decrypted = secretbox.open(message, nonce, this.secretUint8Array);
-
-    if (!decrypted) {
-      throw new Error("Could not decrypt message!");
-    }
+    if (!decrypted) throw new EncryptionError("Could not decrypt message!");
 
     const base64DecryptedMessage = decodeUtf8(decrypted);
     return JSON.parse(base64DecryptedMessage);

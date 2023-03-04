@@ -78,9 +78,31 @@ Using **$** on your keys will encrypt these keys.
 Using **#** on the first key will hash this key with the document on creation.
 This will create an unique primary key based on the document itself and will update or create the key on the document itself.
 
+#### Secret key
+
+On first use of the database a new key can be generated with `Encryption.createRandomEncryptionKey()` on the exported `Encryption` class.
+
+```ts
+import { Encryption } from "@pvermeer/dexie-encrypted-addon";
+
+// Generate a random key
+const newSecret = Encryption.createRandomEncryptionKey();
+
+// Save it somewhere secure
+```
+
+You are responsible for saving this key somewhere secure and use it when opening the database. To keep it secure in your app you could:
+
+- provide it from a backend after user is logged in and / or is verified;
+- save it locally in an encrypted state that only the correct user can unlock (e.g. with a key based on the user's password or a separate password / pin).
+
+Make sure it's not persistent on the client! Watch out for serverless databases with persistence enabled (e.g. Google's Firebase with offline first strategy).
+
+Providing a different key than the initial key on database creation result in a `'Encryption key has changed'` error. To protect your database it cannot be openend until the correct key is provided.
+
 #### Wait for open
 
-Always open the database yourself. Dexie does not wait for all hooks to be subscribed (bug?).
+Always open the database yourself.
 
 ```ts
 await db.open();
@@ -132,8 +154,11 @@ All read actions in the transaction will return a raw document as saved in the d
 import Dexie from "dexie";
 import { encrypted, Encryption } from "@pvermeer/dexie-encrypted-addon";
 
-// Generate a random key
-const secret = Encryption.createRandomEncryptionKey();
+// Generate a random key (only on first use the database)
+const createNewSecret = Encryption.createRandomEncryptionKey();
+// Save this key somewhere secure and trusted to be used on reopening the database
+
+const secret = "[key fetched from a secure location]";
 
 // Declare Database
 const db = new Dexie("FriendDatabase", {
@@ -161,9 +186,6 @@ interface Friend {
   age?: number;
 }
 
-// Generate a random key
-const secret = Encryption.createRandomEncryptionKey();
-
 // Declare Database
 class FriendsDatabase extends Dexie {
   public friends: Dexie.Table<Friend, string>;
@@ -176,6 +198,11 @@ class FriendsDatabase extends Dexie {
   }
 }
 
+// Generate a random key (only on first use the database)
+const newSecret = Encryption.createRandomEncryptionKey();
+// Save this key somewhere secure and trusted to be used on reopening the database
+
+const secret = "[key fetched from a secure location]";
 const db = new FriendDatabase("FriendsDatabase", secret);
 
 // Open the database
@@ -202,8 +229,12 @@ Addon is export as namespace DexieEncryptedAddon
     <script src="https://unpkg.com/@pvermeer/dexie-encrypted-addon@latest/dist/dexie-encrypted-addon.min.js"></script>
 
     <script>
-      // Generate a random key
-      const secret = DexieEncryptedAddon.Encryption.createRandomEncryptionKey();
+      // Generate a random key (only on first use the database)
+      const newSecret =
+        DexieEncryptedAddon.Encryption.createRandomEncryptionKey();
+      // Save this key somewhere secure and trusted to be used on reopening the database
+
+      const secret = "[key fetched from a secure location]";
 
       // Define your database
       const db = new Dexie("FriendDatabase", {

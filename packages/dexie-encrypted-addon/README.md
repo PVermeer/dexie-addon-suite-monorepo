@@ -23,6 +23,14 @@ Dexie Encrypted Addon depends on Dexie.js v3. [![NPM Version](https://img.shield
 npm install dexie
 ```
 
+## Updating package
+
+Updating the addon from major version 2 => \* requires a Dexie version update. The addon needs to create an internal table to check if the encryption key has changed.
+
+```ts
+db.version(2).stores({ friends: "++id, $name, shoeSize" }); // Provide full schema with all tables on upgrading to version 2
+```
+
 ## Angular > 10
 
 Angular now checks for CommonJS or AMD dependencies optimazations. This will give to following warning:
@@ -115,6 +123,30 @@ To help with this, the option 'autoOpen' has been disabled.
 Encrypted values will not be indexed. IndexedDB does not support index based on encryption.
 Doing where() calls would mean the whole collection has to be read and decrypted (unless someone has a better idea? PR's are always welcome :D).
 Implementing this yourself would be more performend when also modeling the database to support this.
+
+#### Versioning
+
+Always provide the full schema in `stores()`. This is because the addon derives what keys are encrypted from the the provided schema.
+
+**New versions also need to specify all tables!**
+
+```ts
+db.version(2).stores({ friends: "#id, $name, shoeSize" }); // Always provide the full schema with all tables on version increase
+```
+
+When also an `upgrade()` is necessary and/or encrypted keys have changed the `Encrypted` class can be used to decrypt and encrypt data.
+
+```ts
+import { Encryption } from "@pvermeer/dexie-encrypted-addon";
+
+db.version(3)
+  .stores({ friends: "#id, shoeSize, $firstName, $lastName" })
+  .upgrade((tx) => {
+    const encryption = new Encryption(secretKey);
+    // Do upgrade work, see Dexie docs
+    // TODO add example
+  });
+```
 
 #### Immutable
 

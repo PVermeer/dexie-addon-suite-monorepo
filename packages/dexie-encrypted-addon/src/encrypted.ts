@@ -1,6 +1,6 @@
 import { immutable } from "@pvermeer/dexie-immutable-addon";
 import { Dexie } from "dexie";
-import { checkDB, dbCheckTable } from "./db-checks";
+import { checkDB, DbCheckTable } from "./db-checks";
 import { Encryption } from "./encryption.class";
 import { KeyError } from "./errors";
 import {
@@ -98,7 +98,7 @@ export function encrypted(db: Dexie, options: EncryptedOptions): void {
     (origFunc) =>
       function (this: any, storesSpec: StoreSchemas, outSchema: any) {
         const parser = new SchemaParser(storesSpec);
-        parser.addTables([dbCheckTable]);
+        parser.addTables([DbCheckTable]);
         const encryptedKeys = parser.getEncryptedKeys();
         const cleanedSchema = parser.getCleanedSchema();
 

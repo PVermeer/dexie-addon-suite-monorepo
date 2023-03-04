@@ -1,8 +1,9 @@
 import { Dexie } from "dexie";
 import faker from "faker";
 import { encrypted } from "../../../src";
+import { DbCheckTable, DexieEncryptedTestDoc } from "../../../src/db-checks";
 import { Encryption } from "../../../src/encryption.class";
-import { EncryptionError, KeyError } from "../../../src/errors";
+import { EncryptionError, KeyError, SchemaError } from "../../../src/errors";
 import * as hooks from "../../../src/hooks";
 import {
   databasesNegative,
@@ -555,6 +556,52 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
           const db2 = new Dexie(dbName);
           await expectAsync(db2.open()).withContext("2").toBeResolved();
           expect(db2.isOpen()).withContext("2").toBeTrue();
+
+          await db.delete();
+        });
+        it(`should warn if ${DbCheckTable.name} object store cannot be created`, async () => {
+          const warnSpy = spyOn(console, "warn").and.callThrough();
+          const warnMessage = new SchemaError(
+            "A database version update is required for key change detection to work"
+          ).message;
+          const encryptedTestDoc = DexieEncryptedTestDoc();
+
+          const secretKey = Encryption.createRandomEncryptionKey();
+          const dbName = "TestDatabaseJs";
+          const stores = {
+            friends: "++id, firstName, $lastName, $shoeSize, age",
+          };
+
+          const db = new Dexie(dbName);
+          db.version(1).stores(stores);
+          await expectAsync(db.open()).withContext("1").toBeResolved();
+          await db["friends"].add(mockFriends(1)[0]);
+          db.close();
+
+          const db2 = new Dexie(dbName, {
+            addons: [encrypted.setOptions({ secretKey })],
+          });
+          db2.version(1).stores(stores);
+          await expectAsync(db2.open()).withContext("2").toBeResolved();
+          expect(db2.isOpen()).withContext("2").toBeTrue();
+          expect(warnSpy).withContext("2").toHaveBeenCalledWith(warnMessage);
+          db2.close();
+
+          warnSpy.calls.reset();
+          const db3 = new Dexie(dbName, {
+            addons: [encrypted.setOptions({ secretKey })],
+          });
+          db3.version(2).stores(stores);
+          await expectAsync(db3.open()).withContext("3").toBeResolved();
+          expect(db3.isOpen()).withContext("3").toBeTrue();
+          expect(warnSpy)
+            .withContext("3")
+            .not.toHaveBeenCalledWith(warnMessage);
+          expect(db3.verno).withContext("3").toBe(2);
+          await expectAsync(db3[DbCheckTable.name].get(encryptedTestDoc.id))
+            .withContext("3")
+            .toBeResolvedTo(encryptedTestDoc);
+          db3.close();
 
           await db.delete();
         });

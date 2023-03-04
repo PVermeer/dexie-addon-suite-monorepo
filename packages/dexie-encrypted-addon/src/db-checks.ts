@@ -1,5 +1,5 @@
 import { Dexie, Table } from "dexie";
-import { EncryptionError, KeyError } from "./errors";
+import { EncryptionError, KeyError, SchemaError } from "./errors";
 import { ModifiedKeysTable } from "./schema-parser";
 
 interface EncryptedTestDoc {
@@ -8,12 +8,12 @@ interface EncryptedTestDoc {
 }
 
 // Function because immutable-addon does not apply to internal Tables (startsWith("_"))
-const DexieEncryptedTestDoc: () => EncryptedTestDoc = () => ({
+export const DexieEncryptedTestDoc: () => EncryptedTestDoc = () => ({
   id: "DexieEcryptedTestDoc",
   value: "This should be readable",
 });
 
-export const dbCheckTable = {
+export const DbCheckTable = {
   name: "__dexie-encrypted-addon__",
   keyString: "id, $value",
 } as const;
@@ -21,15 +21,29 @@ export const dbCheckTable = {
 function isValidSchema(schema: ModifiedKeysTable): boolean {
   return (
     !schema ||
-    !Object.keys(schema).filter((table) => table !== dbCheckTable.name).length
+    !Object.keys(schema).filter((table) => table !== DbCheckTable.name).length
   );
 }
 
 async function secretKeyHasChanged(_db: Dexie): Promise<boolean> {
   const db = _db as Dexie & {
-    [dbCheckTable.name]: Table<EncryptedTestDoc, string>;
+    [DbCheckTable.name]: Table<EncryptedTestDoc, string>;
   };
-  const encryptedTable = db[dbCheckTable.name];
+
+  const idb = db.backendDB();
+  const dbCheckTableIsCreated = idb.objectStoreNames.contains(
+    DbCheckTable.name
+  );
+  if (!dbCheckTableIsCreated) {
+    console.warn(
+      new SchemaError(
+        "A database version update is required for key change detection to work"
+      ).message
+    );
+    return false;
+  }
+
+  const encryptedTable = db[DbCheckTable.name];
   const encryptedTestDoc = await encryptedTable
     .get(DexieEncryptedTestDoc().id)
     .catch((error) => {

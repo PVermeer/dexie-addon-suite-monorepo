@@ -3,6 +3,6 @@
   "editor.detectIndentation": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.ignorePath": ".gitignore",
-  "typescript.preferences.importModuleSpecifier": "shortest",
-  "javascript.preferences.importModuleSpecifier": "shortest"
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative"
 }

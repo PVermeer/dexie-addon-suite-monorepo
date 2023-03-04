@@ -110,10 +110,10 @@ describe("dexie-rxjs-addon dexie-rxjs.spec", () => {
         describe("Methods", () => {
           methods.forEach((method, _j) => {
             // if (_j !== 0) { return; }
-            let method$: ReturnType<typeof method.method>;
-            let obs$: Observable<Friend | Friend[] | undefined>;
-
             describe(method.desc, () => {
+              let method$: ReturnType<typeof method.method>;
+              let obs$: Observable<Friend | Friend[] | undefined>;
+
               beforeEach(async () => {
                 method$ = method.method(db);
                 obs$ = method$(id, customId);

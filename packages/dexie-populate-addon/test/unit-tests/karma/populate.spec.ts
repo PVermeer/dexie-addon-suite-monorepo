@@ -139,9 +139,9 @@ describe("dexie-populate-addon populate.spec", () => {
         describe("Methods", () => {
           methodsPositive.forEach((_method, _j) => {
             // if (_j !== 0) { return; }
-            let method: ReturnType<typeof _method.method>;
-
             describe(_method.desc, () => {
+              let method: ReturnType<typeof _method.method>;
+
               beforeEach(async () => {
                 method = _method.method(db);
               });
@@ -163,8 +163,8 @@ describe("dexie-populate-addon populate.spec", () => {
                   } else {
                     it("should be populated with friends", async () => {
                       const getFriend = await method(id);
-                      // @ts-ignore
                       expect(
+                        // @ts-expect-error
                         getFriend!.hasFriends!.every(
                           (x: any) => x instanceof Friend
                         )
@@ -184,8 +184,8 @@ describe("dexie-populate-addon populate.spec", () => {
                     });
                     it("should be populated with clubs", async () => {
                       const getFriend = await method(id);
-                      // @ts-ignore
                       expect(
+                        // @ts-expect-error
                         getFriend!.memberOf!.every(
                           (x: any) => x instanceof Club
                         )
@@ -327,6 +327,7 @@ describe("dexie-populate-addon populate.spec", () => {
                       const getFriend = await method(id);
                       // @ts-ignore
                       expect(
+                        // @ts-expect-error
                         getFriend!.hasFriends!.every(
                           (x: any) => typeof x === "number"
                         )
@@ -336,6 +337,7 @@ describe("dexie-populate-addon populate.spec", () => {
                       const getFriend = await method(id);
                       // @ts-ignore
                       expect(
+                        // @ts-expect-error
                         getFriend!.hasFriends!.every(
                           (x: any) => typeof x === "number"
                         )
@@ -352,8 +354,8 @@ describe("dexie-populate-addon populate.spec", () => {
             if (_j !== 7) {
               return;
             }
-            let method: ReturnType<typeof _method.method>;
             describe(_method.desc, () => {
+              let method: ReturnType<typeof _method.method>;
               beforeEach(async () => {
                 method = _method.method(db);
               });

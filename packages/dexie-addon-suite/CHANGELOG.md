@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@2.0.0-beta.0...@pvermeer/dexie-addon-suite@2.0.0-beta.1) (2023-03-04)
+
+**Note:** Version bump only for package @pvermeer/dexie-addon-suite
+
 # [2.0.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-addon-suite@1.2.1-beta.0...@pvermeer/dexie-addon-suite@2.0.0-beta.0) (2023-02-23)
 
 - feat(dexie-encrypted-addon)!: now throws when falsy key is provided ([76b9b84](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/76b9b84d6028978e79f59468fadc7a10c7afb40f)), closes [#30](https://github.com/PVermeer/dexie-addon-suite-monorepo/issues/30)

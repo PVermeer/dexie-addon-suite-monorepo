@@ -82,15 +82,6 @@ This will create an unique primary key based on the document itself and will upd
 
 On first use of the database a new key can be generated with `Encryption.createRandomEncryptionKey()` on the exported `Encryption` class.
 
-You are responsible for saving this key somewhere secure and use it when opening the database. To keep it secure in your app you could:
-
-- provide it from a backend after user is logged in and / or is verified;
-- save it locally in an encrypted state that only the correct user can unlock (e.g. with a key based on the user's password or a separate password / pin).
-
-Make sure it's not persistent on the client! Watch out for serverless databases with persistence enabled (e.g. Google's Firebase with offline first strategy).
-
-Providing a different key makes the database unusable and will result in `Could not decrypt message!` errors. There is currently no check for changed keys. For now this will render the database unusable and a complete wipe will be necessary when new documents are written with a different key. Key change detection will be added in the future to protect you're database when a different key is detected.
-
 ```ts
 import { Encryption } from "@pvermeer/dexie-encrypted-addon";
 
@@ -100,9 +91,18 @@ const newSecret = Encryption.createRandomEncryptionKey();
 // Save it somewhere secure
 ```
 
+You are responsible for saving this key somewhere secure and use it when opening the database. To keep it secure in your app you could:
+
+- provide it from a backend after user is logged in and / or is verified;
+- save it locally in an encrypted state that only the correct user can unlock (e.g. with a key based on the user's password or a separate password / pin).
+
+Make sure it's not persistent on the client! Watch out for serverless databases with persistence enabled (e.g. Google's Firebase with offline first strategy).
+
+Providing a different key than the initial key on database creation result in a `'Encryption key has changed'` error. To protect your database it cannot be openend until the correct key is provided.
+
 #### Wait for open
 
-Always open the database yourself. Dexie does not wait for all hooks to be subscribed (bug?).
+Always open the database yourself.
 
 ```ts
 await db.open();

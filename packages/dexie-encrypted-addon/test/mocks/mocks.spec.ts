@@ -107,7 +107,7 @@ function testDatabaseJs(): TestDatabase {
     ],
   });
   db.version(1).stores({
-    friends: "++#id, firstName, $lastName, $shoeSize, age",
+    friends: "#id, firstName, $lastName, $shoeSize, age",
     buddies: "++id, buddyName, buddyAge",
     dudes: "++id, $dudeName, $dudeAge",
     empty: "",
@@ -115,13 +115,13 @@ function testDatabaseJs(): TestDatabase {
   return db as TestDatabase;
 }
 
-function testDatabaseJsWithSecret(): TestDatabase {
-  const secret = Encryption.createRandomEncryptionKey();
+export function testDatabaseJsWithSecret(_secret?: string): TestDatabase {
+  const secret = _secret ?? Encryption.createRandomEncryptionKey();
   const db = new Dexie("TestDatabaseJs", {
     addons: [encrypted.setOptions({ secretKey: secret })],
   });
   db.version(1).stores({
-    friends: "++#id, firstName, $lastName, $shoeSize, age",
+    friends: "#id, firstName, $lastName, $shoeSize, age",
     buddies: "++id, buddyName, buddyAge",
     dudes: "++id, $dudeName, $dudeAge",
     empty: "",
@@ -148,8 +148,8 @@ export const databasesPositive = [
       ),
   },
   {
-    desc: "TestDatabaseAddons",
-    db: () => new TestDatabaseAddonsNoSecret("TestDatabaseAddons"),
+    desc: "TestDatabaseAddonsNoSecret",
+    db: () => new TestDatabaseAddonsNoSecret("TestDatabaseAddonsNoSecret"),
   },
   {
     desc: "testDatabaseJs",

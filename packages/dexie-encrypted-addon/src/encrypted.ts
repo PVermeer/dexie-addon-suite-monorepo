@@ -1,6 +1,8 @@
 import { immutable } from "@pvermeer/dexie-immutable-addon";
 import { Dexie } from "dexie";
+import { checkDB, dbCheckTable } from "./db-checks";
 import { Encryption } from "./encryption.class";
+import { KeyError } from "./errors";
 import {
   decryptOnReading,
   encryptOnCreation,
@@ -57,9 +59,8 @@ export interface EncryptedOptions {
  * ```
  * @method setOptions(string) Set options and return the addon.
  * @param options Set secret key and / or immutable create methods.
- * @returns The secret key (provided or generated)
  */
-export function encrypted(db: Dexie, options: EncryptedOptions) {
+export function encrypted(db: Dexie, options: EncryptedOptions): void {
   // Register addon
   const dbExtended: DexieExtended = db;
   dbExtended.pVermeerAddonsRegistered = {
@@ -82,15 +83,13 @@ export function encrypted(db: Dexie, options: EncryptedOptions) {
     }
   }
 
+  if (!secret) throw new KeyError("Secret key is not provided");
+
   if (useImmutable && !dbExtended.pVermeerAddonsRegistered.immutable) {
     immutable(db);
   }
 
-  let encryptSchema: ModifiedKeysTable | undefined;
-
-  if (!secret) {
-    throw new Error("DEXIE ENCRYPT ADDON: Secret key is not provided");
-  }
+  let encryptSchema: ModifiedKeysTable;
   const encryption = new Encryption(secret);
 
   // Get the encryption keys from the schema and return the function with a clean schema.
@@ -99,6 +98,7 @@ export function encrypted(db: Dexie, options: EncryptedOptions) {
     (origFunc) =>
       function (this: any, storesSpec: StoreSchemas, outSchema: any) {
         const parser = new SchemaParser(storesSpec);
+        parser.addTables([dbCheckTable]);
         const encryptedKeys = parser.getEncryptedKeys();
         const cleanedSchema = parser.getCleanedSchema();
 
@@ -109,54 +109,53 @@ export function encrypted(db: Dexie, options: EncryptedOptions) {
       }
   );
 
-  db.on("ready", () => {
-    if (!encryptSchema || !Object.keys(encryptSchema).length) {
-      console.warn("DEXIE ENCRYPT ADDON: No encryption keys are set");
-    } else {
-      // Set encryption on the tables via the read, create and update hook.
-      Object.entries(encryptSchema).forEach(([table, keysObj]) => {
-        const dexieTable = db.table(table);
-        const originalReadHook = dexieTable.schema.readHook;
+  db.on("ready", async () => {
+    // Set encryption on the tables via the read, create and update hook.
+    Object.entries(encryptSchema).forEach(([table, keysObj]) => {
+      const dexieTable = db.table(table);
+      const originalReadHook = dexieTable.schema.readHook;
 
-        const readHook = (obj: any) => {
-          const transaction = Dexie.currentTransaction;
+      const readHook = (obj: any) => {
+        const transaction = Dexie.currentTransaction;
 
-          const document = transaction?.raw
-            ? obj
-            : decryptOnReading(obj, keysObj, encryption);
+        const document = transaction?.raw
+          ? obj
+          : decryptOnReading(obj, keysObj, encryption);
 
-          if (originalReadHook) return originalReadHook(document);
-          return document;
-        };
-        if (dexieTable.schema.readHook)
-          dexieTable.hook.reading.unsubscribe(dexieTable.schema.readHook);
-        dexieTable.schema.readHook = readHook;
-        dexieTable.hook("reading", readHook);
+        if (originalReadHook) return originalReadHook(document);
 
-        dexieTable.hook("creating", (primaryKey, obj) => {
-          const transaction = Dexie.currentTransaction;
+        return document;
+      };
 
-          const document = transaction?.raw
-            ? obj
-            : encryptOnCreation(primaryKey, obj, keysObj, encryption);
+      if (dexieTable.schema.readHook)
+        dexieTable.hook.reading.unsubscribe(dexieTable.schema.readHook);
 
-          return document;
-        });
+      dexieTable.schema.readHook = readHook;
+      dexieTable.hook("reading", readHook);
 
-        dexieTable.hook("updating", (changes, _primaryKey) => {
-          const transaction = Dexie.currentTransaction;
+      dexieTable.hook("creating", (primaryKey, obj) => {
+        const transaction = Dexie.currentTransaction;
 
-          const document = transaction?.raw
-            ? changes
-            : encryptOnUpdating(changes, _primaryKey, keysObj, encryption);
+        const document = transaction?.raw
+          ? obj
+          : encryptOnCreation(primaryKey, obj, keysObj, encryption);
 
-          return document;
-        });
+        return document;
       });
-    }
-  });
 
-  return encryption.secret;
+      dexieTable.hook("updating", (changes, _primaryKey) => {
+        const transaction = Dexie.currentTransaction;
+
+        const document = transaction?.raw
+          ? changes
+          : encryptOnUpdating(changes, _primaryKey, keysObj, encryption);
+
+        return document;
+      });
+    });
+
+    await checkDB(db, encryptSchema);
+  });
 }
 
 /**

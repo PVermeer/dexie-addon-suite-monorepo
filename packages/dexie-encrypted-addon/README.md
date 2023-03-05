@@ -25,7 +25,7 @@ npm install dexie
 
 ## Updating package
 
-Updating the addon from major version 2 => \* requires a Dexie version update. The addon needs to create an internal table to check if the encryption key has changed.
+Updating the addon to major version 3 requires a database version update. The addon needs to create an internal table to check if the encryption key has changed.
 
 ```ts
 db.version(2).stores({ friends: "++id, $name, shoeSize" }); // Provide full schema with all tables on upgrading to version 2

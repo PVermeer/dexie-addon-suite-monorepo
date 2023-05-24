@@ -2,7 +2,6 @@ import { Dexie, IndexableType, Table } from "dexie";
 import cloneDeep from "lodash.clonedeep";
 import flatten from "lodash.flatten";
 import isEqual from "lodash.isequal";
-import uniqBy from "lodash.uniqby";
 import { RelationalDbSchema } from "./schema-parser.class";
 import { DexieExtended, Populated, PopulateOptions } from "./types";
 
@@ -11,9 +10,15 @@ interface MappedIds {
     [targetKey: string]: {
       id: IndexableType;
       key: string;
-      ref: any;
+      ref: unknown;
     }[];
   };
+}
+
+interface MergeRef {
+  id: IndexableType;
+  keys: string[];
+  ref: unknown;
 }
 
 export interface PopulateTree {
@@ -226,11 +231,27 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
 
     // Fetch all records
     await Promise.all(
-      Object.entries(mappedIds).reduce<Promise<any>[]>(
+      Object.entries(mappedIds).reduce<Promise<void>[]>(
         (acc, [targetTable, targetKeys]) => {
           Object.entries(targetKeys).forEach(([targetKey, entries]) => {
             const uniqueIds = [...new Set(entries.map((entry) => entry.id))];
-            const uniqueByRef = uniqBy(entries, (value) => value.ref);
+            const mergeByRef: MergeRef[] = entries.reduce((acc, entry) => {
+              let refEntry = acc.find((accEntry) => accEntry.ref === entry.ref);
+              if (!refEntry) {
+                refEntry = {
+                  id: entry.id,
+                  keys: [],
+                  ref: entry.ref,
+                };
+
+                acc.push(refEntry);
+              }
+
+              if (!refEntry.keys.some((key) => key === entry.key))
+                refEntry.keys.push(entry.key);
+
+              return acc;
+            }, [] as MergeRef[]);
 
             // Get results
             const promise = this._db
@@ -241,42 +262,47 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
 
               // Set the result on the populated record by reference
               .then((results) => {
-                uniqueByRef.forEach((entry) => {
-                  const { ref, key } = entry;
-                  const refKey = ref[key];
+                mergeByRef.forEach((entry) => {
+                  const { ref, keys } = entry;
+                  if (typeof ref !== "object" || ref === null) return;
 
-                  const newRefKey: any = Array.isArray(refKey)
-                    ? refKey.map(
-                        (value) =>
-                          results.find((x) => x[targetKey] === value) || null
-                      )
-                    : results.find((result) => result[targetKey] === refKey) ||
-                      null;
+                  keys.forEach((key) => {
+                    const refKey: unknown = ref[key];
 
-                  // Error checking
-                  const isCircular = !newRefKey
-                    ? false
-                    : (Array.isArray(newRefKey) &&
-                        newRefKey.some((x) =>
-                          x ? isEqual(x[key], ref[key]) : false
-                        )) ||
-                      isEqual(newRefKey[key], ref[key]);
+                    const newRefKey: unknown = Array.isArray(refKey)
+                      ? refKey.map(
+                          (value) =>
+                            results.find((x) => x[targetKey] === value) || null
+                        )
+                      : results.find(
+                          (result) => result[targetKey] === refKey
+                        ) || null;
 
-                  if (isCircular) {
-                    throw new Error(
-                      `DEXIE POPULATE ADDON: Circular reference detected on '${key}'. ` +
-                        `'${key}' Probably contains a reference to itself.`
-                    );
-                  }
+                    // Error checking
+                    const isCircular = !newRefKey
+                      ? false
+                      : (Array.isArray(newRefKey) &&
+                          newRefKey.some((x) =>
+                            x ? isEqual(x[key], ref[key]) : false
+                          )) ||
+                        isEqual(newRefKey[key], ref[key]);
 
-                  // Update the referenced object with found record(s)
-                  ref[key] = newRefKey;
+                    if (isCircular) {
+                      throw new Error(
+                        `DEXIE POPULATE ADDON: Circular reference detected on '${key}'. ` +
+                          `'${key}' Probably contains a reference to itself.`
+                      );
+                    }
 
-                  // Push the ref for furter populating
-                  if (!deepRefsToPopulate[targetTable]) {
-                    deepRefsToPopulate[targetTable] = [];
-                  }
-                  deepRefsToPopulate[targetTable].push(newRefKey);
+                    // Update the referenced object with found record(s)
+                    ref[key] = newRefKey;
+
+                    // Push the ref for furter populating
+                    if (!deepRefsToPopulate[targetTable]) {
+                      deepRefsToPopulate[targetTable] = [];
+                    }
+                    deepRefsToPopulate[targetTable].push(newRefKey);
+                  });
                 });
               });
 

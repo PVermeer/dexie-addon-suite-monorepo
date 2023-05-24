@@ -75,6 +75,7 @@
     "karma-jasmine-html-reporter": "^2.0.0",
     "karma-jasmine-seed-reporter": "^0.2.0",
     "karma-mocha-reporter": "^2.2.5",
+    "karma-parallel": "^0.3.1",
     "karma-webpack": "^5.0.0",
     "lerna": "^6.1.0",
     "license-webpack-plugin": "^4.0.2",

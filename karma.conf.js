@@ -128,6 +128,9 @@ module.exports = function (config) {
 
   const configOptions = {
     ...baseConfig,
+
+    frameworks: ["parallel", ...baseConfig.frameworks],
+    plugins: ["karma-parallel", ...baseConfig.plugins],
   };
 
   const debugOptions = {
@@ -140,6 +143,9 @@ module.exports = function (config) {
 
   const ciOptions = {
     ...configOptions,
+
+    frameworks: ["parallel", ...baseConfig.frameworks],
+    plugins: ["karma-parallel", ...baseConfig.plugins],
 
     browsers: ["ChromeHeadless_no_sandbox"],
   };

@@ -70,10 +70,12 @@ describe("dexie-populate-addon html.spec", () => {
               hasFriendIds = await Promise.all(
                 hasFriends.map((x) => db.friends.add(x))
               );
-              // hasFriends = hasFriends.map((x, i) => ({ ...x, id: hasFriendsIds[i] }));
-              db.friends.update(id, {
+
+              const result = await db.friends.update(id, {
                 hasFriends: hasFriendIds,
               });
+              if (result !== 1) throw new Error("Friend update failed");
+
               friend.hasFriends = hasFriendIds;
               friendPop = cloneDeep(friend) as Populated<Friend, false, string>;
               friendPop.hasFriends = cloneDeep(hasFriends) as Populated<

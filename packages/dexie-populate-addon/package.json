@@ -42,7 +42,6 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.flatten": "^4.4.0",
     "lodash.isequal": "^4.5.0",
-    "lodash.uniqby": "^4.7.0",
     "tslib": "^2.4.1"
   },
   "peerDependencies": {

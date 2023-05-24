@@ -106,6 +106,12 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
               }));
               await db.friends.bulkPut(hashedDocuments);
             });
+            it("should be called on modify()", async () => {
+              await db.friends
+                .where("id")
+                .anyOf(ids)
+                .modify((friend: Friend) => (friend.shoeSize = 10));
+            });
           });
           describe("Reading", () => {
             afterEach(() => {

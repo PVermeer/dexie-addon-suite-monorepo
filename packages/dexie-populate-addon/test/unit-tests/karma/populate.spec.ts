@@ -26,7 +26,8 @@ import {
 describe("dexie-populate-addon populate.spec", () => {
   describe("Populate", () => {
     databasesPositive.forEach((database, _i) => {
-      // if (_i !== 0) { return; }
+      // if (_i !== 1) return;
+
       describe(database.desc, () => {
         let db: ReturnType<typeof database.db>;
 
@@ -85,6 +86,7 @@ describe("dexie-populate-addon populate.spec", () => {
             memberOf: clubIds,
             group: groupIds[1],
             hairColor: hairColorIds[1],
+            secondGroup: groupIds[0],
           });
           await db.friends.update(hasFriendIds[1], {
             hasFriends: [hasFriendIds[2]],
@@ -100,6 +102,7 @@ describe("dexie-populate-addon populate.spec", () => {
           friend.memberOf = clubIds;
           friend.group = groupIds[1];
           friend.hairColor = hairColorIds[1];
+          friend.secondGroup = groupIds[0];
 
           const hasFriendsPop = cloneDeep(hasFriends) as Populated<
             Friend,
@@ -123,6 +126,7 @@ describe("dexie-populate-addon populate.spec", () => {
           friendPop.memberOf[1]!.theme.style = styles[1];
           friendPop.group = groups[1];
           friendPop.hairColor = hairColors[1];
+          friendPop.secondGroup = groups[0];
         });
         afterEach(async () => {
           await db.delete();
@@ -138,7 +142,8 @@ describe("dexie-populate-addon populate.spec", () => {
         });
         describe("Methods", () => {
           methodsPositive.forEach((_method, _j) => {
-            // if (_j !== 0) { return; }
+            // if (_j !== 0) return;
+
             describe(_method.desc, () => {
               let method: ReturnType<typeof _method.method>;
 
@@ -274,6 +279,14 @@ describe("dexie-populate-addon populate.spec", () => {
                             >[]
                           )[1].theme instanceof Theme
                         ).toBeTrue();
+                      });
+                      it("should be populated with secondGroup", async () => {
+                        const getFriend = await method(id);
+                        expect(
+                          getFriend!.secondGroup! instanceof Group
+                        ).toBeTrue();
+                        expect(getFriend!.secondGroup!).toEqual(groups[0]);
+                        expect(getFriend!.group!).toEqual(groups[1]);
                       });
                     }
                     describe("Shallow", () => {
@@ -413,6 +426,8 @@ describe("dexie-populate-addon populate.spec", () => {
         expect(console.warn).toHaveBeenCalledWith(
           "DEXIE POPULATE ADDON: No relational keys are set"
         );
+
+        await db.delete();
       });
     });
     describe("No matching tables for relational keys provided", () => {
@@ -422,6 +437,8 @@ describe("dexie-populate-addon populate.spec", () => {
           "DEXIE POPULATE ADDON: Relation schema does not match the db tables, now closing database"
         );
         expect(db.isOpen()).toBeFalse();
+
+        await db.delete();
       });
     });
   });

@@ -102,6 +102,7 @@ export class Friend {
   group: Ref<Group, number>;
   hairColor: Ref<HairColor, number>;
   testArray: string[];
+  secondGroup: Ref<Group, number>;
 
   doSomething() {
     return "done";
@@ -116,40 +117,43 @@ export class Friend {
 
 type TestDatabaseType = Dexie & { friends: Dexie.Table<Friend, number> };
 
+const TestDB = (dexie: typeof Dexie, addon: typeof populate) =>
+  class TestDatabase extends dexie {
+    public friends: Dexie.Table<Friend, number>;
+    public clubs: Dexie.Table<Club, number>;
+    public themes: Dexie.Table<Theme, number>;
+    public groups: Dexie.Table<Group, number>;
+    public styles: Dexie.Table<Style, number>;
+    public hairColors: Dexie.Table<HairColor, number>;
+
+    constructor(name: string) {
+      super(name);
+      addon(this);
+      this.on("blocked", () => false);
+      this.version(1).stores({
+        friends:
+          "++id, &customId, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group], secondGroup => groups.id",
+        clubs: "++id, name, theme => themes.id",
+        themes: "++id, name, style => styles.styleId",
+        styles: "++styleId, name, color",
+        groups: "++id, name",
+        hairColors: "++id, name",
+      });
+
+      this.friends.mapToClass(Friend);
+      this.clubs.mapToClass(Club);
+      this.themes.mapToClass(Theme);
+      this.groups.mapToClass(Group);
+      this.styles.mapToClass(Style);
+      this.hairColors.mapToClass(HairColor);
+    }
+  };
+
 export const databasesPositive = [
   {
     desc: "TestDatabase",
     db: (dexie: typeof Dexie, addon: typeof populate) =>
-      new (class TestDatabase extends dexie {
-        public friends: Dexie.Table<Friend, number>;
-        public clubs: Dexie.Table<Club, number>;
-        public themes: Dexie.Table<Theme, number>;
-        public groups: Dexie.Table<Group, number>;
-        public styles: Dexie.Table<Style, number>;
-        public hairColors: Dexie.Table<HairColor, number>;
-
-        constructor(name: string) {
-          super(name);
-          addon(this);
-          this.on("blocked", () => false);
-          this.version(1).stores({
-            friends:
-              "++id, &customId, firstName, lastName, shoeSize, age, hasFriends => friends.id, *memberOf => clubs.id, group => groups.id, &hairColor => hairColors.id, [id+group]",
-            clubs: "++id, name, theme => themes.id",
-            themes: "++id, name, style => styles.styleId",
-            styles: "++styleId, name, color",
-            groups: "++id, name",
-            hairColors: "++id, name",
-          });
-
-          this.friends.mapToClass(Friend);
-          this.clubs.mapToClass(Club);
-          this.themes.mapToClass(Theme);
-          this.groups.mapToClass(Group);
-          this.styles.mapToClass(Style);
-          this.hairColors.mapToClass(HairColor);
-        }
-      })("TestDatabase"),
+      new (TestDB(dexie, addon))("TestDatabase"),
   },
 ];
 
@@ -492,6 +496,7 @@ export const mockFriends = (count = 5): Friend[] => {
       group: null,
       hairColor: null,
       testArray: [],
+      secondGroup: null,
     });
   return new Array(count).fill(null).map(() => {
     const mockFriend = friend();

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.5-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.5-beta.0...@pvermeer/dexie-populate-addon@1.0.5-beta.1) (2023-05-24)
+
+### Bug Fixes
+
+- **dexie-populate-addon:** now also populates multiple refs from same table ([40ba898](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/40ba898a2f24afa049522cbd09c5e51e788325be))
+
 ## [1.0.5-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.4...@pvermeer/dexie-populate-addon@1.0.5-beta.0) (2023-02-11)
 
 **Note:** Version bump only for package @pvermeer/dexie-populate-addon

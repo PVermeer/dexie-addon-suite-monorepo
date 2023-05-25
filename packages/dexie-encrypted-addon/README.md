@@ -23,6 +23,14 @@ Dexie Encrypted Addon depends on Dexie.js v3. [![NPM Version](https://img.shield
 npm install dexie
 ```
 
+## Updating package
+
+Updating the addon to major version 3 requires a database version update. The addon needs to create an internal table to check if the encryption key has changed.
+
+```ts
+db.version(2).stores({ friends: "++id, $name, shoeSize" }); // Provide full schema with all tables on upgrading to version 2
+```
+
 ## Angular > 10
 
 Angular now checks for CommonJS or AMD dependencies optimazations. This will give to following warning:
@@ -78,9 +86,31 @@ Using **$** on your keys will encrypt these keys.
 Using **#** on the first key will hash this key with the document on creation.
 This will create an unique primary key based on the document itself and will update or create the key on the document itself.
 
+#### Secret key
+
+On first use of the database a new key can be generated with `Encryption.createRandomEncryptionKey()` on the exported `Encryption` class.
+
+```ts
+import { Encryption } from "@pvermeer/dexie-encrypted-addon";
+
+// Generate a random key
+const newSecret = Encryption.createRandomEncryptionKey();
+
+// Save it somewhere secure
+```
+
+You are responsible for saving this key somewhere secure and use it when opening the database. To keep it secure in your app you could:
+
+- provide it from a backend after user is logged in and / or is verified;
+- save it locally in an encrypted state that only the correct user can unlock (e.g. with a key based on the user's password or a separate password / pin).
+
+Make sure it's not persistent on the client! Watch out for serverless databases with persistence enabled (e.g. Google's Firebase with offline first strategy).
+
+Providing a different key than the initial key on database creation result in a `'Encryption key has changed'` error. To protect your database it cannot be openend until the correct key is provided.
+
 #### Wait for open
 
-Always open the database yourself. Dexie does not wait for all hooks to be subscribed (bug?).
+Always open the database yourself.
 
 ```ts
 await db.open();
@@ -94,6 +124,30 @@ Encrypted values will not be indexed. IndexedDB does not support index based on 
 Doing where() calls would mean the whole collection has to be read and decrypted (unless someone has a better idea? PR's are always welcome :D).
 Implementing this yourself would be more performend when also modeling the database to support this.
 
+#### Versioning
+
+Always provide the full schema in `stores()`. This is because the addon derives what keys are encrypted from the the provided schema.
+
+**New versions also need to specify all tables!**
+
+```ts
+db.version(2).stores({ friends: "#id, $name, shoeSize" }); // Always provide the full schema with all tables on version increase
+```
+
+When also an `upgrade()` is necessary and/or encrypted keys have changed the `Encrypted` class can be used to decrypt and encrypt data.
+
+```ts
+import { Encryption } from "@pvermeer/dexie-encrypted-addon";
+
+db.version(3)
+  .stores({ friends: "#id, shoeSize, $firstName, $lastName" })
+  .upgrade((tx) => {
+    const encryption = new Encryption(secretKey);
+    // Do upgrade work, see Dexie docs
+    // TODO add example
+  });
+```
+
 #### Immutable
 
 Dexie does not do immutability by default.
@@ -106,7 +160,7 @@ This behavior can be disabled via the options object provided to the addon:
 
 ```ts
 interface EncryptedOptions {
-  secretKey?: string;
+  secretKey: string;
   immutable?: boolean; // Default true
 }
 ```
@@ -132,8 +186,11 @@ All read actions in the transaction will return a raw document as saved in the d
 import Dexie from "dexie";
 import { encrypted, Encryption } from "@pvermeer/dexie-encrypted-addon";
 
-// Generate a random key
-const secret = Encryption.createRandomEncryptionKey();
+// Generate a random key (only on first use the database)
+const createNewSecret = Encryption.createRandomEncryptionKey();
+// Save this key somewhere secure and trusted to be used on reopening the database
+
+const secret = "[key fetched from a secure location]";
 
 // Declare Database
 const db = new Dexie("FriendDatabase", {
@@ -161,13 +218,10 @@ interface Friend {
   age?: number;
 }
 
-// Generate a random key
-const secret = Encryption.createRandomEncryptionKey();
-
 // Declare Database
 class FriendsDatabase extends Dexie {
   public friends: Dexie.Table<Friend, string>;
-  constructor(name: string, secret?: string) {
+  constructor(name: string, secret: string) {
     super(name);
     encrypted(this, { secretKey: secret });
     this.version(1).stores({
@@ -176,6 +230,11 @@ class FriendsDatabase extends Dexie {
   }
 }
 
+// Generate a random key (only on first use the database)
+const newSecret = Encryption.createRandomEncryptionKey();
+// Save this key somewhere secure and trusted to be used on reopening the database
+
+const secret = "[key fetched from a secure location]";
 const db = new FriendDatabase("FriendsDatabase", secret);
 
 // Open the database
@@ -202,8 +261,12 @@ Addon is export as namespace DexieEncryptedAddon
     <script src="https://unpkg.com/@pvermeer/dexie-encrypted-addon@latest/dist/dexie-encrypted-addon.min.js"></script>
 
     <script>
-      // Generate a random key
-      const secret = DexieEncryptedAddon.Encryption.createRandomEncryptionKey();
+      // Generate a random key (only on first use the database)
+      const newSecret =
+        DexieEncryptedAddon.Encryption.createRandomEncryptionKey();
+      // Save this key somewhere secure and trusted to be used on reopening the database
+
+      const secret = "[key fetched from a secure location]";
 
       // Define your database
       const db = new Dexie("FriendDatabase", {
@@ -235,7 +298,7 @@ The packet exposes two exports:
  * @immutable Set to false to disable immutable state on document creation and updates.
  */
 interface EncryptedOptions {
-  secretKey?: string;
+  secretKey: string;
   immutable?: boolean;
 }
 /**
@@ -243,7 +306,7 @@ interface EncryptedOptions {
  * @param options Set secret key and / or immutable create methods.
  * @returns The secret key (provided or generated)
  */
-function encrypted(db: Dexie, options?: EncryptedOptions): string;
+function encrypted(db: Dexie, options: EncryptedOptions): string;
 /**
  * Namespace to set options and return the addon function when used in (ES2016 / ES7)
  */
@@ -281,7 +344,7 @@ class Encryption {
    */
   public decrypt(messageWithNonce: string): any;
 
-  constructor(secret?: string);
+  constructor(secret: string);
 }
 ```
 

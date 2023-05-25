@@ -7,9 +7,6 @@
   "license": "MIT",
   "scripts": {
     "lerna": "lerna",
-    "bootstrap": "lerna bootstrap || npx -y lerna bootstrap",
-    "bootstrap:ci": "lerna bootstrap --ci || npx -y lerna bootstrap --ci",
-    "bootstrap:no-ci": "lerna bootstrap --no-ci || npx -y lerna bootstrap --no-ci",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "eslint": "eslint --max-warnings=0 --config .eslintrc.json --ignore-path .gitignore",
@@ -23,28 +20,25 @@
     "build:beta": "git fetch origin beta && lerna run build --include-dependencies --since beta",
     "build:master": "git fetch origin master && lerna run build --include-dependencies --since master",
     "build:full": "lerna run build",
-    "test": "npm run build && lerna run test --stream --since",
-    "test:beta": "npm run build:beta && lerna run test --stream --since beta",
-    "test:master": "npm run build:master && lerna run test --stream --since master",
-    "test:full": "npm run build:full && lerna run test --stream",
+    "test:all": "lerna run test --parallel --stream",
+    "test": "npm run build && npm run test:all -- --since",
+    "test:beta": "npm run build:beta && npm run test:all -- --since beta",
+    "test:master": "npm run build:master && npm run test:all -- --since master",
+    "test:full": "npm run build:full && npm run test:all",
     "version": "bash ./scripts/version.sh",
     "release": "bash ./scripts/release.sh",
     "deps:update:latest": "bash ./scripts/update-dependencies.sh",
     "deps:update:latest:ci": "bash ./scripts/update-dependencies.sh only-update",
     "prepare": "husky install && patch-package --error-on-fail"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "lint-staged": {
     "*": "npm run prettier:write",
     "*.ts": "npm run eslint:commit"
   },
-  "dependencies": {
-    "@pvermeer/dexie-addon-suite": "file:packages/dexie-addon-suite",
-    "@pvermeer/dexie-class-addon": "file:packages/dexie-class-addon",
-    "@pvermeer/dexie-encrypted-addon": "file:packages/dexie-encrypted-addon",
-    "@pvermeer/dexie-immutable-addon": "file:packages/dexie-immutable-addon",
-    "@pvermeer/dexie-populate-addon": "file:packages/dexie-populate-addon",
-    "@pvermeer/dexie-rxjs-addon": "file:packages/dexie-rxjs-addon"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
@@ -56,7 +50,6 @@
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.flatten": "^4.4.7",
     "@types/lodash.isequal": "^4.5.6",
-    "@types/lodash.uniqby": "^4.7.7",
     "@types/lodash.uniqwith": "^4.5.7",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.47.0",
@@ -82,6 +75,7 @@
     "karma-jasmine-html-reporter": "^2.0.0",
     "karma-jasmine-seed-reporter": "^0.2.0",
     "karma-mocha-reporter": "^2.2.5",
+    "karma-parallel": "^0.3.1",
     "karma-webpack": "^5.0.0",
     "lerna": "^6.1.0",
     "license-webpack-plugin": "^4.0.2",

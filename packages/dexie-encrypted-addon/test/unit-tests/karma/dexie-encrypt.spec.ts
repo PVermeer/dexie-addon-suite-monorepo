@@ -1,7 +1,9 @@
 import { Dexie } from "dexie";
 import faker from "faker";
 import { encrypted } from "../../../src";
+import { DbCheckTable, DexieEncryptedTestDoc } from "../../../src/db-checks";
 import { Encryption } from "../../../src/encryption.class";
+import { EncryptionError, KeyError, SchemaError } from "../../../src/errors";
 import * as hooks from "../../../src/hooks";
 import {
   databasesNegative,
@@ -9,6 +11,8 @@ import {
   Friend,
   mockFriends,
   TestDatabase,
+  TestDatabaseFalsySecret,
+  testDatabaseJsWithSecret,
 } from "../../mocks/mocks.spec";
 
 describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
@@ -101,6 +105,12 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
                 id: ids[i],
               }));
               await db.friends.bulkPut(hashedDocuments);
+            });
+            it("should be called on modify()", async () => {
+              await db.friends
+                .where("id")
+                .anyOf(ids)
+                .modify((friend: Friend) => (friend.shoeSize = 10));
             });
           });
           describe("Reading", () => {
@@ -416,7 +426,6 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
             await new Promise((resolve) => (request.onsuccess = resolve));
             const friendRaw = request.result as Friend;
             let transactionFriend: Friend | undefined;
-            let transactionFriend2: Friend | undefined;
 
             await db.transaction(
               "readonly",
@@ -438,7 +447,6 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
 
                 transactionFriend.firstName = "firstName";
                 await db.friends.put(transactionFriend, id);
-                transactionFriend2 = (await db.friends.get(id)) as Friend;
               }
             );
 
@@ -458,7 +466,10 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
       });
     });
     it("should encrypt lastName", async () => {
-      const db = new TestDatabase("TestEncryptLastName");
+      const db = new TestDatabase(
+        "TestEncryptLastName",
+        Encryption.createRandomEncryptionKey()
+      );
       await db.open();
       expect(db.isOpen()).toBeTrue();
       const iDb = db.backendDB();
@@ -474,27 +485,131 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
         jasmine.arrayContaining(Object.keys(friend))
       );
       expect(friendRaw.lastName).not.toBe(friend.lastName);
+
+      await db.delete();
     });
     describe("Negative", () => {
       describe("Faulty databases", () => {
         // Faulty databases should throw
         databasesNegative.forEach((database) => {
-          let db: ReturnType<typeof database.db>;
-          beforeEach(async () => {
-            db = database.db();
-          });
-          afterEach(async () => {
-            await db.delete();
-          });
           describe(database.desc, () => {
+            let db: ReturnType<typeof database.db>;
+            beforeEach(async () => {
+              db = database.db();
+            });
+            afterEach(async () => {
+              await db.delete();
+            });
             it("should warn when no encryption keys are set", async () => {
               spyOn(console, "warn").and.callFake(() => void 0);
               await db.open();
               expect(console.warn).toHaveBeenCalledWith(
-                "DEXIE ENCRYPT ADDON: No encryption keys are set"
+                new EncryptionError("No encryption keys are set").message
               );
             });
           });
+        });
+      });
+      describe("Secret key", () => {
+        it("should throw on database creation when a falsy secret is set", async () => {
+          expect(
+            () => new TestDatabaseFalsySecret("FalseSecretDatabase")
+          ).toThrowError(new KeyError("Secret key is not provided").message);
+        });
+        it("should throw on database creation when secret key has changed", async () => {
+          const secretKey = Encryption.createRandomEncryptionKey();
+
+          const db = testDatabaseJsWithSecret(secretKey);
+          await expectAsync(db.open()).withContext("1").toBeResolved();
+          expect(db.isOpen()).withContext("1").toBeTrue();
+          db.close();
+          expect(db.isOpen()).withContext("1").toBeFalse();
+
+          const db2 = testDatabaseJsWithSecret();
+          await expectAsync(db2.open())
+            .withContext("2")
+            .toBeRejectedWithError(
+              KeyError,
+              new KeyError("Encryption key has changed").message
+            );
+          expect(db2.isOpen()).withContext("2").toBeFalse();
+
+          const db3 = testDatabaseJsWithSecret(secretKey);
+          await expectAsync(db3.open()).withContext("3").toBeResolved();
+          expect(db3.isOpen()).withContext("3").toBeTrue();
+          db3.close();
+          expect(db3.isOpen()).withContext("3").toBeFalse();
+
+          await db.delete();
+        });
+        it("should open the database is encrypted but encrypted addon is not provided", async () => {
+          const secretKey = Encryption.createRandomEncryptionKey();
+          const dbName = "TestDatabaseJs";
+          const stores = {
+            friends: "#id, firstName, $lastName, $shoeSize, age",
+          };
+
+          const db = new Dexie(dbName, {
+            addons: [encrypted.setOptions({ secretKey })],
+          });
+          db.version(1).stores(stores);
+          await expectAsync(db.open()).withContext("1").toBeResolved();
+          expect(db.isOpen()).withContext("1").toBeTrue();
+          await db["friends"].add(mockFriends(1)[0]);
+          db.close();
+          expect(db.isOpen()).withContext("1").toBeFalse();
+
+          const db2 = new Dexie(dbName);
+          await expectAsync(db2.open()).withContext("2").toBeResolved();
+          expect(db2.isOpen()).withContext("2").toBeTrue();
+
+          await db.delete();
+        });
+        it(`should warn if ${DbCheckTable.name} object store cannot be created`, async () => {
+          const warnSpy = spyOn(console, "warn").and.callThrough();
+          const warnMessage = new SchemaError(
+            "A database version update is required for key change detection to work"
+          ).message;
+          const encryptedTestDoc = DexieEncryptedTestDoc();
+
+          const secretKey = Encryption.createRandomEncryptionKey();
+          const dbName = "TestDatabaseJs";
+          const stores = {
+            friends: "++id, firstName, $lastName, $shoeSize, age",
+          };
+
+          const db = new Dexie(dbName);
+          db.version(1).stores(stores);
+          await expectAsync(db.open()).withContext("1").toBeResolved();
+          await db["friends"].add(mockFriends(1)[0]);
+          db.close();
+
+          const db2 = new Dexie(dbName, {
+            addons: [encrypted.setOptions({ secretKey })],
+          });
+          db2.version(1).stores(stores);
+          await expectAsync(db2.open()).withContext("2").toBeResolved();
+          expect(db2.isOpen()).withContext("2").toBeTrue();
+          expect(warnSpy).withContext("2").toHaveBeenCalledWith(warnMessage);
+          db2.close();
+
+          warnSpy.calls.reset();
+          const db3 = new Dexie(dbName, {
+            addons: [encrypted.setOptions({ secretKey })],
+          });
+          db3.version(2).stores(stores);
+          await expectAsync(db3.open()).withContext("3").toBeResolved();
+          expect(db3.isOpen()).withContext("3").toBeTrue();
+          expect(warnSpy)
+            .withContext("3")
+            .not.toHaveBeenCalledWith(warnMessage);
+          expect(db3.verno).withContext("3").toBe(2);
+          await expectAsync(db3[DbCheckTable.name].get(encryptedTestDoc.id))
+            .withContext("3")
+            .toBeResolvedTo(encryptedTestDoc);
+          db3.close();
+
+          await db.delete();
         });
       });
     });

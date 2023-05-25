@@ -13,15 +13,16 @@ describe("dexie-encrypted-addon dexie.spec", () => {
   describe("Dexie", () => {
     describe("Import es", () => {
       databasesPositive.forEach((database) => {
-        let db: ReturnType<typeof database.db>;
-        beforeEach(async () => {
-          db = database.db();
-          await db.open();
-        });
-        afterEach(async () => {
-          await db.delete();
-        });
         describe(database.desc, () => {
+          let db: ReturnType<typeof database.db>;
+          beforeEach(async () => {
+            db = database.db();
+            await expectAsync(db.open()).toBeResolved();
+            expect(db.isOpen()).toBeTrue();
+          });
+          afterEach(async () => {
+            await db.delete();
+          });
           it("should create database", async () => {
             expect(db).toBeTruthy();
             expect(db.isOpen()).toBeTrue();
@@ -57,7 +58,11 @@ describe("dexie-encrypted-addon dexie.spec", () => {
       it("should be able to create a database with encryption", async () => {
         const [friend] = mockFriends(1);
         const db = new Dexie("TestDatabaseHTML", {
-          addons: [DexieEncryptedAddon.encrypted],
+          addons: [
+            DexieEncryptedAddon.encrypted.setOptions({
+              secretKey: Encryption.createRandomEncryptionKey(),
+            }),
+          ],
         }) as DexieImport & { friends: DexieImport.Table<Friend, string> };
         db.version(1).stores({
           friends: "++#id, firstName, $lastName, $shoeSize, age",

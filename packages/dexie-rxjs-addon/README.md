@@ -20,7 +20,7 @@ npm install @pvermeer/dexie-rxjs-addon rxjs
 **rxjs**: https://rxjs-dev.firebaseapp.com/
 
 **Dexie.js**:
-Dexie Populate Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie RxJs Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
 ```
 npm install dexie

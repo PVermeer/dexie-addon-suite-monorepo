@@ -72,6 +72,13 @@ export class SchemaParser {
     );
   }
 
+  public addTables(tables: { name: string; keyString: string }[]): void {
+    tables.forEach((table) => {
+      if (table.name in this.schema) return;
+      this.schema[table.name] = table.keyString;
+    });
+  }
+
   constructor(schema: StoreSchemas) {
     this.schema = schema;
   }

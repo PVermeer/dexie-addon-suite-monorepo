@@ -85,7 +85,7 @@ module.exports = function (config) {
       jasmine: {
         random: true,
         seed: process.env["JASMINE_SEED"],
-        seed: "28209",
+        // seed: "28209",
       },
     },
     customLaunchers: {
@@ -128,6 +128,9 @@ module.exports = function (config) {
 
   const configOptions = {
     ...baseConfig,
+
+    frameworks: ["parallel", ...baseConfig.frameworks],
+    plugins: ["karma-parallel", ...baseConfig.plugins],
   };
 
   const debugOptions = {
@@ -140,6 +143,9 @@ module.exports = function (config) {
 
   const ciOptions = {
     ...configOptions,
+
+    frameworks: ["parallel", ...baseConfig.frameworks],
+    plugins: ["karma-parallel", ...baseConfig.plugins],
 
     browsers: ["ChromeHeadless_no_sandbox"],
   };

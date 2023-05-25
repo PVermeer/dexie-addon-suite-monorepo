@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.5](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.5-beta.1...@pvermeer/dexie-populate-addon@1.0.5) (2023-05-25)
+
+**Note:** Version bump only for package @pvermeer/dexie-populate-addon
+
 ## [1.0.5-beta.1](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.5-beta.0...@pvermeer/dexie-populate-addon@1.0.5-beta.1) (2023-05-24)
 
 ### Bug Fixes

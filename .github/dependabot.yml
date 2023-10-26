@@ -13,5 +13,7 @@ updates:
       - dependency-type: production
       - dependency-name: "rxjs"
         dependency-type: "development"
+      - dependency-name: "dexie"
+        dependency-type: "development"
     ignore:
       - dependency-name: "tslib"

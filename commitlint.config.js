@@ -15,5 +15,6 @@ module.exports = {
   ],
   rules: {
     "scope-enum": scopeEnum,
+    "body-max-line-length": [1, "always", 100],
   },
 };

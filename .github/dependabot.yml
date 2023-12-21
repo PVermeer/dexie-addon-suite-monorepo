@@ -9,6 +9,7 @@ updates:
       prefix: "fix"
       prefix-development: "build"
       include: "scope"
+    versioning-strategy: increase
     allow:
       - dependency-type: production
       - dependency-name: "rxjs"

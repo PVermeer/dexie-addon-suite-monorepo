@@ -11,7 +11,9 @@
     "vscode": {
       "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
     }
-  }
+  },
+  "postCreateCommand": "bash ./.devcontainer/install-browsers.sh && npm ci",
+  "postStartCommand": "sudo apt update -y && sudo apt upgrade -y"
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},

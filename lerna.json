@@ -8,7 +8,8 @@
     "**/CHANGELOG.md",
     ".github/**/*",
     ".husky/**/*",
-    ".vscode/**/*"
+    ".vscode/**/*",
+    ".devcontainer/**/*"
   ],
   "command": {
     "version": {

@@ -2,10 +2,12 @@
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
 const path = require("path");
+const fs = require("fs");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const isWsl = require("is-wsl");
 const isCI = process.env["CI"];
+const isDocker = fs.existsSync("/.dockerenv");
 
 /*
  * Using webpack for much better debug experience with tests.
@@ -97,13 +99,6 @@ module.exports = function (config) {
         base: "ChromeHeadless",
         flags: ["--no-sandbox"],
       },
-      // No binary for Edge Headless on Github Actions
-      // EdgeHeadless_no_sandbox: {
-      //     base: "EdgeHeadless",
-      //     flags: [
-      //         "--no-sandbox"
-      //     ],
-      // }
     },
     browsers: ["ChromeDebug"],
     reporters: ["mocha", "kjhtml", "jasmine-seed"],
@@ -126,11 +121,18 @@ module.exports = function (config) {
     restartOnFileChange: false,
   };
 
-  const configOptions = {
+  const parallelOptions = {
     ...baseConfig,
 
     frameworks: ["parallel", ...baseConfig.frameworks],
     plugins: ["karma-parallel", ...baseConfig.plugins],
+  };
+
+  const ciOptions = {
+    ...parallelOptions,
+
+    retryLimit: 2,
+    browsers: ["ChromeHeadless_no_sandbox"],
   };
 
   const debugOptions = {
@@ -141,15 +143,22 @@ module.exports = function (config) {
     restartOnFileChange: true,
   };
 
-  const ciOptions = {
-    ...configOptions,
+  const dockerOptions = {
+    ...parallelOptions,
 
-    frameworks: ["parallel", ...baseConfig.frameworks],
-    plugins: ["karma-parallel", ...baseConfig.plugins],
-
+    retryLimit: 2,
     browsers: ["ChromeHeadless_no_sandbox"],
   };
 
+  const debugDockerOptions = {
+    ...debugOptions,
+
+    browsers: [],
+  };
+
   if (isCI) config.set(ciOptions);
-  else config.set(config.debug ? debugOptions : configOptions);
+  else if (config.debug && isDocker) config.set(debugDockerOptions);
+  else if (config.debug) config.set(debugOptions);
+  else if (isDocker) config.set(dockerOptions);
+  else config.set(parallelOptions);
 };

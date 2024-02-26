@@ -5,10 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach to Karma",
+      "name": "Attach to Chrome (karma)",
       "type": "chrome",
       "request": "attach",
-      "url": "http://localhost:9876/debug.html",
+      "address": "localhost",
+      "port": 9222,
+      "sourceMapPathOverrides": {
+        "webpack://?:*/*": "${workspaceFolder}/packages/*"
+      }
+    },
+    {
+      "name": "Attach to Karma (local chrome_headless)",
+      "type": "chrome",
+      "request": "attach",
       "address": "localhost",
       "port": 9333,
       "sourceMapPathOverrides": {

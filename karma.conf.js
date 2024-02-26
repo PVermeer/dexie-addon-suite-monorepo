@@ -93,11 +93,11 @@ module.exports = function (config) {
     customLaunchers: {
       ChromeDebug: {
         base: "Chrome",
-        flags: ["--remote-debugging-port=9333"],
+        flags: ["--remote-debugging-port=9222"],
       },
       ChromeHeadless_no_sandbox: {
         base: "ChromeHeadless",
-        flags: ["--no-sandbox"],
+        flags: ["--no-sandbox", "--remote-debugging-port=9333"],
       },
     },
     browsers: ["ChromeDebug"],
@@ -152,8 +152,7 @@ module.exports = function (config) {
 
   const debugDockerOptions = {
     ...debugOptions,
-
-    browsers: [],
+    browsers: ["ChromeHeadless_no_sandbox"],
   };
 
   if (isCI) config.set(ciOptions);

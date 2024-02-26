@@ -14,7 +14,7 @@ export interface Friend {
 class TestDatabase extends Dexie {
   public friends: Dexie.Table<Friend, number>;
   constructor(name: string) {
-    super(name);
+    super(name + " - " + faker.random.alphaNumeric(5));
     immutable(this);
     this.version(1).stores({
       friends: "++id, firstName, lastName, shoeSize, age",
@@ -27,7 +27,7 @@ class TestDatabase extends Dexie {
 class TestDatabaseAddons extends Dexie {
   public friends: Dexie.Table<Friend, number>;
   constructor(name: string) {
-    super(name, {
+    super(name + " - " + faker.random.alphaNumeric(5), {
       addons: [immutable],
     });
     this.version(1).stores({
@@ -39,7 +39,7 @@ class TestDatabaseAddons extends Dexie {
 export class TestDatabaseWithHooks extends Dexie {
   public friends: Dexie.Table<Friend, number>;
   constructor(name: string) {
-    super(name, {
+    super(name + " - " + faker.random.alphaNumeric(5), {
       autoOpen: false,
     });
     immutable(this);
@@ -63,9 +63,12 @@ export class TestDatabaseWithHooks extends Dexie {
   }
 }
 function testDatabaseJs(): TestDatabase {
-  const db = new Dexie("TestDatabaseJs", {
-    addons: [immutable],
-  });
+  const db = new Dexie(
+    "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5),
+    {
+      addons: [immutable],
+    }
+  );
   db.version(1).stores({
     friends: "++id, firstName, lastName, shoeSize, age",
     buddies: "++id, buddyName, buddyAge",

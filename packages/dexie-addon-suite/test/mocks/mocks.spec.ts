@@ -147,7 +147,9 @@ export const getDatabase = (
     public hairColors: Dexie.Table<HairColor, number>;
 
     constructor(_name: string) {
-      super(_name);
+      // Make sure test don't use the same name
+      super(_name + " - " + faker.random.alphaNumeric(5));
+
       addonSuite(this, config);
       this.on("blocked", () => false);
       this.version(1).stores({

@@ -28,7 +28,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -47,7 +47,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -67,7 +67,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -86,7 +86,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -107,7 +107,7 @@ export const databasesNegative = [
       new (class TestDatabaseCompoundIndex extends Dexie {
         public friends: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -123,7 +123,7 @@ export const databasesNegative = [
       new (class TestDatabaseMultiIndex extends Dexie {
         public friends: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({

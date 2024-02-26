@@ -127,7 +127,7 @@ const TestDB = (dexie: typeof Dexie, addon: typeof populate) =>
     public hairColors: Dexie.Table<HairColor, number>;
 
     constructor(name: string) {
-      super(name);
+      super(name + " - " + faker.random.alphaNumeric(5));
       addon(this);
       this.on("blocked", () => false);
       this.version(1).stores({
@@ -160,7 +160,7 @@ export const databasesPositive = [
 export const testDatabaseNoRelationalKeys = (dexie: typeof Dexie) =>
   new (class TestDatabase extends dexie {
     constructor(name: string) {
-      super(name);
+      super(name + " - " + faker.random.alphaNumeric(5));
       populate(this);
       this.on("blocked", () => false);
       this.version(1).stores({
@@ -172,7 +172,7 @@ export const testDatabaseNoRelationalKeys = (dexie: typeof Dexie) =>
 export const testDatabaseNoTableForRelationalKeys = (dexie: typeof Dexie) =>
   new (class TestDatabase extends dexie {
     constructor(name: string) {
-      super(name);
+      super(name + " - " + faker.random.alphaNumeric(5));
       populate(this);
       this.on("blocked", () => false);
       this.version(1).stores({

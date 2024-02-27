@@ -525,7 +525,7 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
           db.close();
           expect(db.isOpen()).withContext("1").toBeFalse();
 
-          const db2 = testDatabaseJsWithSecret();
+          const db2 = testDatabaseJsWithSecret(undefined, db.name);
           await expectAsync(db2.open())
             .withContext("2")
             .toBeRejectedWithError(

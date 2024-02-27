@@ -115,6 +115,10 @@ module.exports = function (config) {
       level: "off",
       terminal: false,
     },
+    parallelOptions: {
+      // Lerna lready runs tests in parallel
+      executors: 2, // Defaults to cpu-count - 1
+    },
     retryLimit: 0,
     autoWatch: false,
     singleRun: true,

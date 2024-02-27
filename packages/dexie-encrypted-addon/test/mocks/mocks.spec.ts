@@ -118,10 +118,13 @@ function testDatabaseJs(): TestDatabase {
   return db as TestDatabase;
 }
 
-export function testDatabaseJsWithSecret(_secret?: string): TestDatabase {
+export function testDatabaseJsWithSecret(
+  _secret?: string,
+  recreateName?: string
+): TestDatabase {
   const secret = _secret ?? Encryption.createRandomEncryptionKey();
   const db = new Dexie(
-    "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5),
+    recreateName || "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5),
     {
       addons: [encrypted.setOptions({ secretKey: secret })],
     }

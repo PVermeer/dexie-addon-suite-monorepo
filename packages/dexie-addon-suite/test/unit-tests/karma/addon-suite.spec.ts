@@ -2,7 +2,7 @@ import * as classModule from "@pvermeer/dexie-class-addon/src/class";
 import { Encryption } from "@pvermeer/dexie-encrypted-addon";
 import * as encryptedModule from "@pvermeer/dexie-encrypted-addon/src/encrypted";
 import * as immutableModule from "@pvermeer/dexie-immutable-addon/src/immutable";
-import { Populated } from "@pvermeer/dexie-populate-addon";
+import type { Populated } from "@pvermeer/dexie-populate-addon";
 import * as populateModule from "@pvermeer/dexie-populate-addon/src/populate";
 import * as rxjsModule from "@pvermeer/dexie-rxjs-addon/src/dexie-rxjs";
 import { Dexie } from "dexie";
@@ -167,6 +167,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
           friendExpectedPop.hasFriends[0]!.group = groups[2] as any;
           friendExpectedPop.hasFriends[0]!.hairColor = hairColors[2] as any;
         });
+
         afterEach(async () => {
           subs.unsubscribe();
           await db.delete();
@@ -686,12 +687,12 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 });
                 it("should populate an entire table", async () => {
                   const method = _method.method(db);
-                  const getFriendsPromises = await Promise.all([
-                    firstValueFrom(method.toArray().pipe(take(1))),
-                    firstValueFrom(
+                  const getFriendsPromises = [
+                    await firstValueFrom(method.toArray().pipe(take(1))),
+                    await firstValueFrom(
                       method.where(":id").anyOf(ids).toArray().pipe(take(1))
                     ),
-                  ]);
+                  ];
 
                   getFriendsPromises.forEach((getFriends) => {
                     const friendPop = getFriends.find((x) => x.id === id);
@@ -1106,8 +1107,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
       expect(addons).toEqual(["encrypted", "rxjs", "populate", "class"]);
     });
     it("should load addons only once", async () => {
-      console.log(classModule);
-
       const modules = [
         spyOn(classModule, "classMap").and.callThrough(),
         spyOn(encryptedModule, "encrypted").and.callThrough(),
@@ -1123,6 +1122,8 @@ describe("dexie-addon-suite addon-suite.spec", () => {
       await db.open();
 
       modules.forEach((spy) => expect(spy).toHaveBeenCalledTimes(1));
+
+      await db.delete();
     });
   });
 });

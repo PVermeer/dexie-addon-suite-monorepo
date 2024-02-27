@@ -1,8 +1,9 @@
+import { addonSuite } from "@pvermeer/dexie-addon-suite";
 import { Encryption } from "@pvermeer/dexie-encrypted-addon";
 import { Populated } from "@pvermeer/dexie-populate-addon";
-import { addonSuite } from "@pvermeer/dexie-addon-suite";
 import type DexieType from "dexie";
 import type { Table } from "dexie";
+import faker from "faker/locale/en";
 import type * as rxjsImport from "rxjs";
 import { firstValueFrom, Subscription } from "rxjs";
 import type * as rxjsOperators from "rxjs/operators";
@@ -101,10 +102,9 @@ describe("dexie-addon-suite html.spec", () => {
       let styleIds: number[];
 
       beforeEach(async () => {
-        await Dexie.delete("Test Database HTML");
         const secretKey =
           DexieAddonSuite.Encryption.createRandomEncryptionKey();
-        db = new Dexie("Test Database HTML", {
+        db = new Dexie("Test Database HTML" + faker.random.alphaNumeric(5), {
           addons: [DexieAddonSuite.addonSuite.setConfig({ secretKey })],
         }) as any;
         db.on("blocked", () => false);
@@ -218,11 +218,13 @@ describe("dexie-addon-suite html.spec", () => {
 
         subs = new Subscription();
       });
+
       afterEach(async () => {
         subs.unsubscribe();
         await db.delete();
         expect(db.isOpen()).toBeFalse();
       });
+
       it("should be able to use normally", async () => {
         const getFriend = await db.friends.get(id);
         expect(getFriend).toEqual(friendExpected);

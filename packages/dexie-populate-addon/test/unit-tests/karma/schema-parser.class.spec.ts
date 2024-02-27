@@ -2,10 +2,11 @@ import { Dexie } from "dexie";
 import { populate } from "../../../src/populate";
 import { SchemaParser } from "../../../src/schema-parser.class";
 import { DexieExtended } from "../../../src/types";
+import faker from "faker/locale/en";
 
 class TestDatabase extends Dexie {
   constructor(name: string) {
-    super(name);
+    super(name + faker.random.alphaNumeric(5));
     populate(this);
     this.on("blocked", () => false);
     this.version(1).stores({
@@ -21,7 +22,7 @@ class TestDatabase extends Dexie {
 }
 class TestDatabaseEmptyTable extends Dexie {
   constructor(name: string) {
-    super(name);
+    super(name + faker.random.alphaNumeric(5));
     populate(this);
     this.on("blocked", () => false);
     this.version(1).stores({

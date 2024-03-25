@@ -53,7 +53,7 @@
     "@types/lodash.uniqwith": "^4.5.7",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.47.0",
-    "dexie": "^3.2.6",
+    "dexie": "^3.2.7",
     "dts-bundle-generator": "^7.1.0",
     "esbuild": "^0.16.9",
     "eslint": "^8.30.0",

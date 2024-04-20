@@ -18,6 +18,12 @@ module.exports = function (config) {
     throw "No context passed!";
   }
   const context = config.context;
+  const hasBuild = fs.existsSync(path.join(context, "dist"));
+
+  if (!hasBuild) {
+    throw "Please build before running tests";
+  }
+
   const configLib = require("./scripts/build-package-config")(context);
 
   if (isWsl && !process.env["CHROME_BIN"]) {

@@ -113,12 +113,14 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
+    // It will log multiple times because op multiple reporters see:
+    // https://github.com/karma-runner/karma/issues/2342#
     browserConsoleLogOptions: {
       level: "off",
       terminal: false,
     },
     parallelOptions: {
-      // Lerna lready runs tests in parallel
+      // Lerna already runs tests in parallel
       executors: 2, // Defaults to cpu-count - 1
     },
     retryLimit: 0,
@@ -137,6 +139,7 @@ module.exports = function (config) {
   const ciOptions = {
     ...parallelOptions,
 
+    parallelOptions: {},
     retryLimit: 2,
     browsers: ["ChromeHeadless_no_sandbox"],
   };
@@ -144,6 +147,10 @@ module.exports = function (config) {
   const debugOptions = {
     ...baseConfig,
 
+    browserConsoleLogOptions: {
+      level: "debug",
+      terminal: true,
+    },
     autoWatch: true,
     singleRun: false,
     restartOnFileChange: true,

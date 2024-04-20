@@ -5,9 +5,9 @@ const path = require("path");
 const fs = require("fs");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const isWsl = require("is-wsl");
 const isCI = process.env["CI"];
 const isDocker = fs.existsSync("/.dockerenv");
+const puppeteer = require("puppeteer");
 
 /*
  * Using webpack for much better debug experience with tests.
@@ -25,11 +25,7 @@ module.exports = function (config) {
   }
 
   const configLib = require("./scripts/build-package-config")(context);
-
-  if (isWsl && !process.env["CHROME_BIN"]) {
-    process.env["CHROME_BIN"] =
-      "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe";
-  }
+  process.env.CHROME_BIN = puppeteer.executablePath();
 
   const baseConfig = {
     basePath: context,

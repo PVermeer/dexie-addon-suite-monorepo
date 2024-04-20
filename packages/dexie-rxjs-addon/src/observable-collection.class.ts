@@ -1,25 +1,15 @@
-import { Collection, Dexie, IndexableTypeArray, Table } from "dexie";
-import { IDatabaseChange } from "dexie-observable/api";
+import { Collection, Dexie, IndexableTypeArray, liveQuery, Table } from "dexie";
 import cloneDeep from "lodash.clonedeep";
-import { merge, Observable, OperatorFunction } from "rxjs";
-import {
-  debounceTime,
-  filter,
-  first,
-  mergeMap,
-  share,
-  shareReplay,
-  skip,
-  startWith,
-} from "rxjs/operators";
+import { from, Observable } from "rxjs";
 import { ObservableWhereClause } from "./observable-where-clause.class";
 import { DexieExtended } from "./types";
-import { distinctUntilChangedIsEqual, mixinClass } from "./utils";
+import { mixinClass } from "./utils";
 
 // Type check for when dexie would update the Collection interface
 type CollectionMapObservable = Omit<
   Record<keyof Collection, (...args: any[]) => any>,
   // Only to observe so omit:
+  | "db"
   | "each"
   | "eachKey"
   | "eachPrimaryKey"
@@ -30,112 +20,43 @@ type CollectionMapObservable = Omit<
   | "modify"
 >;
 
-interface Options {
-  debounceTime?: number;
-}
-
-// Custom pipe operator
-function debounceTimeWhen<T>(value?: number): OperatorFunction<T, T> {
-  return function (source: Observable<T>): Observable<T> {
-    return value
-      ? merge(source.pipe(first()), source.pipe(skip(1), debounceTime(value)))
-      : source;
-  };
-}
-
 export class ObservableCollection<T, TKey> implements CollectionMapObservable {
-  private _tableChanges$: Observable<IDatabaseChange[]> =
-    this._db.changes$.pipe(
-      filter((x) => x.some((y) => y.table === this._table.name)),
-      debounceTime(50), // Only checking if there are any changes on the table so only trigger on last in debounce window
-      startWith([]),
-      share()
-    );
-
   private cloneAsCollection(): Collection<T, TKey> {
     (this._collection as any)._ctx = (this as any)._ctx;
     const collection = cloneDeep(this._collection);
     return collection;
   }
 
-  public toArray(options?: Options): Observable<T[]> {
-    const _collection$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().toArray()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return _collection$;
+  public toArray(): Observable<T[]> {
+    return from(liveQuery(() => this.cloneAsCollection().toArray()));
   }
 
-  public sortBy(keyPath: string, options?: Options): Observable<T[]> {
-    const sortBy$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().sortBy(keyPath)),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return sortBy$;
+  public sortBy(keyPath: string): Observable<T[]> {
+    return from(liveQuery(() => this.cloneAsCollection().sortBy(keyPath)));
   }
 
-  public count(options?: Options): Observable<number> {
-    const count$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().count()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return count$;
+  public count(): Observable<number> {
+    return from(liveQuery(() => this.cloneAsCollection().count()));
   }
 
-  public first(options?: Options): Observable<T | undefined> {
-    const first$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().first()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return first$;
+  public first(): Observable<T | undefined> {
+    return from(liveQuery(() => this.cloneAsCollection().first()));
   }
 
-  public last(options?: Options): Observable<T | undefined> {
-    const last$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().last()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return last$;
+  public last(): Observable<T | undefined> {
+    return from(liveQuery(() => this.cloneAsCollection().last()));
   }
 
-  public keys(options?: Options): Observable<IndexableTypeArray> {
-    const keys$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().keys()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return keys$;
+  public keys(): Observable<IndexableTypeArray> {
+    return from(liveQuery(() => this.cloneAsCollection().keys()));
   }
 
-  public primaryKeys(options?: Options): Observable<TKey[]> {
-    const primaryKeys$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().primaryKeys()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return primaryKeys$;
+  public primaryKeys(): Observable<TKey[]> {
+    return from(liveQuery(() => this.cloneAsCollection().primaryKeys()));
   }
 
-  public uniqueKeys(options?: Options): Observable<IndexableTypeArray> {
-    const uniqueKeys$ = this._tableChanges$.pipe(
-      debounceTimeWhen(options?.debounceTime),
-      mergeMap(() => this.cloneAsCollection().uniqueKeys()),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    return uniqueKeys$;
+  public uniqueKeys(): Observable<IndexableTypeArray> {
+    return from(liveQuery(() => this.cloneAsCollection().uniqueKeys()));
   }
 
   // Can be exposed because returns `this`

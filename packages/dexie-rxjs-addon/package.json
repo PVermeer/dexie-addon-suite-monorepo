@@ -38,19 +38,14 @@
     "test:jasmine:debug": "nodemon --inspect-brk=127.0.0.1:9334 -r ts-node/register ../../node_modules/jasmine/bin/jasmine --reporter=jasmine-console-reporter 'test/unit-tests/jasmine/**/*.spec.ts'"
   },
   "dependencies": {
-    "dexie-observable": "^4.0.0-beta.13",
     "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
-    "lodash.uniqwith": "^4.5.0",
     "tslib": "^2.4.1"
   },
   "peerDependencies": {
-    "dexie": "^3.0.0",
+    "dexie": "^4.0.0",
     "rxjs": "^7.0.0"
   },
-  "devDependencies": {
-    "rxjs": "^7.8.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/PVermeer/dexie-addon-suite-monorepo.git"

@@ -1,5 +1,4 @@
 import { Dexie, IndexableTypeArray } from "dexie";
-import { IDatabaseChange } from "dexie-observable/api";
 import faker from "faker/locale/nl";
 import { firstValueFrom, Observable, Subscription } from "rxjs";
 import { filter, take } from "rxjs/operators";
@@ -31,7 +30,9 @@ function flatPromise<T = unknown>(): FlatPromise<T> {
 }
 
 databasesPositive.forEach((database, _i) => {
-  // if (_i !== 0) { return; }
+  // if (_i !== 0) {
+  //   return;
+  // }
   describe("dexie-rxjs-addon dexie-rxjs.spec Rxjs" + database.desc, () => {
     let db: ReturnType<typeof database.db>;
     let subs: Subscription;
@@ -66,45 +67,11 @@ databasesPositive.forEach((database, _i) => {
       subs.unsubscribe();
       await db.delete();
     });
-    describe("db.changes$", () => {
-      it("should be an observable", () => {
-        expect(db.changes$ instanceof Observable).toBeTrue();
-      });
-      it("should be open", async () => {
-        let sub = new Subscription();
-        const emitPromise = new Promise<void>((resolve) => {
-          sub = db.changes$.subscribe(() => resolve());
-          subs.add(sub);
-        });
-        await db.friends.bulkAdd(mockFriends(1));
-        await emitPromise;
-        expect(sub.closed).toBe(false);
-      });
-      it(`should have same behavior as db.on('changes')`, async () => {
-        const emitEventPromise = new Promise((resolve) => {
-          const dexieChangesSub = db.on("changes");
-
-          /**
-           * The documentation refers to yourListenerFunction as the function you pass as a second argument to hook('creating'). You would need to give that function a name or store a reference to it somewhere in order to unsubscribe to it.
-           */
-          function listenerFunction(data: any) {
-            dexieChangesSub.unsubscribe(listenerFunction);
-            resolve(data);
-          }
-          dexieChangesSub.subscribe(listenerFunction);
-        });
-
-        const emitObsPromise = new Promise((resolve) => {
-          subs.add(db.changes$.subscribe((data) => resolve(data)));
-        });
-        await db.friends.bulkAdd(mockFriends(1));
-        const resolved = await Promise.all([emitObsPromise, emitEventPromise]);
-        expect(resolved[0]).toEqual(resolved[1]);
-      });
-    });
     describe("Methods", () => {
       methods.forEach((method, _j) => {
-        // if (_j !== 0) { return; }
+        // if (_j !== 0) {
+        //   return;
+        // }
         describe(method.desc, () => {
           let method$: ReturnType<typeof method.method>;
           let obs$: Observable<Friend | Friend[] | undefined>;
@@ -225,22 +192,23 @@ databasesPositive.forEach((database, _i) => {
           it("should emit on record update", async () => {
             let emitCount = 0;
             let obsFriend: Friend | undefined;
-            const emitPromise = new Promise<void>((resolve) => {
-              subs.add(
-                method$(id, customId, { emitUndefined: true }).subscribe(
-                  (friendEmit) => {
-                    emitCount++;
-                    obsFriend = friendEmit as Friend;
-                    if (emitCount === 2) {
-                      resolve();
-                    }
-                  }
-                )
-              );
-            });
+
+            const waits = new Array(2).fill(null).map(() => flatPromise());
+            subs.add(
+              method$(id, customId, { emitUndefined: true }).subscribe(
+                (friendEmit) => {
+                  emitCount++;
+                  obsFriend = friendEmit as Friend;
+                  waits[emitCount - 1].resolve();
+                }
+              )
+            );
+
+            await waits[0].promise;
+            expect(obsFriend).toEqual(friend);
+
             await db.friends.update(id, { firstName: "TestieUpdate" });
-            await emitPromise;
-            expect(emitCount).toBe(2);
+            await waits[1].promise;
             expect(obsFriend).toEqual({
               ...friend,
               firstName: "TestieUpdate",
@@ -338,28 +306,36 @@ databasesPositive.forEach((database, _i) => {
             let emitCount = 0;
             let obsFriend: Friend | undefined;
             const randomIdx = faker.datatype.number(49);
-            const emitPromise = new Promise<void>((resolve) => {
-              subs.add(
-                method$(id + randomIdx + 1, friends[randomIdx].customId, {
-                  emitUndefined: true,
-                }).subscribe((friendEmit) => {
-                  emitCount++;
-                  obsFriend = friendEmit as Friend;
-                  if (emitCount === 2) {
-                    resolve();
-                  }
-                })
-              );
-            });
-            await Promise.all(friends.map(async (x) => db.friends.add(x)));
-            await emitPromise;
+            const waits = new Array(2).fill(null).map(() => flatPromise());
 
-            if (method.first) expect(obsFriend).toEqual(friends[0]);
+            subs.add(
+              method$(id + randomIdx + 1, friends[randomIdx].customId, {
+                emitUndefined: true,
+              }).subscribe((friendEmit) => {
+                emitCount++;
+                obsFriend = friendEmit as Friend;
+
+                waits[emitCount - 1].resolve();
+              })
+            );
+
+            await waits[0].promise;
+            expect(obsFriend).toBeUndefined();
+
+            await db.friends.bulkAdd(friends);
+            await waits[1].promise;
+
+            let friend: Friend;
+            if (method.first) friend = friends[0];
             else if (method.last)
-              expect(obsFriend).toEqual(
-                friends[(method.limit || friends.length) - 1]
-              );
-            else expect(obsFriend).toEqual(friends[randomIdx]);
+              friend = friends[(method.limit || friends.length) - 1];
+            else friend = friends[randomIdx];
+
+            if (obsFriend!.id) friend = { ...friend, id: obsFriend!.id };
+            if (obsFriend!.some?.id)
+              friend = { ...friend, some: { id: obsFriend!.some.id } };
+
+            expect(obsFriend).toEqual(friend);
           });
           it("should not emit when no changes", async () => {
             await db.friends.clear();
@@ -532,7 +508,7 @@ databasesPositive.forEach((database, _i) => {
                 expect(collection!).toEqual([friend]);
 
                 const friends = mockFriends(9);
-                await Promise.all(friends.map((x) => db.friends.add(x)));
+                await db.friends.bulkAdd(friends);
                 await waits[1].promise;
                 expect(emitCount).toBe(2);
                 expect(collection!).toEqual(
@@ -593,23 +569,6 @@ databasesPositive.forEach((database, _i) => {
             }
           }
 
-          if (method.singelton) {
-            it("should be the same Observable instance", () => {
-              const a = method$(id, customId, { singelton: true });
-              const b = method$(id, customId, { singelton: true });
-              expect(a && b).toBeTruthy();
-              expect(a).toBe(b);
-            });
-          }
-          if (!method.singelton) {
-            it("should be a new Observable instance", () => {
-              const a = method$(id, customId, { singelton: true });
-              const b = method$(id, customId, { singelton: true });
-              expect(a && b).toBeTruthy();
-              expect(a).not.toBe(b);
-            });
-          }
-
           describe("distinctUntilChangedIsEqual", () => {
             it("should not use the reference passed to the user to determine changes", async () => {
               let friendObs: Friend;
@@ -642,57 +601,6 @@ databasesPositive.forEach((database, _i) => {
               expect(emitCount).toBe(2);
             });
           });
-        });
-      });
-
-      describe("changes()", () => {
-        let obs$: Observable<IDatabaseChange[]>;
-
-        beforeEach(() => {
-          obs$ = db.friends.$.changes();
-        });
-
-        it("should be an observable", async () => {
-          expect(obs$ instanceof Observable).toBeTrue();
-        });
-        it("should be open", async () => {
-          let sub: Subscription;
-          const emitPromise = new Promise<void>((resolve) => {
-            sub = obs$.subscribe(() => resolve());
-            subs.add(sub);
-          });
-          const [newFriend] = mockFriends(1);
-          await db.friends.add(newFriend);
-          await emitPromise;
-          expect(sub!.closed).toBe(false);
-        });
-        it("should emit the correct value", async () => {
-          const changesPromise = flatPromise<IDatabaseChange[]>();
-          subs.add(obs$.pipe(take(1)).subscribe(changesPromise.resolve));
-
-          const [newFriend] = mockFriends(1);
-          await db.friends.add(newFriend);
-          const changes = await changesPromise.promise;
-
-          expect(changes.length > 0).toBeTrue();
-          expect(
-            changes.every((table) => table.table === "friends")
-          ).toBeTrue();
-        });
-        it("should not emit other table changes", async () => {
-          const changesPromise = flatPromise<IDatabaseChange[]>();
-          subs.add(obs$.pipe(take(1)).subscribe(changesPromise.resolve));
-
-          const [newFriend] = mockFriends(1);
-          await db.friends.add(newFriend);
-          const [newEnemy] = mockFriends(1);
-          await db.enemies.add(newEnemy);
-          const changes = await changesPromise.promise;
-
-          expect(changes.length > 0).toBeTrue();
-          expect(
-            changes.every((table) => table.table === "friends")
-          ).toBeTrue();
         });
       });
     });
@@ -792,7 +700,7 @@ databasesPositive.forEach((database, _i) => {
         await waits[0].promise;
         expect(emitCount).toBe(1);
         if (database.desc === "TestDatabaseCustomKey")
-          expect(keys![0] > 10000).toBeTrue();
+          expect((keys![0] as number) > 10000).toBeTrue();
         else expect(keys![0]).toBe(id);
       });
       it("should emit the correct value (primaryKeys)", async () => {

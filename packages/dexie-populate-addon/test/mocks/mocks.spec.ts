@@ -158,6 +158,7 @@ export const databasesPositive = [
 ];
 
 export const testDatabaseNoRelationalKeys = (dexie: typeof Dexie) =>
+  // @ts-expect-error Dexie issue when no tables are defined
   new (class TestDatabase extends dexie {
     constructor(name: string) {
       super(name + " - " + faker.random.alphaNumeric(5));
@@ -170,6 +171,7 @@ export const testDatabaseNoRelationalKeys = (dexie: typeof Dexie) =>
   })("Negative TestDatabase - no relational keys");
 
 export const testDatabaseNoTableForRelationalKeys = (dexie: typeof Dexie) =>
+  // @ts-expect-error Dexie issue when no tables are defined
   new (class TestDatabase extends dexie {
     constructor(name: string) {
       super(name + " - " + faker.random.alphaNumeric(5));

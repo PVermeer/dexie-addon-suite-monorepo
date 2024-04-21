@@ -2,7 +2,7 @@ import { Dexie, TableSchema, Transaction } from "dexie";
 import { PopulateTable } from "./populate-table.class";
 import { DexieExtended, PopulateOptions } from "./types";
 
-export interface TableExtended<T, TKey> {
+export interface TableExtended<T, TKey, TInsertType = T> {
   /**
    * Use Table populate methods
    *
@@ -11,16 +11,16 @@ export interface TableExtended<T, TKey> {
   populate<B extends boolean = false, K extends string = string>(
     keysOrOptions?: K[] | PopulateOptions<B>,
     options?: PopulateOptions<B>
-  ): PopulateTable<T, TKey, B, K>;
+  ): PopulateTable<T, TKey, TInsertType, B, K>;
 }
 
-export function getTableExtended<T, TKey>(db: Dexie) {
+export function getTableExtended<T, TKey, TInsertType>(db: Dexie) {
   const dbExt = db as DexieExtended;
   const TableClass = dbExt.Table;
 
   return class TableExt
-    extends TableClass<T, TKey>
-    implements TableExtended<T, TKey>
+    extends TableClass<T, TKey, TInsertType>
+    implements TableExtended<T, TKey, TInsertType>
   {
     public _relationalSchema = dbExt._relationalSchema;
 
@@ -34,7 +34,7 @@ export function getTableExtended<T, TKey>(db: Dexie) {
         (keysOrOptions && "shallow" in keysOrOptions
           ? keysOrOptions
           : undefined);
-      return new PopulateTable<T, TKey, B, K>(
+      return new PopulateTable<T, TKey, TInsertType, B, K>(
         _keys,
         _options,
         db,

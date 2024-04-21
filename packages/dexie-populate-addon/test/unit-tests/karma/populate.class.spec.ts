@@ -19,7 +19,7 @@ import {
 
 describe("dexie-populate-addon populate.class.spec", () => {
   describe("Populate class", () => {
-    let db: ReturnType<typeof databasesPositive[0]["db"]>;
+    let db: ReturnType<(typeof databasesPositive)[0]["db"]>;
     let friends: Friend[];
     let friend: Friend;
     let id: number;
@@ -31,7 +31,7 @@ describe("dexie-populate-addon populate.class.spec", () => {
     let groupIds: number[];
     let styleIds: number[];
     let hairColorIds: number[];
-    let populatedClass: Populate<Friend, number, false, string>;
+    let populatedClass: Populate<Friend, number, Friend, false, string>;
 
     beforeEach(async () => {
       db = databasesPositive[0].db(Dexie, populate);
@@ -86,7 +86,7 @@ describe("dexie-populate-addon populate.class.spec", () => {
         string
       >;
 
-      populatedClass = new Populate<Friend, number, false, string>(
+      populatedClass = new Populate<Friend, number, Friend, false, string>(
         [friend],
         undefined,
         { shallow: false },
@@ -154,7 +154,7 @@ describe("dexie-populate-addon populate.class.spec", () => {
       expect(popWith).toEqual(expected);
     });
     it("should return [] when input === undefined || [] on populated getter", async () => {
-      const populateC = new Populate<Friend, number, false, string>(
+      const populateC = new Populate<Friend, number, Friend, false, string>(
         undefined,
         undefined,
         { shallow: false },
@@ -166,7 +166,7 @@ describe("dexie-populate-addon populate.class.spec", () => {
       expect(populated).toEqual([]);
     });
     it("should return {} when input === undefined || [] on Tree getter", async () => {
-      const populateC = new Populate<Friend, number, false, string>(
+      const populateC = new Populate<Friend, number, Friend, false, string>(
         undefined,
         undefined,
         { shallow: false },

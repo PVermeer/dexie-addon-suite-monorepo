@@ -4,6 +4,7 @@ import { SchemaParser } from "../../../src/schema-parser.class";
 import { DexieExtended } from "../../../src/types";
 import faker from "faker/locale/en";
 
+// @ts-expect-error Dexie issue when no tables are defined
 class TestDatabase extends Dexie {
   constructor(name: string) {
     super(name + faker.random.alphaNumeric(5));
@@ -20,6 +21,7 @@ class TestDatabase extends Dexie {
     });
   }
 }
+// @ts-expect-error Dexie issue when no tables are defined
 class TestDatabaseEmptyTable extends Dexie {
   constructor(name: string) {
     super(name + faker.random.alphaNumeric(5));
@@ -118,6 +120,7 @@ describe("dexie-populate-addon schema-parser.spec", () => {
         expect(cleanSchema).toEqual(expected);
       });
       it("should return a table with a falsy value on table that is not a string", async () => {
+        // @ts-expect-error Dexie issue when no tables are defined
         const dbFalse = new (class TestDatabaseFalseTable extends Dexie {
           constructor(name: string) {
             super(name);

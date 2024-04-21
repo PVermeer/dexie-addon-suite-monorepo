@@ -139,7 +139,6 @@ module.exports = function (config) {
   const ciOptions = {
     ...parallelOptions,
 
-    parallelOptions: {},
     retryLimit: 2,
     browsers: ["ChromeHeadless_no_sandbox"],
   };

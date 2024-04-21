@@ -12,5 +12,6 @@ declare module "dexie" {
   /**
    * Extended Table class with populate methods
    */
-  interface Table<T, TKey> extends TableExtended<T, TKey> {}
+  interface Table<T = any, TKey = any, TInsertType = T>
+    extends TableExtended<T, TKey, TInsertType> {}
 }

@@ -7,6 +7,7 @@ type DexieExtended = Dexie & {
 
 export function immutable(db: Dexie) {
   // Register addon
+  // @ts-expect-error Dexie issue with extending
   const dbExtended: DexieExtended = db;
   if (dbExtended.pVermeerAddonsRegistered?.immutable) {
     return;

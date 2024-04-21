@@ -16,6 +16,7 @@ export class TestDatabase extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string, secret?: string) {
     super(name + " - " + faker.random.alphaNumeric(5));
+    this.on("blocked", () => false);
     encrypted(this, {
       secretKey: secret || Encryption.createRandomEncryptionKey(),
     });
@@ -33,6 +34,7 @@ class TestDatabaseAddons extends Dexie {
     super(name + " - " + faker.random.alphaNumeric(5), {
       addons: [encrypted.setOptions({ secretKey: secret })],
     });
+    this.on("blocked", () => false);
     this.version(1).stores({
       friends: "++#id, firstName, $lastName, $shoeSize, age",
     });
@@ -48,6 +50,7 @@ class TestDatabaseAddonsNoSecret extends Dexie {
         }),
       ],
     });
+    this.on("blocked", () => false);
     this.version(1).stores({
       friends: "++#id, firstName, $lastName, $shoeSize, age",
     });
@@ -57,6 +60,7 @@ class TestDatabaseNoEncryptedKeys extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name + " - " + faker.random.alphaNumeric(5));
+    this.on("blocked", () => false);
     encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
     this.version(1).stores({
       friends: "++#id, firstName, lastName, shoeSize, age",
@@ -67,6 +71,7 @@ class TestDatabaseNoHashPrimary extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name + " - " + faker.random.alphaNumeric(5));
+    this.on("blocked", () => false);
     encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
     this.version(1).stores({
       friends: "++id, firstName, lastName, shoeSize, age",
@@ -77,6 +82,7 @@ class TestDatabaseNoIndexes extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name + " - " + faker.random.alphaNumeric(5));
+    this.on("blocked", () => false);
     encrypted(this, { secretKey: Encryption.createRandomEncryptionKey() });
     this.version(1).stores({
       friends: "",
@@ -88,6 +94,7 @@ export class TestDatabaseFalsySecret extends Dexie {
   public friends: Dexie.Table<Friend, string>;
   constructor(name: string) {
     super(name + " - " + faker.random.alphaNumeric(5));
+    this.on("blocked", () => false);
     encrypted(this, { secretKey: "" });
     this.version(1).stores({
       friends: "++#id, firstName, $lastName, $shoeSize, age",
@@ -115,6 +122,7 @@ function testDatabaseJs(): TestDatabase {
     dudes: "++id, $dudeName, $dudeAge",
     empty: "",
   });
+  db.on("blocked", () => false);
   return db as TestDatabase;
 }
 
@@ -124,7 +132,8 @@ export function testDatabaseJsWithSecret(
 ): TestDatabase {
   const secret = _secret ?? Encryption.createRandomEncryptionKey();
   const db = new Dexie(
-    recreateName || "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5),
+    recreateName ||
+      "TestDatabaseJsWithSecret" + " - " + faker.random.alphaNumeric(5),
     {
       addons: [encrypted.setOptions({ secretKey: secret })],
     }
@@ -135,6 +144,7 @@ export function testDatabaseJsWithSecret(
     dudes: "++id, $dudeName, $dudeAge",
     empty: "",
   });
+  db.on("blocked", () => false);
   return db as TestDatabase;
 }
 

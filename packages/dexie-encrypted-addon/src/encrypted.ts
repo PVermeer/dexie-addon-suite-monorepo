@@ -62,6 +62,7 @@ export interface EncryptedOptions {
  */
 export function encrypted(db: Dexie, options: EncryptedOptions): void {
   // Register addon
+  // @ts-expect-error Dexie issue when extending
   const dbExtended: DexieExtended = db;
   dbExtended.pVermeerAddonsRegistered = {
     ...dbExtended.pVermeerAddonsRegistered,

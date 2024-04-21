@@ -64,6 +64,7 @@ describe("dexie-encrypted-addon dexie.spec", () => {
             }),
           ],
         }) as DexieImport & { friends: DexieImport.Table<Friend, string> };
+        db.on("blocked", () => false);
         db.version(1).stores({
           friends: "++#id, firstName, $lastName, $shoeSize, age",
           buddies: "++id, buddyName, buddyAge",

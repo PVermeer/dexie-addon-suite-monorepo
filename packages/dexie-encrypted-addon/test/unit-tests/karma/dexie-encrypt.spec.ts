@@ -3,7 +3,7 @@ import faker from "faker";
 import { encrypted } from "../../../src";
 import { DbCheckTable, DexieEncryptedTestDoc } from "../../../src/db-checks";
 import { Encryption } from "../../../src/encryption.class";
-import { EncryptionError, KeyError, SchemaError } from "../../../src/errors";
+import { EncryptionError, KeyError } from "../../../src/errors";
 import * as hooks from "../../../src/hooks";
 import {
   databasesNegative,
@@ -110,7 +110,9 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
               await db.friends
                 .where("id")
                 .anyOf(ids)
-                .modify((friend: Friend) => (friend.shoeSize = 10));
+                .modify((friend) => {
+                  friend.shoeSize = 10;
+                });
             });
           });
           describe("Reading", () => {
@@ -541,10 +543,13 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
           expect(db3.isOpen()).withContext("3").toBeFalse();
 
           await db.delete();
+          await db2.delete();
+          await db3.delete();
         });
         it("should open the database is encrypted but encrypted addon is not provided", async () => {
           const secretKey = Encryption.createRandomEncryptionKey();
-          const dbName = "TestDatabaseJs";
+          const dbName =
+            "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5);
           const stores = {
             friends: "#id, firstName, $lastName, $shoeSize, age",
           };
@@ -562,18 +567,20 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
           const db2 = new Dexie(dbName);
           await expectAsync(db2.open()).withContext("2").toBeResolved();
           expect(db2.isOpen()).withContext("2").toBeTrue();
+          db2.close();
 
           await db.delete();
+          await db2.delete();
         });
-        it(`should warn if ${DbCheckTable.name} object store cannot be created`, async () => {
+        it(`should warn if ${DbCheckTable.name} object store is created without version increase`, async () => {
           const warnSpy = spyOn(console, "warn").and.callThrough();
-          const warnMessage = new SchemaError(
-            "A database version update is required for key change detection to work"
-          ).message;
+          const warnMessage =
+            "Dexie SchemaDiff: Schema was extended without increasing the number passed to db.version(). Dexie will add missing parts and increment native version number to workaround this.";
           const encryptedTestDoc = DexieEncryptedTestDoc();
 
           const secretKey = Encryption.createRandomEncryptionKey();
-          const dbName = "TestDatabaseJs";
+          const dbName =
+            "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5);
           const stores = {
             friends: "++id, firstName, $lastName, $shoeSize, age",
           };
@@ -610,6 +617,8 @@ describe("dexie-encrypted-addon dexie-encrypt.spec", () => {
           db3.close();
 
           await db.delete();
+          await db2.delete();
+          await db3.delete();
         });
       });
     });

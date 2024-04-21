@@ -45,7 +45,7 @@
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
-    "dexie": "^3.0.0"
+    "dexie": "^4.0.0"
   },
   "repository": {
     "type": "git",

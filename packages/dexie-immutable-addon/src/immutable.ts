@@ -86,4 +86,16 @@ export function immutable(db: Dexie) {
         return origFunc.call(this, keyState, changesState);
       } as typeof origFunc
   );
+
+  db.Table.prototype.bulkUpdate = Dexie.override(
+    db.Table.prototype.bulkUpdate,
+    (origFunc: Dexie.Table<any, any>["bulkUpdate"]) =>
+      function (this: any, keysAndChanges) {
+        if (this.name.startsWith("_"))
+          return origFunc.call(this, keysAndChanges);
+
+        const changesState = cloneDeep(keysAndChanges);
+        return origFunc.call(this, changesState);
+      } as typeof origFunc
+  );
 }

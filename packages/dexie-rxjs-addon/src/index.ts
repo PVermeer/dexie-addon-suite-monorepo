@@ -7,5 +7,14 @@ export { ObservableWhereClause } from "./observable-where-clause.class";
 export type { TableExtended } from "./table-extended.class";
 
 declare module "dexie" {
-  interface Table<T, TKey> extends TableExtended<T, TKey> {}
+  interface Dexie {
+    /**
+     * Get on('changes') from 'dexie-observable' as an RxJs observable and observe changes.
+     * @link https://dexie.org/docs/Observable/Dexie.Observable
+     */
+    changes$: import("rxjs").Observable<ObservabilitySet>;
+  }
+
+  interface Table<T, TKey, TInsertType>
+    extends TableExtended<T, TKey, TInsertType> {}
 }

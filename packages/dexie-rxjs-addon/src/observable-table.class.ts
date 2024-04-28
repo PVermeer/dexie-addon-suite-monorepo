@@ -37,11 +37,13 @@ type TableMapObservable = Omit<
   | "populate"
 >;
 
-export class ObservableTable<T, TKey> implements TableMapObservable {
+export class ObservableTable<T, TKey, TInsertType>
+  implements TableMapObservable
+{
   /**
    * Create an Observable Collection of this table.
    */
-  public toCollection(): ObservableCollection<T, TKey> {
+  public toCollection(): ObservableCollection<T, TKey, TInsertType> {
     return new ObservableCollection(
       this._db,
       this._table,
@@ -80,21 +82,23 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
    * @return ObservableWhereClause.
    * @note Stays open so unsubscribe.
    */
-  where(index: string | string[]): ObservableWhereClause<T, TKey>;
+  where(index: string | string[]): ObservableWhereClause<T, TKey, TInsertType>;
   where(equalityCriterias: {
     [key: string]: IndexableType;
-  }): ObservableCollection<T, TKey>;
+  }): ObservableCollection<T, TKey, TInsertType>;
 
   public where(
     indexOrequalityCriterias: string | string[] | { [key: string]: any }
-  ): ObservableWhereClause<T, TKey> | ObservableCollection<T, TKey> {
+  ):
+    | ObservableWhereClause<T, TKey, TInsertType>
+    | ObservableCollection<T, TKey, TInsertType> {
     const CollectionExt = this._db.Collection as DexieExtended["Collection"];
 
     const whereClauseOrCollection = this._table
       // No combined overload in Dexie.js, so strong typed
       .where(indexOrequalityCriterias as any) as
-      | WhereClause<T, TKey>
-      | Collection<T, TKey>;
+      | WhereClause<T, TKey, TInsertType>
+      | Collection<T, TKey, TInsertType>;
 
     // Check what's returned.
     if (whereClauseOrCollection instanceof CollectionExt) {
@@ -102,7 +106,7 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
       return new ObservableCollection(this._db, this._table, collection);
     } else {
       const whereClause = whereClauseOrCollection;
-      return new ObservableWhereClause<T, TKey>(
+      return new ObservableWhereClause<T, TKey, TInsertType>(
         this._db,
         this._table,
         whereClause
@@ -115,7 +119,9 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
    * @return ObservableCollection.
    * @note Stays open so unsubscribe.
    */
-  public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
+  public orderBy(
+    index: string | string[]
+  ): ObservableCollection<T, TKey, TInsertType> {
     const collection = this._table.orderBy(
       Array.isArray(index) ? `[${index.join("+")}]` : index
     );
@@ -137,19 +143,22 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
 
   // Can be exposed because returns `this.toCollection()`
   public filter: (
-    ...args: Parameters<Table<T, TKey>["filter"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["filter"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public offset: (
-    ...args: Parameters<Table<T, TKey>["offset"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["offset"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public limit: (
-    ...args: Parameters<Table<T, TKey>["limit"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["limit"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public reverse: (
-    ...args: Parameters<Table<T, TKey>["reverse"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["reverse"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
 
-  constructor(protected _db: Dexie, protected _table: Table<T, TKey>) {
+  constructor(
+    protected _db: Dexie,
+    protected _table: Table<T, TKey, TInsertType>
+  ) {
     // Mixin with Table
     mixinClass(this, this._table);
   }

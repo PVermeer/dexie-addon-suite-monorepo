@@ -20,8 +20,10 @@ type CollectionMapObservable = Omit<
   | "modify"
 >;
 
-export class ObservableCollection<T, TKey> implements CollectionMapObservable {
-  private cloneAsCollection(): Collection<T, TKey> {
+export class ObservableCollection<T, TKey, TInsertType>
+  implements CollectionMapObservable
+{
+  private cloneAsCollection(): Collection<T, TKey, TInsertType> {
     (this._collection as any)._ctx = (this as any)._ctx;
     const collection = cloneDeep(this._collection);
     return collection;
@@ -61,31 +63,31 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
 
   // Can be exposed because returns `this`
   public and: (
-    ...args: Parameters<Collection<T, TKey>["and"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["and"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public distinct: (
-    ...args: Parameters<Collection<T, TKey>["distinct"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["distinct"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public filter: (
-    ...args: Parameters<Collection<T, TKey>["filter"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["filter"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public limit: (
-    ...args: Parameters<Collection<T, TKey>["limit"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["limit"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public offset: (
     ...args: Parameters<Collection<T, TKey>["offset"]>
-  ) => ObservableCollection<T, TKey>;
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public reverse: (
-    ...args: Parameters<Collection<T, TKey>["reverse"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["reverse"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public until: (
-    ...args: Parameters<Collection<T, TKey>["until"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["until"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
 
   // Remap
   public or(
-    ...args: Parameters<Collection<T, TKey>["or"]>
-  ): ObservableWhereClause<T, TKey> {
+    ...args: Parameters<Collection<T, TKey, TInsertType>["or"]>
+  ): ObservableWhereClause<T, TKey, TInsertType> {
     const collection = this.cloneAsCollection();
     const whereClause = new (this._db
       .WhereClause as DexieExtended["WhereClause"])(
@@ -98,8 +100,8 @@ export class ObservableCollection<T, TKey> implements CollectionMapObservable {
 
   constructor(
     protected _db: Dexie,
-    protected _table: Table<T, TKey>,
-    public _collection: Collection<T, TKey>
+    protected _table: Table<T, TKey, TInsertType>,
+    public _collection: Collection<T, TKey, TInsertType>
   ) {
     // Mixin with Collection
     mixinClass(this, this._collection);

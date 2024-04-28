@@ -7,13 +7,14 @@ import { populateObservable } from "./populate-observable.service";
 export class PopulateObservableCollection<
   T,
   TKey,
+  TInsertType,
   B extends boolean,
   K extends string
-> extends ObservableCollection<T, TKey> {
+> extends ObservableCollection<T, TKey, TInsertType> {
   constructor(
     _db: Dexie,
-    _table: Table<T, TKey>,
-    _collection: Collection<T, TKey>,
+    _table: Table<T, TKey, TInsertType>,
+    _collection: Collection<T, TKey, TInsertType>,
     keys: K[] | undefined,
     options: PopulateOptions<B> | undefined
   ) {

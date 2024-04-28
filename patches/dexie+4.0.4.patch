@@ -1,0 +1,42 @@
+diff --git a/node_modules/dexie/dist/dexie.d.ts b/node_modules/dexie/dist/dexie.d.ts
+index fd79369..de411f3 100644
+--- a/node_modules/dexie/dist/dexie.d.ts
++++ b/node_modules/dexie/dist/dexie.d.ts
+@@ -1152,6 +1152,7 @@ export declare module Dexie {
+ 	interface Collection<T = any, Key = any> extends _Collection<T, Key> {
+ 	} // Because app-code may declare it.
+ }
++
+ export function liveQuery<T>(querier: () => T | Promise<T>): Observable<T>;
+ export function mergeRanges(target: IntervalTree, newSet: IntervalTree): void;
+ export function rangesOverlap(rangeSet1: IntervalTree, rangeSet2: IntervalTree): boolean;
+@@ -1159,6 +1160,29 @@ export function cmp(a: any, b: any): number;
+ export function replacePrefix(a: string, b: string): PropModification;
+ /** Exporting 'Dexie' as the default export.
+  **/
++
++// ==== START PATCH: Added needed export definition for RangeSet class
++interface RangeSetConstructor {
++  (tree: IntervalTree): RangeSet;
++  new (): RangeSet;
++  new (from: IndexableType, to?: IndexableType): RangeSet;
++}
++interface RangeSetPrototype {
++  add(
++    rangeSet: IntervalTree | { from: IndexableType; to: IndexableType }
++  ): RangeSet;
++  addKey(key: IndexableType): RangeSet;
++  addKeys(keys: IndexableType[]): RangeSet;
++  [Symbol.iterator](): Iterator<
++    IntervalTreeNode,
++    undefined,
++    IndexableType | undefined
++  >;
++}
++type RangeSet = RangeSetPrototype & IntervalTree;
++export const RangeSet: RangeSetConstructor
++// ==== END PATCH: Added needed export definition for RangeSet class
++
+ export default Dexie;
+ 
+ export {};

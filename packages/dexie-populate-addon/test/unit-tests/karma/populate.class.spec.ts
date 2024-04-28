@@ -124,31 +124,16 @@ describe("dexie-populate-addon populate.class.spec", () => {
       const popWith = await populatedClass.populatedTree;
       const expected = {
         friends: {
-          id: {
-            2: true,
-            3: true,
-            4: true,
-            5: true,
-          },
+          id: [2, 3, 4, 5],
         },
         clubs: {
-          id: {
-            1: true,
-            2: true,
-            3: true,
-            4: true,
-            5: true,
-          },
+          id: [1, 2, 3, 4, 5],
         },
         themes: {
-          id: {
-            2: true,
-          },
+          id: [2],
         },
         styles: {
-          styleId: {
-            2: true,
-          },
+          styleId: [2],
         },
       };
       expect(popWith).toEqual(expected);

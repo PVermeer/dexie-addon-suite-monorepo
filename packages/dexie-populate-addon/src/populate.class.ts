@@ -23,9 +23,7 @@ interface MergeRef {
 
 export interface PopulateTree {
   [targetTable: string]: {
-    [targetKey: string]: {
-      [value: string]: boolean;
-    };
+    [targetKey: string]: IndexableType[];
   };
 }
 
@@ -191,13 +189,13 @@ export class Populate<
       }
 
       // Gather all id's per target key
-      Object.entries(record).forEach(([key, entry]) => {
+      Object.entries(record).forEach(([key, value]) => {
         if (
           !schema[key] ||
           (!deepRecursive &&
             keysToPopulate.length &&
             !keysToPopulate.some((x) => x === key)) ||
-          !entry
+          !value
         ) {
           return;
         }
@@ -211,10 +209,14 @@ export class Populate<
           acc[targetTable][targetKey] = [];
         }
 
-        const ids = (Array.isArray(entry) ? entry : [entry]).filter(
+        const keyValues = (Array.isArray(value) ? value : [value]).filter(
           (id) => id !== undefined && id !== null
         );
-        const mappedIdEntries = ids.map((id) => ({ id, key, ref: record }));
+        const mappedIdEntries = keyValues.map((id) => ({
+          id,
+          key,
+          ref: record,
+        }));
 
         acc[targetTable][targetKey] = [
           ...acc[targetTable][targetKey],
@@ -226,12 +228,13 @@ export class Populate<
           this._populatedTree[targetTable] = {};
         }
         if (!this._populatedTree[targetTable][targetKey]) {
-          this._populatedTree[targetTable][targetKey] = {};
+          this._populatedTree[targetTable][targetKey] = [];
         }
-        ids.forEach(
-          (x) =>
-            (this._populatedTree[targetTable][targetKey][x.toString()] = true)
-        );
+        const uniqueIds = new Set(this._populatedTree[targetTable][targetKey]);
+        keyValues.forEach((id) => uniqueIds.add(id));
+
+        // Merge unique values
+        this._populatedTree[targetTable][targetKey] = [...uniqueIds.values()];
       });
 
       return acc;

@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.5...@pvermeer/dexie-populate-addon@2.0.0-beta.0) (2024-04-29)
+
+### ⚠ BREAKING CHANGES
+
+- **dexie-populate-addon:** update to dexie 4
+
+### Features
+
+- **dexie-populate-addon:** update to dexie 4 ([1efa442](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/1efa44206b5112949a92c72509bdbed897362625))
+
+### Bug Fixes
+
+- **dexie-populate-addon:** store key values in array as correct type ([f45857f](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/f45857fd217ecbddccecdf0feefcdc2c9723174e))
+
 ## [1.0.6-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-populate-addon@1.0.5...@pvermeer/dexie-populate-addon@1.0.6-beta.0) (2024-04-29)
 
 ### Bug Fixes

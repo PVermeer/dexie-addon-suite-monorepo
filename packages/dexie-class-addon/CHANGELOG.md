@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-class-addon@1.0.5...@pvermeer/dexie-class-addon@2.0.0-beta.0) (2024-04-29)
+
+### ⚠ BREAKING CHANGES
+
+- **dexie-class-addon:** update to dexie 4
+
+### Features
+
+- **dexie-class-addon:** update to dexie 4 ([9907e7a](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/9907e7a0186a1dff07807462a77cc85122194d27))
+
 ## [1.0.6-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-class-addon@1.0.5...@pvermeer/dexie-class-addon@1.0.6-beta.0) (2024-04-29)
 
 **Note:** Version bump only for package @pvermeer/dexie-class-addon

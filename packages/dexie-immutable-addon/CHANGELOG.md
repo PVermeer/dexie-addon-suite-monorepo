@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.4...@pvermeer/dexie-immutable-addon@2.0.0-beta.0) (2024-04-29)
+
+### ⚠ BREAKING CHANGES
+
+- **dexie-immutable-addon:** update to dexie 4
+
+### Features
+
+- **dexie-immutable-addon:** added bulkUpdate() ([b3b3fc6](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/b3b3fc6524f0c28d2f7017551d22fb46642a9149))
+- **dexie-immutable-addon:** update to dexie 4 ([f2c6154](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/f2c61540365369094040d0705d6bb6794796c003))
+
 # [1.2.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-immutable-addon@1.1.4...@pvermeer/dexie-immutable-addon@1.2.0-beta.0) (2024-04-29)
 
 ### Features

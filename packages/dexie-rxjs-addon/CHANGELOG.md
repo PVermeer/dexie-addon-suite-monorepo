@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.1.1...@pvermeer/dexie-rxjs-addon@2.0.0-beta.0) (2024-04-29)
+
+### ⚠ BREAKING CHANGES
+
+- **dexie-rxjs-addon:** update to dexie 4 + make use of liveQuery
+
+### Features
+
+- **dexie-rxjs-addon:** update to dexie 4 + make use of liveQuery ([90f3579](https://github.com/PVermeer/dexie-addon-suite-monorepo/commit/90f3579bec81be445cba89d3566b1ad88566b7eb)), closes [#38](https://github.com/PVermeer/dexie-addon-suite-monorepo/issues/38)
+
 ## [1.1.2-beta.0](https://github.com/PVermeer/dexie-addon-suite-monorepo/compare/@pvermeer/dexie-rxjs-addon@1.1.1...@pvermeer/dexie-rxjs-addon@1.1.2-beta.0) (2024-04-29)
 
 **Note:** Version bump only for package @pvermeer/dexie-rxjs-addon

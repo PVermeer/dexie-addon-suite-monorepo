@@ -44,7 +44,7 @@ if [ "$branch" != "master" ]; then
     echo "Setting pre-release version for $branch"
     echo -e "\n"
 
-    if lerna version --preid=$branch --conventional-commits --conventional-prerelease --no-private --yes; then
+    if lerna version --preid=$branch --conventional-commits --conventional-prerelease --changelog-preset conventionalcommits --no-private --yes; then
         echo -e "\n"
         echo "Packages release on $branch"
         echo -e "\n"
@@ -66,7 +66,7 @@ else
     echo "Graduating packages"
     echo -e "\n"
 
-    if lerna version --conventional-commits --conventional-graduate --create-release github --no-private --yes; then
+    if lerna version --conventional-commits --conventional-graduate --changelog-preset conventionalcommits --create-release github --no-private --yes; then
         echo -e "\n"
         echo "Graduated packages"
         echo -e "\n"
@@ -75,7 +75,7 @@ else
         echo "Whoops, could not graduate packages let's try a first release of packages"
         echo -e "\n"
 
-        if lerna version --conventional-commits --create-release github --no-private --yes; then
+        if lerna version --conventional-commits --changelog-preset conventionalcommits --create-release github --no-private --yes; then
             echo -e "\n"
             echo "Versioned packages as first release"
             echo -e "\n"

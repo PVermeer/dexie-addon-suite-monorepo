@@ -1,22 +1,16 @@
-import { Collection, Dexie, IndexableType, Table, WhereClause } from "dexie";
-import { IDatabaseChange } from "dexie-observable/api";
-import isEqual from "lodash.isequal";
-import uniqWith from "lodash.uniqwith";
-import { Observable } from "rxjs";
 import {
-  buffer,
-  debounceTime,
-  filter,
-  map,
-  mergeMap,
-  share,
-  shareReplay,
-  startWith,
-} from "rxjs/operators";
+  Collection,
+  Dexie,
+  IndexableType,
+  liveQuery,
+  Table,
+  WhereClause,
+} from "dexie";
+import { from, Observable } from "rxjs";
 import { ObservableCollection } from "./observable-collection.class";
 import { ObservableWhereClause } from "./observable-where-clause.class";
 import { DexieExtended } from "./types";
-import { distinctUntilChangedIsEqual, mixinClass } from "./utils";
+import { mixinClass } from "./utils";
 
 // Type check for when dexie would update the Table interface
 type TableMapObservable = Omit<
@@ -38,46 +32,18 @@ type TableMapObservable = Omit<
   | "bulkGet"
   | "bulkPut"
   | "bulkDelete"
+  | "bulkUpdate"
   | "$"
   | "populate"
 >;
 
-export class ObservableTable<T, TKey> implements TableMapObservable {
-  private changes$ = this._db.changes$.pipe(
-    map((x) => x.filter((y) => y.table === this._table.name)),
-    filter((x) => x.length > 0),
-    share()
-  );
-
-  private _tableChanges$: Observable<IDatabaseChange[]> = this.changes$.pipe(
-    debounceTime(50), // Only checking if there are any changes on the table so only trigger on last in debounce window
-    startWith([]),
-    share()
-  );
-
-  private _table$: Observable<T[]> = this._tableChanges$.pipe(
-    mergeMap(() => this._table.toArray()),
-    distinctUntilChangedIsEqual(),
-    shareReplay({ bufferSize: 1, refCount: true })
-  );
-
-  /**
-   * Observable stream of table changes.
-   * Emits updated value on changes.
-   * @note Stays open so unsubscribe.
-   */
-  public changes(): Observable<IDatabaseChange[]> {
-    return this.changes$.pipe(
-      buffer(this.changes$.pipe(debounceTime(50))),
-      map((changesBuffer) => uniqWith(changesBuffer.flat(), isEqual)),
-      share()
-    );
-  }
-
+export class ObservableTable<T, TKey, TInsertType>
+  implements TableMapObservable
+{
   /**
    * Create an Observable Collection of this table.
    */
-  public toCollection(): ObservableCollection<T, TKey> {
+  public toCollection(): ObservableCollection<T, TKey, TInsertType> {
     return new ObservableCollection(
       this._db,
       this._table,
@@ -86,17 +52,15 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
   }
 
   /**
-   * Observable stream of the complete Table.
-   * Emits updated Table array on changes.
+   * liveQuery() observable from dexie.
    * @note Stays open so unsubscribe.
    */
-  public toArray() {
-    return this._table$;
+  public toArray(): Observable<T[]> {
+    return from(liveQuery(() => this._table.toArray()));
   }
 
   /**
-   * Observable stream of a get request.
-   * Emits updated value on changes.
+   * liveQuery() observable from dexie.
    * @note Stays open so unsubscribe.
    */
   get(key: TKey): Observable<T | undefined>;
@@ -105,59 +69,36 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
     keyOrequalityCriterias: TKey | { [key: string]: any }
   ): Observable<T | undefined>;
 
-  public get(keyOrequalityCriterias: TKey | { [key: string]: any }) {
-    return this._db.changes$.pipe(
-      filter((x) => x.some((y) => y.table === this._table.name)),
-      filter((x) => {
-        if (
-          typeof keyOrequalityCriterias === "object" &&
-          typeof keyOrequalityCriterias !== null
-        ) {
-          return Object.entries(keyOrequalityCriterias as any).some(
-            ([key, value]) =>
-              x.some((y) => {
-                const obj = "obj" in y ? y.obj : y.oldObj;
-                return obj[key] && obj[key] === value
-                  ? true
-                  : y.key === value
-                  ? true
-                  : false;
-              })
-          );
-        } else {
-          const primKey = keyOrequalityCriterias;
-          return x.some((y) => primKey === y.key);
-        }
-      }),
-      debounceTime(50),
-      startWith(null),
-      mergeMap(() => this._table.get(keyOrequalityCriterias as any)),
-      distinctUntilChangedIsEqual(),
-      shareReplay({ bufferSize: 1, refCount: true })
+  public get(
+    keyOrequalityCriterias: TKey | { [key: string]: any }
+  ): Observable<T | undefined> {
+    return from(
+      liveQuery(() => this._table.get(keyOrequalityCriterias as any))
     );
   }
 
   /**
-   * Observable stream of a where query.
-   * Emits updated values on changes, including new or updated records that are in range.
-   * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
+   * liveQuery() observable from dexie.
+   * @return ObservableWhereClause.
    * @note Stays open so unsubscribe.
    */
-  where(index: string | string[]): ObservableWhereClause<T, TKey>;
+  where(index: string | string[]): ObservableWhereClause<T, TKey, TInsertType>;
   where(equalityCriterias: {
     [key: string]: IndexableType;
-  }): ObservableCollection<T, TKey>;
+  }): ObservableCollection<T, TKey, TInsertType>;
 
   public where(
     indexOrequalityCriterias: string | string[] | { [key: string]: any }
-  ): ObservableWhereClause<T, TKey> | ObservableCollection<T, TKey> {
+  ):
+    | ObservableWhereClause<T, TKey, TInsertType>
+    | ObservableCollection<T, TKey, TInsertType> {
     const CollectionExt = this._db.Collection as DexieExtended["Collection"];
 
     const whereClauseOrCollection = this._table
       // No combined overload in Dexie.js, so strong typed
       .where(indexOrequalityCriterias as any) as
-      | WhereClause<T, TKey>
-      | Collection<T, TKey>;
+      | WhereClause<T, TKey, TInsertType>
+      | Collection<T, TKey, TInsertType>;
 
     // Check what's returned.
     if (whereClauseOrCollection instanceof CollectionExt) {
@@ -165,7 +106,7 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
       return new ObservableCollection(this._db, this._table, collection);
     } else {
       const whereClause = whereClauseOrCollection;
-      return new ObservableWhereClause<T, TKey>(
+      return new ObservableWhereClause<T, TKey, TInsertType>(
         this._db,
         this._table,
         whereClause
@@ -174,11 +115,13 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
   }
 
   /**
-   * Observable stream of the complete Table orderd by indexed key.
-   * Emits updated Table array on changes.
+   * liveQuery() observable from dexie.
+   * @return ObservableCollection.
    * @note Stays open so unsubscribe.
    */
-  public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
+  public orderBy(
+    index: string | string[]
+  ): ObservableCollection<T, TKey, TInsertType> {
     const collection = this._table.orderBy(
       Array.isArray(index) ? `[${index.join("+")}]` : index
     );
@@ -191,30 +134,31 @@ export class ObservableTable<T, TKey> implements TableMapObservable {
   }
 
   /**
-   * Observable stream of the complete Table count.
-   * Emits updated new number on changes.
+   * liveQuery() observable from dexie.
    * @note Stays open so unsubscribe.
    */
   public count(): Observable<number> {
-    const count$ = this.toCollection().count();
-    return count$;
+    return this.toCollection().count();
   }
 
   // Can be exposed because returns `this.toCollection()`
   public filter: (
-    ...args: Parameters<Table<T, TKey>["filter"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["filter"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public offset: (
-    ...args: Parameters<Table<T, TKey>["offset"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["offset"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public limit: (
-    ...args: Parameters<Table<T, TKey>["limit"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["limit"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
   public reverse: (
-    ...args: Parameters<Table<T, TKey>["reverse"]>
-  ) => ObservableCollection<T, TKey>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["reverse"]>
+  ) => ObservableCollection<T, TKey, TInsertType>;
 
-  constructor(protected _db: Dexie, protected _table: Table<T, TKey>) {
+  constructor(
+    protected _db: Dexie,
+    protected _table: Table<T, TKey, TInsertType>
+  ) {
     // Mixin with Table
     mixinClass(this, this._table);
   }

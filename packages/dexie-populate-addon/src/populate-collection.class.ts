@@ -9,6 +9,7 @@ import { mixinClass } from "./_utils/utils";
 type CollectionMapPopulated = Omit<
   Record<keyof Collection, (...args: any[]) => any>,
   // Only to observe so omit:
+  | "db"
   | "each"
   | "eachKey"
   | "eachPrimaryKey"
@@ -19,10 +20,15 @@ type CollectionMapPopulated = Omit<
   | "modify"
 >;
 
-export class PopulatedCollection<T, TKey, B extends boolean, K extends string>
-  implements CollectionMapPopulated
+export class PopulatedCollection<
+  T,
+  TKey,
+  TInsertType,
+  B extends boolean,
+  K extends string
+> implements CollectionMapPopulated
 {
-  private cloneAsCollection(): Collection<T, TKey> {
+  private cloneAsCollection(): Collection<T, TKey, TInsertType> {
     (this._collection as any)._ctx = (this as any)._ctx;
     const collection = cloneDeep(this._collection);
     return collection;
@@ -90,31 +96,31 @@ export class PopulatedCollection<T, TKey, B extends boolean, K extends string>
 
   // Can be exposed because returns `this`
   public and: (
-    ...args: Parameters<Collection<T, TKey>["and"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["and"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public distinct: (
-    ...args: Parameters<Collection<T, TKey>["distinct"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["distinct"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public filter: (
-    ...args: Parameters<Collection<T, TKey>["filter"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["filter"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public limit: (
-    ...args: Parameters<Collection<T, TKey>["limit"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["limit"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public offset: (
-    ...args: Parameters<Collection<T, TKey>["offset"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["offset"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public reverse: (
-    ...args: Parameters<Collection<T, TKey>["reverse"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["reverse"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public until: (
-    ...args: Parameters<Collection<T, TKey>["until"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Collection<T, TKey, TInsertType>["until"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
 
   // Remap
   public or(
-    ...args: Parameters<Collection<T, TKey>["or"]>
-  ): PopulatedWhereClause<T, TKey, B, K> {
+    ...args: Parameters<Collection<T, TKey, TInsertType>["or"]>
+  ): PopulatedWhereClause<T, TKey, TInsertType, B, K> {
     const collection = this.cloneAsCollection();
     const whereClause = new (this._db
       .WhereClause as DexieExtended["WhereClause"])(
@@ -133,8 +139,8 @@ export class PopulatedCollection<T, TKey, B extends boolean, K extends string>
 
   constructor(
     protected _db: Dexie,
-    protected _table: Table<T, TKey>,
-    public _collection: Collection<T, TKey>,
+    protected _table: Table<T, TKey, TInsertType>,
+    public _collection: Collection<T, TKey, TInsertType>,
     protected _keys: K[] | undefined,
     protected _options: PopulateOptions<B> | undefined
   ) {

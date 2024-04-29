@@ -26,17 +26,23 @@ type TableMapPopulate = Omit<
   | "bulkGet"
   | "bulkPut"
   | "bulkDelete"
+  | "bulkUpdate"
   | "$"
   | "populate"
 >;
 
-export class PopulateTable<T, TKey, B extends boolean, K extends string>
-  implements TableMapPopulate
+export class PopulateTable<
+  T,
+  TKey,
+  TInsertType,
+  B extends boolean,
+  K extends string
+> implements TableMapPopulate
 {
   /**
    * Create an Populated Collection of this table.
    */
-  public toCollection(): PopulatedCollection<T, TKey, B, K> {
+  public toCollection(): PopulatedCollection<T, TKey, TInsertType, B, K> {
     return new PopulatedCollection(
       this._db,
       this._table,
@@ -67,6 +73,8 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string>
 
   public async get(keyOrequalityCriterias: TKey | { [key: string]: any }) {
     const result = await this._table.get(keyOrequalityCriterias as any);
+    if (!result) return;
+
     const [populated] = await Populate.populateResult(
       result,
       this._table,
@@ -76,21 +84,25 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string>
     return populated;
   }
 
-  where(index: string | string[]): PopulatedWhereClause<T, TKey, B, K>;
+  where(
+    index: string | string[]
+  ): PopulatedWhereClause<T, TKey, TInsertType, B, K>;
   where(equalityCriterias: {
     [key: string]: IndexableType;
-  }): PopulatedCollection<T, TKey, B, K>;
+  }): PopulatedCollection<T, TKey, TInsertType, B, K>;
 
   public where(
     indexOrequalityCriterias: string | string[] | { [key: string]: any }
-  ): PopulatedWhereClause<T, TKey, B, K> | PopulatedCollection<T, TKey, B, K> {
+  ):
+    | PopulatedWhereClause<T, TKey, TInsertType, B, K>
+    | PopulatedCollection<T, TKey, TInsertType, B, K> {
     const CollectionExt = this._db.Collection as DexieExtended["Collection"];
 
     const whereClauseOrCollection = this._table
       // No combined overload in Dexie.js, so strong typed
       .where(indexOrequalityCriterias as any) as
-      | WhereClause<T, TKey>
-      | Collection<T, TKey>;
+      | WhereClause<T, TKey, TInsertType>
+      | Collection<T, TKey, TInsertType>;
 
     // Check what's returned.
     if (whereClauseOrCollection instanceof CollectionExt) {
@@ -114,7 +126,9 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string>
     }
   }
 
-  public orderBy(index: string | string[]): PopulatedCollection<T, TKey, B, K> {
+  public orderBy(
+    index: string | string[]
+  ): PopulatedCollection<T, TKey, TInsertType, B, K> {
     const collection = this._table.orderBy(
       Array.isArray(index) ? `[${index.join("+")}]` : index
     );
@@ -135,23 +149,23 @@ export class PopulateTable<T, TKey, B extends boolean, K extends string>
 
   // Can be exposed because returns `this.toCollection()`
   public filter: (
-    ...args: Parameters<Table<T, TKey>["filter"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["filter"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public offset: (
-    ...args: Parameters<Table<T, TKey>["offset"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["offset"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public limit: (
-    ...args: Parameters<Table<T, TKey>["limit"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["limit"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
   public reverse: (
-    ...args: Parameters<Table<T, TKey>["reverse"]>
-  ) => PopulatedCollection<T, TKey, B, K>;
+    ...args: Parameters<Table<T, TKey, TInsertType>["reverse"]>
+  ) => PopulatedCollection<T, TKey, TInsertType, B, K>;
 
   constructor(
     protected _keys: K[] | undefined,
     protected _options: PopulateOptions<B> | undefined,
     protected _db: Dexie,
-    protected _table: Table<T, TKey>,
+    protected _table: Table<T, TKey, TInsertType>,
     protected _relationalSchema: RelationalDbSchema
   ) {
     // Mixin with Table

@@ -1,5 +1,5 @@
 import { Dexie, Table } from "dexie";
-import { EncryptionError, KeyError, SchemaError } from "./errors";
+import { EncryptionError, KeyError } from "./errors";
 import { ModifiedKeysTable } from "./schema-parser";
 
 interface EncryptedTestDoc {
@@ -30,19 +30,6 @@ async function secretKeyHasChanged(_db: Dexie): Promise<boolean> {
     [DbCheckTable.name]: Table<EncryptedTestDoc, string>;
   };
 
-  const idb = db.backendDB();
-  const dbCheckTableIsCreated = idb.objectStoreNames.contains(
-    DbCheckTable.name
-  );
-  if (!dbCheckTableIsCreated) {
-    console.warn(
-      new SchemaError(
-        "A database version update is required for key change detection to work"
-      ).message
-    );
-    return false;
-  }
-
   const encryptedTable = db[DbCheckTable.name];
   const encryptedTestDoc = await encryptedTable
     .get(DexieEncryptedTestDoc().id)
@@ -51,8 +38,10 @@ async function secretKeyHasChanged(_db: Dexie): Promise<boolean> {
       throw error;
     });
 
+  // Encryption error
   if (encryptedTestDoc === null) return true;
 
+  // First init
   if (encryptedTestDoc === undefined) {
     await encryptedTable.add(DexieEncryptedTestDoc());
     return false;

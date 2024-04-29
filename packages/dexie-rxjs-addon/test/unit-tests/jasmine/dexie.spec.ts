@@ -1,6 +1,9 @@
-import type { Dexie } from "dexie";
+import { Dexie as DexieImport } from "dexie";
+import { dexieRxjs } from "../../../src";
 
-// declare interface DexieRxjsAddonType { dexieRxjs: typeof dexieRxjs; }
+declare interface DexieRxjsAddonType {
+  dexieRxjs: typeof dexieRxjs;
+}
 
 /*
  * Lib is not really meant for node but package should be able to be required in node.
@@ -8,24 +11,21 @@ import type { Dexie } from "dexie";
 describe("dexie-rxjs-addon dexie.spec", () => {
   describe("Dexie", () => {
     describe("Node require", () => {
-      let DexieReq: typeof Dexie;
+      let DexieReq: typeof DexieImport;
+      let DexieRxjsAddonReq: DexieRxjsAddonType;
       beforeAll(() => {
         DexieReq = require("dexie");
-        require("rxjs");
+        DexieRxjsAddonReq = require("../../../dist/index");
       });
       it("should load Dexie.js", () => {
         expect(DexieReq).toBeTruthy();
       });
-      it("should throw when trying to require", () => {
-        let addon: any;
-        // Addon throws because window.self is not defined.
-        // Dependency 'dexie-observable' relies on this.
-        try {
-          addon = require("../../../dist/index");
-        } catch (error) {
-          expect(error instanceof Error).toBeTrue();
-        }
-        expect(addon).toBeUndefined();
+      it("should load DexieRxjsAddonAddon.js", () => {
+        expect(DexieRxjsAddonReq).toBeTruthy();
+        expect(DexieRxjsAddonReq.dexieRxjs).toBeTruthy();
+      });
+      it("should be able to use rxjs addon", async () => {
+        expect(typeof DexieRxjsAddonReq.dexieRxjs === "function").toBeTrue();
       });
     });
   });

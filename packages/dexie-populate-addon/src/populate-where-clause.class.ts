@@ -12,12 +12,13 @@ interface PopulatedWhereClauseI {
 type WhereClauseRecordPopulate<
   T,
   TKey,
+  TInsertType,
   B extends boolean,
   K extends string,
   U = Omit<WhereClause, keyof PopulatedWhereClauseI>
 > = {
   [P in keyof U]: U[P] extends (...args: infer A) => any
-    ? (...args: A) => PopulatedCollection<T, TKey, B, K>
+    ? (...args: A) => PopulatedCollection<T, TKey, TInsertType, B, K>
     : U[P];
 };
 
@@ -26,11 +27,17 @@ type WhereClauseRecordPopulate<
 export interface PopulatedWhereClause<
   T,
   TKey,
+  TInsertType,
   B extends boolean,
   K extends string
-> extends WhereClauseRecordPopulate<T, TKey, B, K> {}
-export class PopulatedWhereClause<T, TKey, B extends boolean, K extends string>
-  implements PopulatedWhereClauseI
+> extends WhereClauseRecordPopulate<T, TKey, TInsertType, B, K> {}
+export class PopulatedWhereClause<
+  T,
+  TKey,
+  TInsertType,
+  B extends boolean,
+  K extends string
+> implements PopulatedWhereClauseI
 {
   get Collection() {
     const dbExt = this._db as DexieExtended;
@@ -40,8 +47,8 @@ export class PopulatedWhereClause<T, TKey, B extends boolean, K extends string>
     // Hijack Collection class getter.
     return class Callable {
       constructor(...args: ConstructorParameters<typeof dbExt.Collection>) {
-        const collection = new dbExt.Collection<T, TKey>(...args);
-        return new PopulatedCollection<T, TKey, B, K>(
+        const collection = new dbExt.Collection<T, TKey, TInsertType>(...args);
+        return new PopulatedCollection<T, TKey, TInsertType, B, K>(
           dbExt,
           table,
           collection,
@@ -54,8 +61,8 @@ export class PopulatedWhereClause<T, TKey, B extends boolean, K extends string>
 
   constructor(
     protected _db: Dexie,
-    protected _table: Table<T, TKey>,
-    protected _whereClause: WhereClause<T, TKey>,
+    protected _table: Table<T, TKey, TInsertType>,
+    protected _whereClause: WhereClause<T, TKey, TInsertType>,
     protected _keys: K[] | undefined,
     protected _options: PopulateOptions<B> | undefined
   ) {

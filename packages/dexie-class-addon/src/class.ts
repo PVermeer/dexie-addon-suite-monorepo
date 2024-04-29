@@ -8,6 +8,7 @@ type DexieExtended = Dexie & {
 
 export function classMap(db: Dexie) {
   // Register addon
+  // @ts-expect-error Dexie issue when extending
   const dbExtended: DexieExtended = db;
   dbExtended.pVermeerAddonsRegistered = {
     ...dbExtended.pVermeerAddonsRegistered,

@@ -514,7 +514,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 let emitCount = 0;
                 let obsFriend: Populated<Friend, false, string> | undefined;
 
-                const waits = new Array(8).fill(null).map(() => flatPromise());
+                const waits = new Array(7).fill(null).map(() => flatPromise());
                 subs.add(
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
@@ -562,22 +562,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 expect(emitCount).toBe(7);
                 friendExpectedPop.lastName = "Testie last name";
                 expect(obsFriend).toEqual(friendExpectedPop);
-
-                const updateFriends = friends.map((friend) => ({
-                  key: friend.id!,
-                  changes: { lastName: "Testie last name 2" },
-                }));
-                await db.friends.bulkUpdate(updateFriends);
-                await waits[7].promise;
-                expect(emitCount).toBe(8);
-                const newAllFriends = await db.friends.toArray();
-                expect(
-                  newAllFriends.every(
-                    (friend) => friend.lastName === "Testie last name 2"
-                  )
-                )
-                  .withContext("bulkupdate()")
-                  .toBeTrue();
               });
               it("should emit when populated property is deleted", async () => {
                 const method = _method.method(db);

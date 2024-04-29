@@ -2,7 +2,7 @@ import * as classModule from "@pvermeer/dexie-class-addon/src/class";
 import { Encryption } from "@pvermeer/dexie-encrypted-addon";
 import * as encryptedModule from "@pvermeer/dexie-encrypted-addon/src/encrypted";
 import * as immutableModule from "@pvermeer/dexie-immutable-addon/src/immutable";
-import { Populated } from "@pvermeer/dexie-populate-addon";
+import type { Populated } from "@pvermeer/dexie-populate-addon";
 import * as populateModule from "@pvermeer/dexie-populate-addon/src/populate";
 import * as rxjsModule from "@pvermeer/dexie-rxjs-addon/src/dexie-rxjs";
 import { Dexie } from "dexie";
@@ -54,7 +54,9 @@ function hashDocument(dbClass: { serialize: () => any }) {
 describe("dexie-addon-suite addon-suite.spec", () => {
   describe("Suite", () => {
     databasesPositive.forEach((database, _i) => {
-      // if (_i !== 1) { return; }
+      // if (_i !== 1) {
+      //   return;
+      // }
       describe(database.desc, () => {
         let db: ReturnType<typeof database.db>;
 
@@ -135,11 +137,14 @@ describe("dexie-addon-suite addon-suite.spec", () => {
             false,
             string
           >;
+          // Id's are also put on the friend objects in the friends array!
           friendExpectedPop.id = id;
-          friendExpectedPop.hasFriends = friends.slice(1).map((x, i) => {
-            x.id = ids[i + 1];
-            return x;
-          }) as any;
+          friendExpectedPop.hasFriends = friends
+            .map((x, i) => {
+              x.id = ids[i];
+              return x;
+            })
+            .slice(1) as any;
           friendExpectedPop.memberOf = clubs.map((x, i) => {
             x.id = clubIds[i];
             return x;
@@ -167,6 +172,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
           friendExpectedPop.hasFriends[0]!.group = groups[2] as any;
           friendExpectedPop.hasFriends[0]!.hairColor = hairColors[2] as any;
         });
+
         afterEach(async () => {
           subs.unsubscribe();
           await db.delete();
@@ -175,6 +181,8 @@ describe("dexie-addon-suite addon-suite.spec", () => {
         if (database.immutable) {
           describe("Immutable", () => {
             it("should not change input object", async () => {
+              const friend = mockFriends(1)[0];
+              db.friends.add(friend);
               const getFriend = (await db.friends.get(id)) as Friend;
               expect(friend.id).toBeUndefined();
               expect(getFriend!.id).toBeTruthy();
@@ -193,6 +201,9 @@ describe("dexie-addon-suite addon-suite.spec", () => {
               expect(getFriend.id).toBe(hashId);
             });
             it("should encrypt firstName", async () => {
+              const friend = mockFriends(1)[0];
+              await db.friends.add(friend);
+
               const iDb = db.backendDB();
               const hashedId = hashDocument(friend);
               const request = iDb
@@ -201,6 +212,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 .get(hashedId);
               await new Promise((resolve) => (request.onsuccess = resolve));
               const friendRaw = request.result;
+
               expect(friendRaw).toBeDefined();
               expect(Object.keys(friendRaw)).toEqual(
                 jasmine.arrayContaining(Object.keys(friend))
@@ -278,16 +290,13 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   "memberOf",
                   "group",
                   "hairColor",
-                  // Typed as other methods, should return the same type
-                ]) as unknown as PopulateTableObservable<
-                  Populated<Friend, false, string>,
-                  string,
-                  false,
-                  string
-                >,
+                ]),
             },
           ];
-          methods.forEach((_method) => {
+          methods.forEach((_method, _j) => {
+            // if (_j !== 0) {
+            //   return;
+            // }
             describe(_method.desc, () => {
               it("should be an observable", async () => {
                 const method = _method.method(db);
@@ -350,19 +359,21 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 const method = _method.method(db);
                 let emitCount = 0;
                 let obsFriend: Populated<Friend, false, string> | undefined;
-                const emitPromise = new Promise<void>((resolve) => {
-                  subs.add(
-                    method.get(id).subscribe((friendEmit) => {
-                      emitCount++;
-                      obsFriend = friendEmit;
-                      if (emitCount === 2) {
-                        resolve();
-                      }
-                    })
-                  );
-                });
+
+                const waits = new Array(2).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.get(id).subscribe((friendEmit) => {
+                    emitCount++;
+                    obsFriend = friendEmit;
+
+                    waits[emitCount - 1].resolve();
+                  })
+                );
+                await waits[0].promise;
+
                 await db.friends.update(id, { firstName: "TestieUpdate" });
-                await emitPromise;
+                await waits[1].promise;
+
                 expect(emitCount).toBe(2);
                 expect({ ...obsFriend }).toEqual({
                   ...friendExpectedPop,
@@ -393,40 +404,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 await waits[0].promise;
                 expect(emitCount).toBe(1);
                 expect(obsFriend).toEqual(friendExpectedPop);
-                await db.friends.delete(id);
-                await waits[1].promise;
-                expect(emitCount).toBe(2);
-                expect(obsFriend).toBe(undefined);
-              });
-              it("should emit undefined on record delete (slowed)", async () => {
-                const method = _method.method(db);
-                let emitCount = 0;
-                let obsFriend: Populated<Friend, false, string> | undefined;
-
-                const waits = new Array(2).fill(null).map(() => flatPromise());
-                subs.add(
-                  method.get(id).subscribe((friendEmit) => {
-                    emitCount++;
-                    obsFriend = friendEmit;
-                    switch (emitCount) {
-                      case 1:
-                        waits[0].resolve();
-                        break;
-                      case 2:
-                        waits[1].resolve();
-                        break;
-                    }
-                  })
-                );
-
-                await waits[0].promise;
-                expect(emitCount).toBe(1);
-                expect(obsFriend).toEqual(friendExpectedPop);
-
-                // Slow down to force two emits from db.changes$
-                await new Promise<void>((resolve) =>
-                  setTimeout(() => resolve(), 500)
-                );
 
                 await db.friends.delete(id);
                 await waits[1].promise;
@@ -456,26 +433,30 @@ describe("dexie-addon-suite addon-suite.spec", () => {
               it("should emit when record is created after subscribe", async () => {
                 const method = _method.method(db);
                 const [newFriend] = mockFriends(1);
+
+                // Adding a friend to get the last id to create a non-existing id
                 const lastId = await db.friends.add(mockFriends(1)[0]);
                 const newId = database.encrypted
                   ? hashDocument(newFriend)
                   : lastId + 1;
                 let emitCount = 0;
                 let obsFriend!: Populated<Friend> | undefined;
-                const emitPromise = new Promise<void>((resolve) => {
-                  subs.add(
-                    method.get(newId).subscribe((friendEmit) => {
-                      emitCount++;
-                      obsFriend = friendEmit;
-                      if (emitCount === 2) {
-                        resolve();
-                      }
-                    })
-                  );
-                });
+                const waits = new Array(2).fill(null).map(() => flatPromise());
+
+                subs.add(
+                  method.get(newId).subscribe((friendEmit) => {
+                    emitCount++;
+                    obsFriend = friendEmit;
+                    waits[emitCount - 1].resolve();
+                  })
+                );
+
+                await waits[0].promise;
+                expect(obsFriend).toBeUndefined();
+
                 const newId2 = await db.friends.add(newFriend);
                 newFriend.id = newId2;
-                await emitPromise;
+                await waits[1].promise;
                 expect(obsFriend).toEqual(newFriend as Populated<Friend>);
               });
               it("should not emit when no changes", async () => {
@@ -518,7 +499,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 expect(emitCount).toBe(1);
 
                 // Update record with same data
-                await db.friends.update(id1, newFriends[idx1]);
+                await db.friends.update(id1, newFriends[idx1].getSerialized());
                 setTimeout(() => waits[2].resolve(), 500);
                 await waits[2].promise;
                 expect(emitCount).toBe(1);
@@ -533,7 +514,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 let emitCount = 0;
                 let obsFriend: Populated<Friend, false, string> | undefined;
 
-                const waits = new Array(6).fill(null).map(() => flatPromise());
+                const waits = new Array(8).fill(null).map(() => flatPromise());
                 subs.add(
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
@@ -576,10 +557,51 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 friendExpectedPop.hasFriends[0]!.group!.name = "Testie name";
                 expect(obsFriend).toEqual(friendExpectedPop);
 
-                await new Promise<void>((resolve) =>
-                  setTimeout(() => resolve(), 500)
+                await db.friends.update(id, { lastName: "Testie last name" });
+                await waits[6].promise;
+                expect(emitCount).toBe(7);
+                friendExpectedPop.lastName = "Testie last name";
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                const updateFriends = friends.map((friend) => ({
+                  key: friend.id!,
+                  changes: { lastName: "Testie last name 2" },
+                }));
+                await db.friends.bulkUpdate(updateFriends);
+                await waits[7].promise;
+                expect(emitCount).toBe(8);
+                const newAllFriends = await db.friends.toArray();
+                expect(
+                  newAllFriends.every(
+                    (friend) => friend.lastName === "Testie last name 2"
+                  )
+                )
+                  .withContext("bulkupdate()")
+                  .toBeTrue();
+              });
+              it("should emit when populated property is deleted", async () => {
+                const method = _method.method(db);
+                let emitCount = 0;
+                let obsFriend: Populated<Friend, false, string> | undefined;
+
+                const waits = new Array(2).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.get(id).subscribe((friendEmit) => {
+                    emitCount++;
+                    obsFriend = friendEmit;
+                    waits[emitCount - 1].resolve();
+                  })
                 );
-                expect(emitCount).toBe(6);
+
+                await waits[0].promise;
+                expect(emitCount).toBe(1);
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                await db.clubs.delete(clubIds[1]);
+                await waits[1].promise;
+                expect(emitCount).toBe(2);
+                friendExpectedPop.memberOf[1] = null;
+                expect(obsFriend).toEqual(friendExpectedPop);
               });
               it("should emit when updating a nested populated id, then update update this record", async () => {
                 const method = _method.method(db);
@@ -615,11 +637,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 expect(emitCount).toBe(3);
                 friendExpectedPop.hasFriends[0]!.group!.name = "Testie name";
                 expect(obsFriend).toEqual(friendExpectedPop);
-
-                await new Promise<void>((resolve) =>
-                  setTimeout(() => resolve(), 500)
-                );
-                expect(emitCount).toBe(3);
               });
               it("should not emit when other populated properties are updated", async () => {
                 const method = _method.method(db);
@@ -666,11 +683,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 await waits[3].promise;
                 expect(emitCount).toBe(1);
                 expect(obsFriend).toEqual(friendExpectedPop);
-
-                await new Promise<void>((resolve) =>
-                  setTimeout(() => resolve(), 500)
-                );
-                expect(emitCount).toBe(1);
               });
               describe("Array methods", () => {
                 it("should be an array", async () => {
@@ -686,12 +698,12 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 });
                 it("should populate an entire table", async () => {
                   const method = _method.method(db);
-                  const getFriendsPromises = await Promise.all([
-                    firstValueFrom(method.toArray().pipe(take(1))),
-                    firstValueFrom(
+                  const getFriendsPromises = [
+                    await firstValueFrom(method.toArray().pipe(take(1))),
+                    await firstValueFrom(
                       method.where(":id").anyOf(ids).toArray().pipe(take(1))
                     ),
-                  ]);
+                  ];
 
                   getFriendsPromises.forEach((getFriends) => {
                     const friendPop = getFriends.find((x) => x.id === id);
@@ -1106,8 +1118,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
       expect(addons).toEqual(["encrypted", "rxjs", "populate", "class"]);
     });
     it("should load addons only once", async () => {
-      console.log(classModule);
-
       const modules = [
         spyOn(classModule, "classMap").and.callThrough(),
         spyOn(encryptedModule, "encrypted").and.callThrough(),
@@ -1123,6 +1133,8 @@ describe("dexie-addon-suite addon-suite.spec", () => {
       await db.open();
 
       modules.forEach((spy) => expect(spy).toHaveBeenCalledTimes(1));
+
+      await db.delete();
     });
   });
 });

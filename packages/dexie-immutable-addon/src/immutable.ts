@@ -7,6 +7,7 @@ type DexieExtended = Dexie & {
 
 export function immutable(db: Dexie) {
   // Register addon
+  // @ts-expect-error Dexie issue with extending
   const dbExtended: DexieExtended = db;
   if (dbExtended.pVermeerAddonsRegistered?.immutable) {
     return;
@@ -83,6 +84,18 @@ export function immutable(db: Dexie) {
         const keyState = cloneDeep(key);
         const changesState = cloneDeep(changes);
         return origFunc.call(this, keyState, changesState);
+      } as typeof origFunc
+  );
+
+  db.Table.prototype.bulkUpdate = Dexie.override(
+    db.Table.prototype.bulkUpdate,
+    (origFunc: Dexie.Table<any, any>["bulkUpdate"]) =>
+      function (this: any, keysAndChanges) {
+        if (this.name.startsWith("_"))
+          return origFunc.call(this, keysAndChanges);
+
+        const changesState = cloneDeep(keysAndChanges);
+        return origFunc.call(this, changesState);
       } as typeof origFunc
   );
 }

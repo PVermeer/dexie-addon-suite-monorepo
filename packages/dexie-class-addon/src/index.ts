@@ -8,7 +8,8 @@ declare module "dexie" {
   /**
    * Extended Table class with class methods
    */
-  interface Table<T, TKey> extends TableExtended<T, TKey> {}
+  interface Table<T, TKey, TInsertType>
+    extends TableExtended<T, TKey, TInsertType> {}
 
   /**
    * Extend Transaction interface

@@ -23,27 +23,32 @@ interface MergeRef {
 
 export interface PopulateTree {
   [targetTable: string]: {
-    [targetKey: string]: {
-      [value: string]: boolean;
-    };
+    [targetKey: string]: IndexableType[];
   };
 }
 
-export class Populate<T, TKey, B extends boolean, K extends string> {
+export class Populate<
+  T,
+  TKey,
+  TInsertType,
+  B extends boolean,
+  K extends string
+> {
   public static async populateResult<
     T,
     TKey,
+    TInsertType,
     B extends boolean,
     K extends string
   >(
     result: T | T[],
-    table: Table<T, TKey>,
+    table: Table<T, TKey, TInsertType>,
     keys: K[] | undefined,
     options: PopulateOptions<B> | undefined
   ): Promise<Populated<T, B, K>[]> {
     const dbExt = table.db as DexieExtended;
     const relationalSchema = dbExt._relationalSchema;
-    const populate = new Populate<T, TKey, B, K>(
+    const populate = new Populate<T, TKey, TInsertType, B, K>(
       result,
       keys,
       options,
@@ -57,11 +62,12 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
   public static async populateResultWithTree<
     T,
     TKey,
+    TInsertType,
     B extends boolean,
     K extends string
   >(
     result: T,
-    table: Table<T, TKey>,
+    table: Table<T, TKey, TInsertType>,
     keys: K[] | undefined,
     options: PopulateOptions<B> | undefined
   ) {
@@ -183,13 +189,13 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
       }
 
       // Gather all id's per target key
-      Object.entries(record).forEach(([key, entry]) => {
+      Object.entries(record).forEach(([key, value]) => {
         if (
           !schema[key] ||
           (!deepRecursive &&
             keysToPopulate.length &&
             !keysToPopulate.some((x) => x === key)) ||
-          !entry
+          !value
         ) {
           return;
         }
@@ -203,10 +209,14 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
           acc[targetTable][targetKey] = [];
         }
 
-        const ids = (Array.isArray(entry) ? entry : [entry]).filter(
+        const keyValues = (Array.isArray(value) ? value : [value]).filter(
           (id) => id !== undefined && id !== null
         );
-        const mappedIdEntries = ids.map((id) => ({ id, key, ref: record }));
+        const mappedIdEntries = keyValues.map((id) => ({
+          id,
+          key,
+          ref: record,
+        }));
 
         acc[targetTable][targetKey] = [
           ...acc[targetTable][targetKey],
@@ -218,12 +228,13 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
           this._populatedTree[targetTable] = {};
         }
         if (!this._populatedTree[targetTable][targetKey]) {
-          this._populatedTree[targetTable][targetKey] = {};
+          this._populatedTree[targetTable][targetKey] = [];
         }
-        ids.forEach(
-          (x) =>
-            (this._populatedTree[targetTable][targetKey][x.toString()] = true)
-        );
+        const uniqueIds = new Set(this._populatedTree[targetTable][targetKey]);
+        keyValues.forEach((id) => uniqueIds.add(id));
+
+        // Merge unique values
+        this._populatedTree[targetTable][targetKey] = [...uniqueIds.values()];
       });
 
       return acc;
@@ -335,7 +346,7 @@ export class Populate<T, TKey, B extends boolean, K extends string> {
     keys: string[] | undefined,
     options: PopulateOptions<B> | undefined,
     private _db: Dexie,
-    private _table: Table<T, TKey>,
+    private _table: Table<T, TKey, TInsertType>,
     private _relationalSchema: RelationalDbSchema
   ) {
     this._records = _records

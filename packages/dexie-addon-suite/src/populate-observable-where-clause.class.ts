@@ -4,14 +4,13 @@ import { Dexie, Table } from "dexie";
 import { PopulateObservableCollection } from "./populate-observable-collection.class";
 import { DexieExtended } from "./typings";
 
-export { ObservableWhereClause };
-
 export class PopulateObservableWhereClause<
   T,
   TKey,
+  TInsertType,
   B extends boolean,
   K extends string
-> extends ObservableWhereClause<T, TKey> {
+> extends ObservableWhereClause<T, TKey, TInsertType> {
   get Collection() {
     const dbExt = this._db as DexieExtended;
     const table = this._table;
@@ -21,7 +20,7 @@ export class PopulateObservableWhereClause<
     // Hijack Collection class getter.
     return class Callable {
       constructor(...args: ConstructorParameters<typeof dbExt.Collection>) {
-        const collection = new dbExt.Collection<T, TKey>(...args);
+        const collection = new dbExt.Collection<T, TKey, TInsertType>(...args);
         return new PopulateObservableCollection(
           dbExt,
           table,
@@ -35,10 +34,10 @@ export class PopulateObservableWhereClause<
 
   constructor(
     _db: Dexie,
-    _table: Table<T, TKey>,
+    _table: Table<T, TKey, TInsertType>,
     protected keys: K[] | undefined,
     protected options: PopulateOptions<B> | undefined,
-    _observableWhereClause: ObservableWhereClause<T, TKey>
+    _observableWhereClause: ObservableWhereClause<T, TKey, TInsertType>
   ) {
     super(_db, _table, (_observableWhereClause as any)._whereClause);
   }

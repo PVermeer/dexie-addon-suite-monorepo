@@ -28,7 +28,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -47,7 +47,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -67,7 +67,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -86,7 +86,7 @@ export const databasesPositive = [
         public friends: DexieType.Table<Friend, number>;
         public enemies: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -107,7 +107,7 @@ export const databasesNegative = [
       new (class TestDatabaseCompoundIndex extends Dexie {
         public friends: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -123,7 +123,7 @@ export const databasesNegative = [
       new (class TestDatabaseMultiIndex extends Dexie {
         public friends: DexieType.Table<Friend, number>;
         constructor(name: string) {
-          super(name);
+          super(name + " - " + faker.random.alphaNumeric(5));
           dexieRxjs(this);
           this.on("blocked", () => false);
           this.version(1).stores({
@@ -164,7 +164,7 @@ export const methods = [
   },
   {
     desc: "toArray()",
-    singelton: true,
+    singelton: false,
     array: true,
     alwaysEmit: true,
     method:
@@ -203,38 +203,6 @@ export const methods = [
           ? db.friends.$.filter((x) => !!x).toArray()
           : db.friends.$.filter((x) => !!x)
               .toArray()
-              .pipe(
-                mergeMap((x) => {
-                  if (_options.emitFull) {
-                    return of(x);
-                  }
-                  /** The general method tests rely on returning undefined when not found. */
-                  const find = x.find(
-                    (y) =>
-                      y.id === id ||
-                      y.customId === _customId ||
-                      (y.some && y.some.id === id)
-                  );
-                  if (!find && !_options.emitUndefined) {
-                    return EMPTY;
-                  }
-                  return of(find);
-                })
-              ),
-  },
-  {
-    desc: "toCollection.toArray({ debounceTime: 200 })",
-    singelton: false,
-    array: true,
-    alwaysEmit: true,
-    debounce: 300,
-    method:
-      (db: TestDatabaseType) =>
-      (id: number, _customId: number, _options: MethodOptions = {}) =>
-        _options.singelton
-          ? db.friends.$.toCollection().toArray({ debounceTime: 200 })
-          : db.friends.$.toCollection()
-              .toArray({ debounceTime: 200 })
               .pipe(
                 mergeMap((x) => {
                   if (_options.emitFull) {

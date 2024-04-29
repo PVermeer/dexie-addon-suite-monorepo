@@ -16,12 +16,13 @@ import { populateObservable } from "./populate-observable.service";
 export class PopulateTableObservable<
   T,
   TKey,
+  TInsertType,
   B extends boolean,
   K extends string
-> extends ObservableTable<T, TKey> {
+> extends ObservableTable<T, TKey, TInsertType> {
   constructor(
     _db: Dexie,
-    _table: Table<any, TKey>,
+    _table: Table<any, TKey, TInsertType>,
     _keys: K[] | undefined,
     _options: PopulateOptions<B> | undefined
   ) {

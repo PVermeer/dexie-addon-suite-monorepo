@@ -97,7 +97,7 @@ export class Friend implements OnSerialize {
   shoeSize: number;
   customId: number;
   date: Date;
-  hasFriends: Ref<Friend, number>[];
+  hasFriends: Ref<Friend, string>[];
   memberOf: Ref<Club, number>[];
   group: Ref<Group, number>;
   hairColor: Ref<HairColor, number>;
@@ -121,6 +121,16 @@ export class Friend implements OnSerialize {
       hairColor: () => this.hairColor,
     };
     return serialized;
+  }
+
+  getSerialized() {
+    return Object.entries(this.serialize.bind(this)).reduce(
+      (acc, [key, value]) => {
+        acc[key] = (value as any)();
+        return acc;
+      },
+      {}
+    );
   }
 
   deserialize(input: OmitMethods<Friend>) {
@@ -147,7 +157,9 @@ export const getDatabase = (
     public hairColors: Dexie.Table<HairColor, number>;
 
     constructor(_name: string) {
-      super(_name);
+      // Make sure test don't use the same name
+      super(_name + " - " + faker.random.alphaNumeric(5));
+
       addonSuite(this, config);
       this.on("blocked", () => false);
       this.version(1).stores({
@@ -179,17 +191,18 @@ export const databasesPositive = [
     immutable: true,
     encrypted: true,
     class: true,
-    db: (dexie: typeof Dexie) =>
-      getDatabase(dexie, (this as any)!.desc!, {
+    db: (_Dexie: typeof Dexie) =>
+      getDatabase(_Dexie, "TestDatabase - all addons", {
         secretKey: Encryption.createRandomEncryptionKey(),
       }),
   },
   {
-    desc: "TestDatabase - populate / observable / immutable / class",
+    desc: "TestDatabase - populate-observable-immutable-class",
     encrypted: false,
     immutable: true,
     class: true,
-    db: (dexie: typeof Dexie) => getDatabase(dexie, (this as any)!.desc!),
+    db: (_Dexie: typeof Dexie) =>
+      getDatabase(_Dexie, "TestDatabase - populate-observable-immutable-class"),
   },
 ];
 

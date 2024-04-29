@@ -227,10 +227,7 @@ describe("dexie-immutable-addon immutable.spec", () => {
               const id = await db.friends.add(friend);
 
               const [friend2] = mockFriends(1);
-              await db.friends
-                .where("id")
-                .equals(id)
-                .modify(() => friend2);
+              await db.friends.where("id").equals(id).modify(friend2);
 
               const getFriend = (await db.friends.get(id)) as Friend;
 

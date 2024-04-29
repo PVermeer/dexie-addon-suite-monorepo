@@ -6,9 +6,10 @@ updates:
       interval: "weekly"
     target-branch: master
     commit-message:
-      prefix: "fix"
+      prefix: "build"
       prefix-development: "build"
       include: "scope"
+    versioning-strategy: increase
     allow:
       - dependency-type: production
       - dependency-name: "rxjs"

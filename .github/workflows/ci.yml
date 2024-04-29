@@ -5,6 +5,7 @@ on:
     branches: [master, beta]
   pull_request:
     branches: [master, beta]
+  workflow_dispatch:
 
 jobs:
   testRelease:
@@ -69,7 +70,7 @@ jobs:
         if: ${{ env.PR_OPENED_BY == 'dependabot[bot]' }}
         run: |
           git add -A
-          git diff-index --quiet HEAD || commit -m "fix: changes from dependabot install [skip ci]"
+          git diff-index --quiet HEAD || commit -m "build: changes from dependabot install [skip ci]"
           git push
 
       - name: Version

@@ -20,11 +20,11 @@ describe("dexie-class-addon dexie.spec", () => {
       it("should load Dexie.js", () => {
         expect(DexieReq).toBeTruthy();
       });
-      it("should load DexieImmutableAddonAddon.js", () => {
+      it("should load DexieClassAddonAddon.js", () => {
         expect(DexieClassAddonReq).toBeTruthy();
         expect(DexieClassAddonReq.classMap).toBeTruthy();
       });
-      it("should be able to use immutable addon", async () => {
+      it("should be able to use class addon", async () => {
         expect(typeof DexieClassAddonReq.classMap === "function").toBeTrue();
       });
     });

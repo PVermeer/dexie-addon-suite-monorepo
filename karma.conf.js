@@ -5,9 +5,9 @@ const path = require("path");
 const fs = require("fs");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const isWsl = require("is-wsl");
 const isCI = process.env["CI"];
 const isDocker = fs.existsSync("/.dockerenv");
+const puppeteer = require("puppeteer");
 
 /*
  * Using webpack for much better debug experience with tests.
@@ -18,12 +18,14 @@ module.exports = function (config) {
     throw "No context passed!";
   }
   const context = config.context;
-  const configLib = require("./scripts/build-package-config")(context);
+  const hasBuild = fs.existsSync(path.join(context, "dist"));
 
-  if (isWsl && !process.env["CHROME_BIN"]) {
-    process.env["CHROME_BIN"] =
-      "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe";
+  if (!hasBuild) {
+    throw "Please build before running tests";
   }
+
+  const configLib = require("./scripts/build-package-config")(context);
+  process.env.CHROME_BIN = puppeteer.executablePath();
 
   const baseConfig = {
     basePath: context,
@@ -93,11 +95,11 @@ module.exports = function (config) {
     customLaunchers: {
       ChromeDebug: {
         base: "Chrome",
-        flags: ["--remote-debugging-port=9333"],
+        flags: ["--remote-debugging-port=9222"],
       },
       ChromeHeadless_no_sandbox: {
         base: "ChromeHeadless",
-        flags: ["--no-sandbox"],
+        flags: ["--no-sandbox", "--remote-debugging-port=9333"],
       },
     },
     browsers: ["ChromeDebug"],
@@ -111,9 +113,15 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
+    // It will log multiple times because op multiple reporters see:
+    // https://github.com/karma-runner/karma/issues/2342#
     browserConsoleLogOptions: {
       level: "off",
       terminal: false,
+    },
+    parallelOptions: {
+      // Lerna already runs tests in parallel
+      executors: 2, // Defaults to cpu-count - 1
     },
     retryLimit: 0,
     autoWatch: false,
@@ -138,6 +146,10 @@ module.exports = function (config) {
   const debugOptions = {
     ...baseConfig,
 
+    browserConsoleLogOptions: {
+      level: "debug",
+      terminal: true,
+    },
     autoWatch: true,
     singleRun: false,
     restartOnFileChange: true,
@@ -152,8 +164,7 @@ module.exports = function (config) {
 
   const debugDockerOptions = {
     ...debugOptions,
-
-    browsers: [],
+    browsers: ["ChromeHeadless_no_sandbox"],
   };
 
   if (isCI) config.set(ciOptions);

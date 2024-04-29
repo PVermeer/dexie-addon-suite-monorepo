@@ -50,7 +50,7 @@ export class Friend implements OnSerialize {
 class TestDatabase extends Dexie {
   public friends: Dexie.Table<Friend, number>;
   constructor(name: string) {
-    super(name);
+    super(name + " - " + faker.random.alphaNumeric(5));
     classMap(this);
     this.version(1).stores({
       friends: "++id, age",
@@ -62,7 +62,7 @@ class TestDatabase extends Dexie {
 class TestDatabaseAddons extends Dexie {
   public friends: Dexie.Table<Friend, number>;
   constructor(name: string) {
-    super(name, {
+    super(name + " - " + faker.random.alphaNumeric(5), {
       addons: [classMap],
     });
     this.version(1).stores({
@@ -74,9 +74,12 @@ class TestDatabaseAddons extends Dexie {
 }
 
 function testDatabaseJs(): TestDatabase {
-  const db = new Dexie("TestDatabaseJs", {
-    addons: [classMap],
-  });
+  const db = new Dexie(
+    "TestDatabaseJs" + " - " + faker.random.alphaNumeric(5),
+    {
+      addons: [classMap],
+    }
+  );
   db.version(1).stores({
     friends: "++id, age",
   });

@@ -1,6 +1,6 @@
 {
   "name": "@pvermeer/dexie-addon-suite",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0",
   "description": "Suite of the dexie addons",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -49,12 +49,10 @@
     "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
     "@pvermeer/dexie-populate-addon": "file:../dexie-populate-addon",
     "@pvermeer/dexie-rxjs-addon": "file:../dexie-rxjs-addon",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
     "tslib": "^2.4.1"
   },
   "peerDependencies": {
-    "dexie": "^3.0.0",
+    "dexie": "^4.0.0",
     "rxjs": "^7.0.0"
   },
   "devDependencies": {

@@ -1,8 +1,5 @@
-import type { Dexie } from "dexie";
-import dexieObservable from "dexie-observable";
-import type { IDatabaseChange } from "dexie-observable/api";
-import { fromEventPattern } from "rxjs";
-import { map, share } from "rxjs/operators";
+import { Dexie, ObservabilitySet } from "dexie";
+import { filter, fromEventPattern, share } from "rxjs";
 import { getTableExtended } from "./table-extended.class";
 import type { DexieExtended } from "./types";
 
@@ -14,21 +11,24 @@ export function dexieRxjs(db: Dexie) {
     rxjs: true,
   };
 
-  /* Check if dexie-observable is loaded, if not load it.
-       This is needed because the HTML script tag import tries to load it while
-       the Dexie class is constructing. This is sometimes too late */
-  if (!(db.on as any).changes) {
-    (dexieObservable as any)(db);
-  }
-
   // Extend the DB class
-  type ChangeCb = [IDatabaseChange[], boolean];
   Object.defineProperty(db, "changes$", {
-    value: fromEventPattern<ChangeCb>((handler) =>
-      db.on("changes", handler)
+    value: fromEventPattern<ObservabilitySet>((handler) =>
+      Dexie.on("storagemutated", handler)
     ).pipe(
-      map((x) => x[0]),
-      share()
+      filter((obsSet) => {
+        return Object.keys(obsSet).some((key) => {
+          const keyParts = key.split("/");
+          const dbName = keyParts[2];
+
+          if (dbName === db.name) {
+            return true;
+          }
+
+          return false;
+        });
+      }),
+      share({ resetOnComplete: true, resetOnRefCountZero: true })
     ),
   });
 

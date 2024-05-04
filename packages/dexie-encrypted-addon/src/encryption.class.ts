@@ -61,7 +61,7 @@ export class Encryption {
 
   /**
    * Decrypt values.
-   * @param json Any non-circulair value.
+   * @param messageWithNonce The encrypted message as `string`.
    */
   public decrypt(messageWithNonce: string): any {
     const messageWithNonceAsUint8Array = decodeBase64(messageWithNonce);

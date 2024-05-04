@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { Encryption } from "./encryption.class";
 import { ModifiedKeys } from "./schema-parser";
 
@@ -48,10 +49,15 @@ export function decryptOnReading(
   if (!document) {
     return document;
   }
+  // Need to clone because of the new caching mechanism of dexie 4.
+  // Currently there is no way to detect if we get a cached, and thus already encrypted document.
+  // Cloning removes the internal reference and ensures the document is still encrypted.
+  const clonedDocument = cloneDeep(document);
+
   keysObj.keys.forEach((key) => {
-    if (document[key] !== undefined) {
-      document[key] = encryption.decrypt(document[key]);
+    if (clonedDocument[key] !== undefined) {
+      clonedDocument[key] = encryption.decrypt(clonedDocument[key]);
     }
   });
-  return document;
+  return clonedDocument;
 }

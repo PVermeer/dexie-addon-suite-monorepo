@@ -49,6 +49,7 @@
     "@pvermeer/dexie-immutable-addon": "file:../dexie-immutable-addon",
     "@pvermeer/dexie-populate-addon": "file:../dexie-populate-addon",
     "@pvermeer/dexie-rxjs-addon": "file:../dexie-rxjs-addon",
+    "lodash.clonedeep": "^4.0.0",
     "tslib": "^2.4.1"
   },
   "peerDependencies": {

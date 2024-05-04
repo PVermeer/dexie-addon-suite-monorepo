@@ -1,7 +1,7 @@
-import { Dexie, Collection, Table } from "dexie";
-import { Observable } from "rxjs";
 import { PopulateOptions } from "@pvermeer/dexie-populate-addon";
 import { ObservableCollection } from "@pvermeer/dexie-rxjs-addon";
+import { Collection, Dexie, Table } from "dexie";
+import { Observable } from "rxjs";
 import { populateObservable } from "./populate-observable.service";
 
 export class PopulateObservableCollection<

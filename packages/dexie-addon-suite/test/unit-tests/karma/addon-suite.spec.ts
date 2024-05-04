@@ -54,7 +54,7 @@ function hashDocument(dbClass: { serialize: () => any }) {
 describe("dexie-addon-suite addon-suite.spec", () => {
   describe("Suite", () => {
     databasesPositive.forEach((database, _i) => {
-      // if (_i !== 1) {
+      // if (_i !== 0) {
       //   return;
       // }
       describe(database.desc, () => {
@@ -177,6 +177,11 @@ describe("dexie-addon-suite addon-suite.spec", () => {
           subs.unsubscribe();
           await db.delete();
         });
+
+        // afterAll(async () => {
+        //   const allDatabases = await Dexie.getDatabaseNames();
+        //   await Promise.all(allDatabases.map(dbName => Dexie.delete(dbName)));
+        // });
 
         if (database.immutable) {
           describe("Immutable", () => {
@@ -365,8 +370,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
                     obsFriend = friendEmit;
-
-                    waits[emitCount - 1].resolve();
+                    waits[emitCount - 1]?.resolve();
                   })
                 );
                 await waits[0].promise;
@@ -447,7 +451,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   method.get(newId).subscribe((friendEmit) => {
                     emitCount++;
                     obsFriend = friendEmit;
-                    waits[emitCount - 1].resolve();
+                    waits[emitCount - 1]?.resolve();
                   })
                 );
 
@@ -519,7 +523,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
                     obsFriend = friendEmit;
-                    waits[emitCount - 1].resolve();
+                    waits[emitCount - 1]?.resolve();
                   })
                 );
 
@@ -563,6 +567,56 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 friendExpectedPop.lastName = "Testie last name";
                 expect(obsFriend).toEqual(friendExpectedPop);
               });
+              it("should emit when populated property is updated, bulkUpdate()", async () => {
+                const method = _method.method(db);
+                let emitCount = 0;
+                let obsFriend: Populated<Friend, false, string> | undefined;
+
+                const waits = new Array(3).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.get(id).subscribe((friendEmit) => {
+                    emitCount++;
+                    obsFriend = friendEmit;
+                    waits[emitCount - 1]?.resolve();
+                  })
+                );
+
+                await waits[0].promise;
+                expect(emitCount).toBe(1);
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                // Update all friends
+                const updateFriends = friends.map((friend) => ({
+                  key: friend.id!,
+                  changes: { lastName: "Testie last name" },
+                }));
+                await db.friends.bulkUpdate(updateFriends);
+                await waits[1].promise;
+                expect(emitCount).toBe(2);
+                friendExpectedPop.lastName = "Testie last name";
+                friendExpectedPop.hasFriends.forEach((friend) => {
+                  if (friend) {
+                    friend.lastName = "Testie last name";
+                  }
+                });
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                // Update group populated values
+                const updateGroups = groups.map((group) => ({
+                  key: group.id!,
+                  changes: { name: "New group name" },
+                }));
+                await db.groups.bulkUpdate(updateGroups);
+                await waits[2].promise;
+                expect(emitCount).toBe(3);
+                friendExpectedPop.group!.name = "New group name";
+                friendExpectedPop.hasFriends.forEach((friend) => {
+                  if (friend?.group) {
+                    friend.group.name = "New group name";
+                  }
+                });
+                expect(obsFriend).toEqual(friendExpectedPop);
+              });
               it("should emit when populated property is deleted", async () => {
                 const method = _method.method(db);
                 let emitCount = 0;
@@ -573,7 +627,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
                     obsFriend = friendEmit;
-                    waits[emitCount - 1].resolve();
+                    waits[emitCount - 1]?.resolve();
                   })
                 );
 
@@ -601,7 +655,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
                     obsFriend = friendEmit;
-                    waits[emitCount - 1].resolve();
+                    waits[emitCount - 1]?.resolve();
                   })
                 );
 
@@ -642,7 +696,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                   method.get(id).subscribe((friendEmit) => {
                     emitCount++;
                     obsFriend = friendEmit;
-                    waits[emitCount - 1].resolve();
+                    waits[emitCount - 1]?.resolve();
                   })
                 );
 
@@ -667,6 +721,147 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 await waits[3].promise;
                 expect(emitCount).toBe(1);
                 expect(obsFriend).toEqual(friendExpectedPop);
+              });
+              it("should handle synchronous requests", async () => {
+                const method = _method.method(db);
+                let emitCount = 0;
+                let obsFriends: Populated<Friend>[] | undefined;
+
+                const waits = new Array(2).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.toArray().subscribe((friendsEmit) => {
+                    emitCount++;
+                    obsFriends = friendsEmit;
+
+                    switch (emitCount) {
+                      case 1:
+                        waits[0].resolve();
+                        break;
+                      default:
+                        waits[1].resolve();
+                    }
+                  })
+                );
+
+                await waits[0].promise;
+                expect(emitCount).toBe(1);
+
+                const updateFriends = friends.map((friend) => ({
+                  key: friend.id!,
+                  changes: {
+                    lastName: "Testie last name",
+                    group: groupIds[1],
+                  },
+                }));
+                const updateGroups = groups.map((group) => ({
+                  key: group.id!,
+                  changes: { name: "New group name" },
+                }));
+                const addFriends = mockFriends(10).map((friend) => {
+                  friend.hasFriends = ids;
+                  friend.group = groupIds[2];
+                  return friend;
+                });
+                const bulkAddFriends = mockFriends(10).map((friend) => {
+                  friend.hasFriends = ids;
+                  friend.group = groupIds[2];
+                  return friend;
+                });
+
+                await Promise.all([
+                  db.friends.bulkUpdate(updateFriends),
+                  db.groups.bulkUpdate(updateGroups),
+                  Promise.all(
+                    addFriends.map((friend) => db.friends.add(friend))
+                  ),
+                  db.friends.bulkAdd(bulkAddFriends),
+                ]);
+
+                await waits[1].promise;
+                expect(emitCount < 5).toBeTrue();
+                expect(
+                  obsFriends!.every((friend) => {
+                    return (
+                      friend.lastName === "Testie last name" &&
+                      friend.group!.name === "New group name" &&
+                      friend.hasFriends.every(
+                        (hasFriend) =>
+                          hasFriend?.lastName === "Testie last name" &&
+                          hasFriend.group!.name === "New group name"
+                      )
+                    );
+                  })
+                );
+              });
+              it("should set circular references on results", async () => {
+                const method = _method.method(db);
+                let emitCount = 0;
+                let obsFriends: Populated<Friend>[] | undefined;
+
+                const waits = new Array(2).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.toArray().subscribe((friendsEmit) => {
+                    emitCount++;
+                    obsFriends = friendsEmit;
+
+                    waits[emitCount - 1].resolve();
+                  })
+                );
+
+                await waits[0].promise;
+                expect(emitCount).toBe(1);
+
+                await db.friends.bulkUpdate(
+                  ids.map((id) => ({
+                    key: id,
+                    changes: {
+                      hasFriends: [],
+                    },
+                  }))
+                );
+
+                await db.friends.bulkUpdate([
+                  {
+                    key: id,
+                    changes: {
+                      hasFriends: [ids[1]],
+                    },
+                  },
+                  {
+                    key: ids[1],
+                    changes: {
+                      hasFriends: [id],
+                    },
+                  },
+                ]);
+
+                await waits[1].promise;
+                expect(emitCount).toBe(2);
+
+                const circularFriends = obsFriends!.filter(
+                  (friend) => friend.id === id || friend.id === ids[1]
+                );
+
+                expect(circularFriends![0].hasFriends.length).toBeGreaterThan(
+                  0
+                );
+                expect(circularFriends![1].hasFriends.length).toBeGreaterThan(
+                  0
+                );
+
+                expect(
+                  circularFriends![0].hasFriends[0]?.hasFriends[0] ===
+                    circularFriends![0]
+                )
+                  .withContext("Reference test 1")
+                  .toBeTrue();
+
+                expect(
+                  circularFriends![1].hasFriends[0]?.hasFriends[0] ===
+                    circularFriends![1]
+                )
+                  .withContext("Reference test 2")
+                  .toBeTrue();
               });
               describe("Array methods", () => {
                 it("should be an array", async () => {

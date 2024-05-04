@@ -1,4 +1,4 @@
-import { PopulateOptions } from "@pvermeer/dexie-populate-addon";
+import { Populated, PopulateOptions } from "@pvermeer/dexie-populate-addon";
 import {
   ObservableCollection,
   ObservableTable,
@@ -18,11 +18,12 @@ export class PopulateTableObservable<
   TKey,
   TInsertType,
   B extends boolean,
-  K extends string
-> extends ObservableTable<T, TKey, TInsertType> {
+  K extends string,
+  P = Populated<T, B, K>
+> extends ObservableTable<P, TKey, TInsertType> {
   constructor(
     _db: Dexie,
-    _table: Table<any, TKey, TInsertType>,
+    _table: Table<T, TKey, TInsertType>,
     _keys: K[] | undefined,
     _options: PopulateOptions<B> | undefined
   ) {

@@ -1,5 +1,4 @@
 import {
-  Populated,
   PopulateOptions,
   PopulateTable,
   RelationalDbSchema,
@@ -16,18 +15,13 @@ export class PopulatedTableObservable<
   B extends boolean,
   K extends string
 > extends PopulateTable<T, TKey, TInsertType, B, K> {
-  public $: PopulateTableObservable<
-    Populated<T, B, K>,
-    TKey,
-    TInsertType,
-    B,
-    K
-  > = new PopulateTableObservable<Populated<T, B, K>, TKey, TInsertType, B, K>(
-    this._db,
-    this._table,
-    this._keys,
-    this._options
-  );
+  public $: PopulateTableObservable<T, TKey, TInsertType, B, K> =
+    new PopulateTableObservable<T, TKey, TInsertType, B, K>(
+      this._db,
+      this._table,
+      this._keys,
+      this._options
+    );
 
   constructor(
     _keys: K[] | undefined,
@@ -48,19 +42,18 @@ export class ObservableTablePopulated<
   public populate<B extends boolean = false, K extends string = string>(
     keysOrOptions?: K[] | PopulateOptions<B>,
     options?: PopulateOptions<B>
-  ): PopulateTableObservable<Populated<T, B, K>, TKey, TInsertType, B, K> {
+  ): PopulateTableObservable<T, TKey, TInsertType, B, K> {
     const _keys = Array.isArray(keysOrOptions) ? keysOrOptions : undefined;
     const _options =
       options ||
       (keysOrOptions && "shallow" in keysOrOptions ? keysOrOptions : undefined);
 
-    return new PopulateTableObservable<
-      Populated<T, B, K>,
-      TKey,
-      TInsertType,
-      B,
-      K
-    >(this._db, this._table, _keys, _options);
+    return new PopulateTableObservable<T, TKey, TInsertType, B, K>(
+      this._db,
+      this._table,
+      _keys,
+      _options
+    );
   }
 
   constructor(_db: Dexie, _table: Table<T, TKey, TInsertType>) {

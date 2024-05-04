@@ -66,7 +66,7 @@ export type Populated<
       ? // Check for partial population in array:
         P extends K
         ? B extends false
-          ? (Populated<O, B, string> | null)[]
+          ? (Populated<O> | null)[]
           : (O | null)[]
         : T[P]
       : T[P]

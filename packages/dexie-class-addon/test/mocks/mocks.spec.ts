@@ -1,21 +1,15 @@
 import { Dexie } from "dexie";
 import faker from "faker/locale/en";
-import { classMap } from "../../src/class";
-import { OnSerialize } from "../../src/serialize";
+import { classMap, OmitMethods, OnSerialize } from "../../src/class";
 
-type OmitMethods<T> = Pick<
-  T,
-  { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P }[keyof T]
->;
-
-class Theme {
+class Theme implements OnSerialize {
   name: string;
   createdAt: Date;
 
   serialize() {
     return {
-      name: () => this.name,
-      createdAt: () => this.createdAt.getTime(),
+      name: this.name,
+      createdAt: this.createdAt.getTime(),
     };
   }
 
@@ -29,16 +23,16 @@ class Theme {
   }
 }
 
-class Club {
+class Club implements OnSerialize {
   name: string;
   theme: Theme;
   createdAt: Date;
 
   serialize() {
     return {
-      name: () => this.name,
-      theme: () => this.theme,
-      createdAt: () => this.createdAt.getTime(),
+      name: this.name,
+      theme: this.theme,
+      createdAt: this.createdAt.getTime(),
     };
   }
 
@@ -73,14 +67,14 @@ export class Friend implements OnSerialize {
 
   serialize() {
     return {
-      id: () => this.id,
-      age: () => this.age,
-      firstName: () => this.firstName,
-      lastName: () => this.lastName,
-      shoeSize: () => this.shoeSize,
-      date: () => this.date.getTime(),
-      address: () => ({ ...this.address }),
-      memberOf: () => this.memberOf,
+      id: this.id,
+      age: this.age,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      shoeSize: this.shoeSize,
+      date: this.date.getTime(),
+      address: { ...this.address },
+      memberOf: this.memberOf,
     };
   }
 

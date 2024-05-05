@@ -1,6 +1,16 @@
 import { Dexie, Table } from "dexie";
-import { SerializeObject, Serializer } from "./serialize";
 import { getTableExtended } from "./table-extended.class";
+
+export type OmitMethods<T> = Pick<
+  T,
+  { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P }[keyof T]
+>;
+
+export type SerializeObject = { [prop: string]: unknown };
+
+export interface OnSerialize {
+  serialize(): Partial<SerializeObject>;
+}
 
 type DexieExtended = Dexie & {
   pVermeerAddonsRegistered?: { [addon: string]: boolean };
@@ -32,7 +42,7 @@ export function classMap(db: Dexie) {
       itemState["serialize"] &&
       typeof itemState["serialize"] === "function"
     ) {
-      itemState = { ...new Serializer(itemState.serialize()) };
+      itemState = itemState.serialize();
     } else if (table) {
       // Check if a class is provided and if it has a serialize method. Table.update item has probably no serialize method.
       const constructor = table.schema.mappedClass;
@@ -43,8 +53,7 @@ export function classMap(db: Dexie) {
           typeof classInstance["serialize"] === "function"
         ) {
           Object.assign(classInstance, item);
-          const serializeObject: SerializeObject = classInstance["serialize"]();
-          itemState = { ...new Serializer(serializeObject, Object.keys(item)) };
+          itemState = classInstance["serialize"];
         }
       }
     }

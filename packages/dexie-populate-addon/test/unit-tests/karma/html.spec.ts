@@ -16,7 +16,7 @@ describe("dexie-populate-addon html.spec", () => {
       await Promise.all([
         await new Promise<void>((resolve) => {
           const script = document.createElement("script");
-          script.src = "https://unpkg.com/dexie/dist/dexie.js";
+          script.src = "https://unpkg.com/dexie@3/dist/dexie.js";
           script.type = "text/javascript";
           script.onload = () => resolve();
           document.head.append(script);

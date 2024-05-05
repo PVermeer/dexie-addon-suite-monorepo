@@ -32,7 +32,7 @@ describe("dexie-class-addon dexie.spec", () => {
       beforeAll(async () => {
         await new Promise<void>((resolve) => {
           const scriptDexie = document.createElement("script");
-          scriptDexie.src = "https://unpkg.com/dexie@latest/dist/dexie.js";
+          scriptDexie.src = "https://unpkg.com/dexie@3/dist/dexie.js";
           scriptDexie.type = "text/javascript";
           scriptDexie.onload = () => resolve();
           document.head.append(scriptDexie);

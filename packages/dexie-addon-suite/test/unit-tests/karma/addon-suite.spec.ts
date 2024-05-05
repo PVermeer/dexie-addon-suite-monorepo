@@ -42,13 +42,8 @@ function flatPromise() {
   return { promise, resolve, reject };
 }
 
-function hashDocument(dbClass: { serialize: () => any }) {
-  return Encryption.hash(
-    Object.entries(dbClass.serialize()).reduce((acc, [key, value]) => {
-      acc[key] = (value as any)();
-      return acc;
-    }, {})
-  );
+function hashDocument(dbClass: { serialize: () => unknown }) {
+  return Encryption.hash(dbClass.serialize());
 }
 
 describe("dexie-addon-suite addon-suite.spec", () => {
@@ -178,10 +173,10 @@ describe("dexie-addon-suite addon-suite.spec", () => {
           await db.delete();
         });
 
-        // afterAll(async () => {
-        //   const allDatabases = await Dexie.getDatabaseNames();
-        //   await Promise.all(allDatabases.map(dbName => Dexie.delete(dbName)));
-        // });
+        afterAll(async () => {
+          const allDatabases = await Dexie.getDatabaseNames();
+          await Promise.all(allDatabases.map((dbName) => Dexie.delete(dbName)));
+        });
 
         if (database.immutable) {
           describe("Immutable", () => {
@@ -503,7 +498,9 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 expect(emitCount).toBe(1);
 
                 // Update record with same data
-                await db.friends.update(id1, newFriends[idx1].getSerialized());
+                await db.friends.update(id1, {
+                  firstName: newFriends[idx1].firstName,
+                });
                 setTimeout(() => waits[2].resolve(), 500);
                 await waits[2].promise;
                 expect(emitCount).toBe(1);

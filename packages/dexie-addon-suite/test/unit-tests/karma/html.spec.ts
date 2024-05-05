@@ -168,12 +168,7 @@ describe("dexie-addon-suite html.spec", () => {
         ]);
 
         friendExpected = new Friend(friend);
-        friendExpected.id = DexieAddonSuite.Encryption.hash(
-          Object.entries(friend.serialize()).reduce((acc, [key, value]) => {
-            acc[key] = value();
-            return acc;
-          }, {})
-        );
+        friendExpected.id = DexieAddonSuite.Encryption.hash(friend.serialize());
         friendExpected.hasFriends = ids.slice(1) as any;
         friendExpected.memberOf = clubIds as any;
         friendExpected.group = groupIds[1] as any;

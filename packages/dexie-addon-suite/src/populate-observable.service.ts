@@ -2,10 +2,12 @@ import { Populate, PopulateOptions } from "@pvermeer/dexie-populate-addon";
 import { PopulatedWithTree } from "@pvermeer/dexie-populate-addon/src/populate.class";
 import { RangeSet, rangesOverlap, Table } from "dexie";
 import cloneDeep from "lodash.clonedeep";
+import isEqual from "lodash.isequal";
 import { Observable } from "rxjs";
 import {
   concatMap,
   debounceTime,
+  distinctUntilChanged,
   filter,
   map,
   share,
@@ -31,6 +33,8 @@ export function populateObservable<
   let popResult: PopulatedWithTree<T, B, K>;
 
   return observable.pipe(
+    distinctUntilChanged(isEqual),
+
     // Switch to changes for updates on populated changes
     switchMap((result) =>
       db.changes$.pipe(

@@ -108,29 +108,19 @@ export class Friend implements OnSerialize {
 
   serialize() {
     const serialized = {
-      id: () => this.id,
-      age: () => this.age,
-      firstName: () => this.firstName,
-      lastName: () => this.lastName,
-      shoeSize: () => this.shoeSize,
-      customId: () => this.customId,
-      date: () => this.date.getTime(),
-      hasFriends: () => this.hasFriends,
-      memberOf: () => this.memberOf,
-      group: () => this.group,
-      hairColor: () => this.hairColor,
+      id: this.id,
+      age: this.age,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      shoeSize: this.shoeSize,
+      customId: this.customId,
+      date: this.date.getTime(),
+      hasFriends: this.hasFriends,
+      memberOf: this.memberOf,
+      group: this.group,
+      hairColor: this.hairColor,
     };
     return serialized;
-  }
-
-  getSerialized() {
-    return Object.entries(this.serialize.bind(this)).reduce(
-      (acc, [key, value]) => {
-        acc[key] = (value as any)();
-        return acc;
-      },
-      {}
-    );
   }
 
   deserialize(input: OmitMethods<Friend>) {

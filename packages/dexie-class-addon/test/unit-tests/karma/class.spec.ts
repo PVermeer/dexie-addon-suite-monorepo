@@ -108,6 +108,31 @@ describe("dexie-class-addon class.spec", () => {
               const getFriend = await db.friends.get(id);
               friendExpectations(getFriend!);
             });
+            it("should be able to bulkUpdate() and get() friends", async () => {
+              expect(serializeSpy).toHaveBeenCalledTimes(friends.length);
+
+              const updateDocs = friends.map((friend) => {
+                friend.firstName = "mock name";
+                return {
+                  key: friend.id!,
+                  changes: friend,
+                };
+              });
+              await db.friends.bulkUpdate(updateDocs);
+              expect(serializeSpy).toHaveBeenCalledTimes(friends.length * 2);
+
+              const expectedFriends = friends.map((friend, i) => {
+                friend.id = ids[i];
+                friend.firstName = "mock name";
+                return friend;
+              });
+
+              const getFriends = await db.friends.bulkGet(ids);
+              expect(getFriends).toEqual(
+                jasmine.arrayContaining(expectedFriends)
+              );
+              expect(deSerializeSpy).toHaveBeenCalledTimes(friends.length * 2);
+            });
             it("should be able to update document with key paths", async () => {
               const updatedDoc = {
                 "address.zipCode": "someZipCode",

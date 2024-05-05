@@ -15,30 +15,28 @@ export function classMap(db: Dexie) {
     class: true,
   };
 
-  function serialize(table: Table, item: { [prop: string]: any }) {
-    let itemState = item;
-    if (
-      !(
-        typeof itemState === "object" &&
-        !Array.isArray(itemState) &&
-        itemState !== null
-      )
-    )
-      return itemState;
-
+  function serialize<T = unknown>(item: T, table?: Table) {
     const transaction = Dexie.currentTransaction;
-    if (transaction?.raw) return itemState;
+    if (transaction?.raw) return item;
+
+    if (!(typeof item === "object" && !Array.isArray(item) && item !== null))
+      return item;
+
+    let itemState = item as Record<keyof any, unknown>;
 
     // Dexie supports key path updates. These are treated as raw updates.
     if (Object.keys(itemState).some((key) => key.includes(".")))
       return itemState;
 
-    if (item["serialize"] && typeof item["serialize"] === "function") {
-      itemState = { ...new Serializer(item.serialize()) };
-    } else {
+    if (
+      itemState["serialize"] &&
+      typeof itemState["serialize"] === "function"
+    ) {
+      itemState = { ...new Serializer(itemState.serialize()) };
+    } else if (table) {
       // Check if a class is provided and if it has a serialize method. Table.update item has probably no serialize method.
       const constructor = table.schema.mappedClass;
-      if (constructor) {
+      if (constructor && constructor === item.constructor) {
         const classInstance = Object.create(constructor.prototype);
         if (
           classInstance["serialize"] &&
@@ -50,7 +48,14 @@ export function classMap(db: Dexie) {
         }
       }
     }
+    // Recursive for nested classes
+    Object.entries(itemState).forEach(
+      ([key, value]) => (itemState[key] = serialize(value))
+    );
 
+    if (!table) return itemState;
+
+    // Delete primary key property if it's undefined
     const primaryKey = table.schema.primKey.name;
     if (primaryKey in itemState && itemState[primaryKey] === undefined) {
       delete itemState[primaryKey];
@@ -71,7 +76,7 @@ export function classMap(db: Dexie) {
       function (this: Table, item, key?) {
         if (this.name.startsWith("_")) return origFunc.call(this, item, key);
 
-        const itemState = serialize(this, item);
+        const itemState = serialize(item, this);
         return origFunc.call(this, itemState, key);
       } as typeof origFunc
   );
@@ -86,7 +91,7 @@ export function classMap(db: Dexie) {
       ) {
         if (this.name.startsWith("_")) return origFunc.call(this, items, key);
 
-        const itemStates = items.map((item) => serialize(this, item));
+        const itemStates = items.map((item) => serialize(item, this));
         return origFunc.call(this, itemStates, key);
       } as typeof origFunc
   );
@@ -97,7 +102,8 @@ export function classMap(db: Dexie) {
       function (this: Table, item, key?) {
         if (this.name.startsWith("_")) return origFunc.call(this, item, key);
 
-        const itemState = serialize(this, item);
+        const itemState = serialize(item, this);
+
         return origFunc.call(this, itemState, key);
       } as typeof origFunc
   );
@@ -112,19 +118,36 @@ export function classMap(db: Dexie) {
       ) {
         if (this.name.startsWith("_")) return origFunc.call(this, items, key);
 
-        const itemStates = items.map((item) => serialize(this, item));
+        const itemStates = items.map((item) => serialize(item, this));
+
         return origFunc.call(this, itemStates, key);
       } as typeof origFunc
   );
   // =============== Update =================
   db.Table.prototype.update = Dexie.override(
     db.Table.prototype.update,
-    (origFunc: Dexie.Table<any, any>["update"]) =>
-      function (this: Table, key, changes) {
+    (origFunc: Dexie.Table<unknown, any>["update"]) =>
+      function (this: Table<unknown>, key, changes) {
         if (this.name.startsWith("_")) return origFunc.call(this, key, changes);
 
-        const changesState = serialize(this, changes);
+        const changesState = serialize(changes, this);
+
         return origFunc.call(this, key, changesState);
+      } as typeof origFunc
+  );
+  db.Table.prototype.bulkUpdate = Dexie.override(
+    db.Table.prototype.bulkUpdate,
+    (origFunc: Dexie.Table<any, any>["bulkUpdate"]) =>
+      function (this: Table, keysAndChanges: Parameters<typeof origFunc>[0]) {
+        if (this.name.startsWith("_"))
+          return origFunc.call(this, keysAndChanges);
+
+        const itemStates = keysAndChanges.map((item) => ({
+          key: item.key,
+          changes: serialize(item.changes, this),
+        }));
+
+        return origFunc.call(this, itemStates);
       } as typeof origFunc
   );
 }

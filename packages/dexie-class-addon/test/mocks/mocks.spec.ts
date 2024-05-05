@@ -8,6 +8,51 @@ type OmitMethods<T> = Pick<
   { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P }[keyof T]
 >;
 
+class Theme {
+  name: string;
+  createdAt: Date;
+
+  serialize() {
+    return {
+      name: () => this.name,
+      createdAt: () => this.createdAt.getTime(),
+    };
+  }
+
+  deserialize(input: OmitMethods<Theme>) {
+    Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
+    this.createdAt = new Date(input.createdAt);
+  }
+
+  constructor(input: OmitMethods<Theme>) {
+    this.deserialize(input);
+  }
+}
+
+class Club {
+  name: string;
+  theme: Theme;
+  createdAt: Date;
+
+  serialize() {
+    return {
+      name: () => this.name,
+      theme: () => this.theme,
+      createdAt: () => this.createdAt.getTime(),
+    };
+  }
+
+  deserialize(input: OmitMethods<Club>) {
+    Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
+    this.theme = new Theme(this.theme);
+    this.createdAt = new Date(input.createdAt);
+  }
+
+  constructor(input: OmitMethods<Club>) {
+    this.deserialize(input);
+  }
+}
+
 export class Friend implements OnSerialize {
   id?: number;
   age?: number;
@@ -15,6 +60,7 @@ export class Friend implements OnSerialize {
   lastName: string;
   shoeSize: number;
   date: Date;
+  memberOf: Club;
 
   address: {
     zipCode: string;
@@ -34,12 +80,14 @@ export class Friend implements OnSerialize {
       shoeSize: () => this.shoeSize,
       date: () => this.date.getTime(),
       address: () => ({ ...this.address }),
+      memberOf: () => this.memberOf,
     };
   }
 
   deserialize(input: OmitMethods<Friend>) {
     Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
     this.date = new Date(input.date);
+    this.memberOf = new Club(this.memberOf);
   }
 
   constructor(input: OmitMethods<Friend>) {
@@ -51,6 +99,7 @@ class TestDatabase extends Dexie {
   public friends: Dexie.Table<Friend, number>;
   constructor(name: string) {
     super(name + " - " + faker.random.alphaNumeric(5));
+    this.on("blocked", () => false);
     classMap(this);
     this.version(1).stores({
       friends: "++id, age",
@@ -65,6 +114,7 @@ class TestDatabaseAddons extends Dexie {
     super(name + " - " + faker.random.alphaNumeric(5), {
       addons: [classMap],
     });
+    this.on("blocked", () => false);
     this.version(1).stores({
       friends: "++id, age",
     });
@@ -80,6 +130,7 @@ function testDatabaseJs(): TestDatabase {
       addons: [classMap],
     }
   );
+  db.on("blocked", () => false);
   db.version(1).stores({
     friends: "++id, age",
   });
@@ -112,6 +163,14 @@ export const mockFriends = (count = 5): Friend[] => {
       age: faker.datatype.number({ min: 1, max: 80 }),
       shoeSize: faker.datatype.number({ min: 5, max: 12 }),
       date: faker.date.recent(),
+      memberOf: new Club({
+        createdAt: faker.date.past(),
+        name: faker.name.jobTitle(),
+        theme: new Theme({
+          createdAt: faker.date.past(),
+          name: faker.name.jobArea(),
+        }),
+      }),
 
       address: {
         zipCode: faker.address.zipCode(),

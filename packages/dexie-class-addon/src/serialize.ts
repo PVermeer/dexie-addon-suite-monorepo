@@ -1,4 +1,4 @@
-export type SerializeObject = { [prop: string]: () => any };
+export type SerializeObject = { [prop: string]: () => unknown };
 
 export class Serializer {
   constructor(input: SerializeObject, keyFilter?: string[]) {

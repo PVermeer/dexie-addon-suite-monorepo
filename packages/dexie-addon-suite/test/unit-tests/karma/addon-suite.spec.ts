@@ -488,7 +488,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 const idx2 = faker.datatype.number({ min: 10, max: 19 });
                 const id2 = newIds[idx2];
                 await db.friends.update(id2, { firstName: "Testie" });
-                setTimeout(() => waits[1].resolve(), 500);
+                setTimeout(() => waits[1].resolve(), 100);
                 await waits[1].promise;
                 expect(emitCount).toBe(1);
 
@@ -496,7 +496,7 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 await db.friends.update(id1, {
                   firstName: newFriends[idx1].firstName,
                 });
-                setTimeout(() => waits[2].resolve(), 500);
+                setTimeout(() => waits[2].resolve(), 100);
                 await waits[2].promise;
                 expect(emitCount).toBe(1);
 
@@ -697,19 +697,19 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 expect(obsFriend).toEqual(friendExpectedPop);
 
                 await db.clubs.update(newClubIds[2], { name: "Testie name" });
-                setTimeout(() => waits[1].resolve(), 500);
+                setTimeout(() => waits[1].resolve(), 100);
                 await waits[1].promise;
                 expect(emitCount).toBe(1);
                 expect(obsFriend).toEqual(friendExpectedPop);
 
                 await db.themes.update(newThemeIds[2], { name: "Testie name" });
-                setTimeout(() => waits[2].resolve(), 500);
+                setTimeout(() => waits[2].resolve(), 100);
                 await waits[2].promise;
                 expect(emitCount).toBe(1);
                 expect(obsFriend).toEqual(friendExpectedPop);
 
                 await db.groups.update(newGroupIds[2], { name: "Testie name" });
-                setTimeout(() => waits[3].resolve(), 500);
+                setTimeout(() => waits[3].resolve(), 100);
                 await waits[3].promise;
                 expect(emitCount).toBe(1);
                 expect(obsFriend).toEqual(friendExpectedPop);

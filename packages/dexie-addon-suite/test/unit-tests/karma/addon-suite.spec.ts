@@ -173,11 +173,6 @@ describe("dexie-addon-suite addon-suite.spec", () => {
           await db.delete();
         });
 
-        afterAll(async () => {
-          const allDatabases = await Dexie.getDatabaseNames();
-          await Promise.all(allDatabases.map((dbName) => Dexie.delete(dbName)));
-        });
-
         if (database.immutable) {
           describe("Immutable", () => {
             it("should not change input object", async () => {

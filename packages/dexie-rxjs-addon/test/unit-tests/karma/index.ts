@@ -1,5 +1,18 @@
-/*
- * Require all test files in uni-tests for webpack compilation.
- */
-const karmaContextRxjs = (require as any).context("./", true, /\.spec\.tsx?$/);
-karmaContextRxjs.keys().forEach(karmaContextRxjs);
+import { Dexie } from "dexie";
+
+describe("Dexie Rxjs Addon", () => {
+  afterAll(async () => {
+    const allDatabases = await Dexie.getDatabaseNames();
+    await Promise.all(allDatabases.map((dbName) => Dexie.delete(dbName)));
+  });
+
+  /*
+   * Require all test files in uni-tests for webpack compilation.
+   */
+  const karmaContextRxjs = (require as any).context(
+    "./",
+    true,
+    /\.spec\.tsx?$/
+  );
+  karmaContextRxjs.keys().forEach(karmaContextRxjs);
+});

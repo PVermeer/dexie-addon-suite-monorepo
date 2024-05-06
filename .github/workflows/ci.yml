@@ -74,13 +74,13 @@ jobs:
           git push
 
       - name: Version
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'beta') }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run version -- branch=$BRANCH
 
       - name: Npm release
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'beta') }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run release -- branch=$BRANCH

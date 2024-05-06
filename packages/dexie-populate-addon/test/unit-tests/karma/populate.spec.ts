@@ -70,33 +70,62 @@ describe("dexie-populate-addon populate.spec", () => {
           updateId =
             database.desc !== "TestDatabaseCustomKey" && id > 1000000 ? 1 : id;
 
-          hasFriendIds = await Promise.all(
-            hasFriends.map((x) => db.friends.add(x))
-          );
-          clubIds = await Promise.all(clubs.map((x) => db.clubs.add(x)));
-          themeIds = await Promise.all(themes.map((x) => db.themes.add(x)));
-          groupIds = await Promise.all(groups.map((x) => db.groups.add(x)));
-          styleIds = await Promise.all(styles.map((x) => db.styles.add(x)));
-          hairColorIds = await Promise.all(
-            hairColors.map((x) => db.hairColors.add(x))
+          const keysArray = await Promise.all([
+            (hasFriendIds = await db.friends.bulkAdd(hasFriends, {
+              allKeys: true,
+            })),
+            (clubIds = await db.clubs.bulkAdd(clubs, { allKeys: true })),
+            (themeIds = await db.themes.bulkAdd(themes, { allKeys: true })),
+            (groupIds = await db.groups.bulkAdd(groups, { allKeys: true })),
+            (styleIds = await db.styles.bulkAdd(styles, { allKeys: true })),
+            (hairColorIds = await db.hairColors.bulkAdd(hairColors, {
+              allKeys: true,
+            })),
+          ]);
+
+          // Add keys on objects because bulk methods don't do this
+          const recordsArray = [
+            hasFriends,
+            clubs,
+            themes,
+            groups,
+            styles,
+            hairColors,
+          ];
+          keysArray.forEach((keys, i) =>
+            recordsArray[i].forEach((record, j) => {
+              if (record instanceof Style) record["styleId"] = keys[j];
+              else record["id"] = keys[j];
+            })
           );
 
-          await db.friends.update(updateId, {
-            hasFriends: hasFriendIds,
-            memberOf: clubIds,
-            group: groupIds[1],
-            hairColor: hairColorIds[1],
-            secondGroup: groupIds[0],
-          });
-          await db.friends.update(hasFriendIds[1], {
-            hasFriends: [hasFriendIds[2]],
-          });
-          await db.clubs.update(clubIds[1], {
-            theme: themeIds[1],
-          });
-          await db.themes.update(themeIds[1], {
-            style: styleIds[1],
-          });
+          await Promise.all([
+            await db.friends.bulkUpdate([
+              {
+                key: updateId,
+                changes: {
+                  hasFriends: hasFriendIds,
+                  memberOf: clubIds,
+                  group: groupIds[1],
+                  hairColor: hairColorIds[1],
+                  secondGroup: groupIds[0],
+                },
+              },
+              {
+                key: hasFriendIds[1],
+                changes: {
+                  hasFriends: [hasFriendIds[2]],
+                },
+              },
+            ]),
+
+            await db.clubs.update(clubIds[1], {
+              theme: themeIds[1],
+            }),
+            await db.themes.update(themeIds[1], {
+              style: styleIds[1],
+            }),
+          ]);
 
           friend.hasFriends = hasFriendIds;
           friend.memberOf = clubIds;
@@ -128,9 +157,11 @@ describe("dexie-populate-addon populate.spec", () => {
           friendPop.hairColor = hairColors[1];
           friendPop.secondGroup = groups[0];
         });
+
         afterEach(async () => {
           await db.delete();
         });
+
         it("should have addon registered", () => {
           const dbExt = db as unknown as DexieExtended;
           expect(dbExt.pVermeerAddonsRegistered.populate).toBeTrue();
@@ -364,9 +395,9 @@ describe("dexie-populate-addon populate.spec", () => {
         });
         describe("Methods negative", () => {
           methodsNegative.forEach((_method, _j) => {
-            if (_j !== 7) {
-              return;
-            }
+            // if (_j !== 7) {
+            //   return;
+            // }
             describe(_method.desc, () => {
               let method: ReturnType<typeof _method.method>;
               beforeEach(async () => {

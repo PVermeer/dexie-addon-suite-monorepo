@@ -609,6 +609,57 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 });
                 expect(obsFriend).toEqual(friendExpectedPop);
               });
+              it("should emit when populated property is updated, bulkPut()", async () => {
+                const method = _method.method(db);
+                let emitCount = 0;
+                let obsFriend: Populated<Friend, false, string> | undefined;
+
+                const waits = new Array(3).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.get(id).subscribe((friendEmit) => {
+                    emitCount++;
+                    obsFriend = friendEmit;
+                    waits[emitCount - 1]?.resolve();
+                  })
+                );
+
+                await waits[0].promise;
+                expect(emitCount).toBe(1);
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                // Update all friends
+                const getFriends = await db.friends.toArray();
+                const updateFriends = getFriends.map((friend) => {
+                  friend.lastName = "Testie last name";
+                  return friend;
+                });
+                await db.friends.bulkPut(updateFriends);
+                await waits[1].promise;
+                expect(emitCount).toBe(2);
+                friendExpectedPop.lastName = "Testie last name";
+                friendExpectedPop.hasFriends.forEach((friend) => {
+                  if (friend) {
+                    friend.lastName = "Testie last name";
+                  }
+                });
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                // Update group populated values
+                const updateGroups = groups.map((group) => {
+                  group.name = "New group name";
+                  return group;
+                });
+                await db.groups.bulkPut(updateGroups);
+                await waits[2].promise;
+                expect(emitCount).toBe(3);
+                friendExpectedPop.group!.name = "New group name";
+                friendExpectedPop.hasFriends.forEach((friend) => {
+                  if (friend?.group) {
+                    friend.group.name = "New group name";
+                  }
+                });
+                expect(obsFriend).toEqual(friendExpectedPop);
+              });
               it("should emit when populated property is deleted", async () => {
                 const method = _method.method(db);
                 let emitCount = 0;
@@ -631,6 +682,38 @@ describe("dexie-addon-suite addon-suite.spec", () => {
                 await waits[1].promise;
                 expect(emitCount).toBe(2);
                 friendExpectedPop.memberOf[1] = null;
+                expect(obsFriend).toEqual(friendExpectedPop);
+              });
+              it("should emit when populated property is deleted, bulkDelete()", async () => {
+                const method = _method.method(db);
+                let emitCount = 0;
+                let obsFriend: Populated<Friend, false, string> | undefined;
+
+                const waits = new Array(2).fill(null).map(() => flatPromise());
+                subs.add(
+                  method.get(id).subscribe((friendEmit) => {
+                    emitCount++;
+                    obsFriend = friendEmit;
+                    waits[emitCount - 1]?.resolve();
+                  })
+                );
+
+                await waits[0].promise;
+                expect(emitCount).toBe(1);
+                expect(obsFriend).toEqual(friendExpectedPop);
+
+                await db.clubs.bulkDelete(clubIds);
+                await waits[1].promise;
+                expect(emitCount).toBe(2);
+                friendExpectedPop.memberOf = friendExpectedPop.memberOf.map(
+                  () => null
+                );
+                friendExpectedPop.hasFriends = friendExpectedPop.hasFriends.map(
+                  (friend) => {
+                    friend!.memberOf = friend!.memberOf.map(() => null);
+                    return friend;
+                  }
+                );
                 expect(obsFriend).toEqual(friendExpectedPop);
               });
               it("should emit when updating a nested populated id, then update update this record", async () => {

@@ -13,8 +13,9 @@ export function dexieRxjs(db: Dexie) {
 
   // Extend the DB class
   Object.defineProperty(db, "changes$", {
-    value: fromEventPattern<ObservabilitySet>((handler) =>
-      Dexie.on("storagemutated", handler)
+    value: fromEventPattern<ObservabilitySet>(
+      (handler) => Dexie.on("storagemutated", handler),
+      (handler) => db.on("close", handler)
     ).pipe(
       filter((obsSet) => {
         return Object.keys(obsSet).some((key) => {

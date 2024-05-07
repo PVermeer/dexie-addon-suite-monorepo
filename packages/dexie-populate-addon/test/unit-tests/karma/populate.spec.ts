@@ -26,7 +26,7 @@ import {
 describe("dexie-populate-addon populate.spec", () => {
   describe("Populate", () => {
     databasesPositive.forEach((database, _i) => {
-      // if (_i !== 1) return;
+      // if (_i !== 0) return;
 
       describe(database.desc, () => {
         let db: ReturnType<typeof database.db>;
@@ -261,16 +261,46 @@ describe("dexie-populate-addon populate.spec", () => {
                         )[0].group
                       ).toBe(null);
                     });
-                    if (!_method.desc.endsWith("each()")) {
-                      it("should throw when circulair references are found", async () => {
-                        // await db.friends.update(updateId, { hasFriends: [id] });
-                        // await expectAsync(
-                        //   method(id) as Promise<any>
-                        // ).toBeRejectedWithError(
-                        //   "DEXIE POPULATE ADDON: Circular reference detected on 'hasFriends'. 'hasFriends' Probably contains a reference to itself."
-                        // );
-                      });
-                    }
+                    it("should set circular references on result", async () => {
+                      await db.friends.bulkUpdate([
+                        {
+                          key: id,
+                          changes: {
+                            hasFriends: [id, ...hasFriendIds],
+                          },
+                        },
+                        {
+                          key: hasFriendIds[3],
+                          changes: {
+                            hasFriends: [id, ...hasFriendIds],
+                          },
+                        },
+                      ]);
+
+                      const getFriend = await method(id);
+
+                      expect(
+                        // @ts-expect-error
+                        getFriend?.hasFriends[0].hasFriends[0] instanceof Friend
+                      ).toBeTrue();
+
+                      expect(getFriend?.hasFriends[0] === getFriend)
+                        .withContext("1")
+                        .toBeTrue();
+                      expect(
+                        // @ts-expect-error
+                        getFriend?.hasFriends[0].hasFriends[0] === getFriend
+                      )
+                        .withContext("2")
+                        .toBeTrue();
+                      expect(
+                        // @ts-expect-error
+                        getFriend?.hasFriends[0].hasFriends[0] ===
+                          getFriend?.hasFriends[0]
+                      )
+                        .withContext("3")
+                        .toBeTrue();
+                    });
                     if (_method.populatedPartial) {
                       it("should be populated with theme", async () => {
                         const getFriend = (await method(
@@ -325,9 +355,7 @@ describe("dexie-populate-addon populate.spec", () => {
                         const getFriend = await method(id, true);
                         expect(
                           (getFriend?.hasFriends as Friend[]).every((x) =>
-                            x.hasFriends
-                              // @ts-ignore
-                              .every((y: any) => typeof y === "number")
+                            x.hasFriends.every((y) => typeof y === "number")
                           )
                         ).toBeTrue();
                       });
@@ -395,9 +423,8 @@ describe("dexie-populate-addon populate.spec", () => {
         });
         describe("Methods negative", () => {
           methodsNegative.forEach((_method, _j) => {
-            // if (_j !== 7) {
-            //   return;
-            // }
+            // if (_j !== 0) return;
+
             describe(_method.desc, () => {
               let method: ReturnType<typeof _method.method>;
               beforeEach(async () => {

@@ -1,5 +1,5 @@
 import { Dexie } from "dexie";
-import faker from "faker/locale/nl";
+import faker from "faker";
 import { populate } from "../../src/populate";
 import { Ref } from "../../src/types";
 

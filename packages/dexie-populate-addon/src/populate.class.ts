@@ -19,11 +19,56 @@ interface MergeRef {
   ownerRef: Record<string, unknown>;
 }
 
-interface DeepRefsPopulate {
-  [table: string]: {
-    refs: Set<Record<string, unknown> | (Record<string, unknown> | null)[]>;
-    circularRefs: Set<Record<string, unknown>>;
-  };
+class DeepReferences extends Map<string, Set<Record<string, unknown>>> {
+  getReferencesArray() {
+    return [...(this.entries() || [])].reduce((acc, [table, refSet]) => {
+      const refs = [...refSet.values()];
+      acc.push([table, refs]);
+
+      return acc;
+    }, [] as [string, Record<string, unknown>[]][]);
+  }
+
+  getReferences(table: string) {
+    return this.get(table) || null;
+  }
+
+  setReference(
+    table: string,
+    references: Record<string, unknown> | Record<string, unknown>[]
+  ) {
+    if (!this.has(table)) {
+      this.set(table, new Set());
+    }
+    const tableRefs = this.get(table)!;
+
+    if (Array.isArray(references)) {
+      references.forEach((ref) => tableRefs.add(ref));
+    } else {
+      this.get(table)?.add(references);
+    }
+  }
+}
+
+class ReferenceCache extends Map<
+  string,
+  Map<IndexableType, Record<string, unknown> | null>
+> {
+  getReference(table: string, keyValue: IndexableType) {
+    return this.get(table)?.get(keyValue) || null;
+  }
+
+  setReference(
+    table: string,
+    keyValue: IndexableType,
+    ref: Record<string, unknown> | null
+  ) {
+    if (!this.has(table)) {
+      this.set(table, new Map());
+    }
+    const tableRefs = this.get(table)!;
+    tableRefs.set(keyValue, ref);
+  }
 }
 
 export interface PopulateTree {
@@ -101,98 +146,6 @@ export class Populate<
     return { populated, populatedTree };
   }
 
-  private _records: T[];
-
-  private _populated: Populated<T, B, K>[];
-
-  /**
-   * Provided selection of keys to populate in populate([]).
-   */
-  private _keysToPopulate: string[] | undefined;
-
-  /**
-   * Provided options in populate({}).
-   */
-  private _options: PopulateOptions<B> | undefined;
-
-  /**
-   * Table and keys of documents that are populated on the result.
-   */
-  private _populatedTree: PopulateTree;
-
-  /** Set's circular refs on referenced object
-   * @returns 'true' if circular refs where found
-   */
-  private setCircularRefs(
-    ownerRef: Record<string, unknown>,
-    sourceTable: string,
-    targetKey: string,
-    targetTable: string,
-    newRef: Record<string, unknown> | (Record<string, unknown> | null)[] | null,
-    popKey: string,
-    deepRefsToPopulate: DeepRefsPopulate
-  ): boolean {
-    const ownerTargetKeyValue = ownerRef[targetKey];
-    const ownerPopValue = ownerRef[popKey];
-
-    if (sourceTable !== targetTable) {
-      return false;
-    }
-
-    if (
-      ownerPopValue === null ||
-      ownerPopValue === undefined ||
-      newRef === null ||
-      newRef === undefined
-    ) {
-      return false;
-    }
-
-    if (Array.isArray(ownerPopValue) && Array.isArray(newRef)) {
-      let isCircular = false;
-
-      newRef.forEach((newRefKeyValue) => {
-        if (newRefKeyValue === null) {
-          return;
-        }
-        const popValue = newRefKeyValue[popKey];
-
-        // Check for second level array
-        if (Array.isArray(popValue)) {
-          popValue.forEach((popValueItem, i) => {
-            const targetIsOwner = popValueItem === ownerTargetKeyValue;
-            if (!targetIsOwner) {
-              return;
-            }
-
-            popValue[i] = ownerRef;
-            deepRefsToPopulate[sourceTable].circularRefs.add(ownerRef);
-            isCircular = true;
-          });
-        }
-
-        const targetIsOwner = popValue === ownerTargetKeyValue;
-        if (targetIsOwner) {
-          newRefKeyValue[popKey] = ownerRef;
-          deepRefsToPopulate[sourceTable].circularRefs.add(ownerRef);
-          isCircular = true;
-        }
-      });
-
-      return isCircular;
-    }
-
-    const targetIsOwner = newRef[popKey][targetKey] === ownerTargetKeyValue;
-    if (targetIsOwner) {
-      newRef[popKey][targetKey] === ownerRef;
-      deepRefsToPopulate[sourceTable].circularRefs.add(ownerRef);
-
-      return true;
-    }
-
-    return false;
-  }
-
   /**
    * Get table and keys of documents that are populated on the result.
    * @returns Memoized results, call populateRecords() to refresh.
@@ -210,7 +163,7 @@ export class Populate<
    * Get populated documents.
    * @returns Memoized results, call populateRecords() to refresh.
    */
-  get populated() {
+  public get populated() {
     return (async () => {
       if (!this._populated) {
         await this.populateRecords();
@@ -243,12 +196,22 @@ export class Populate<
 
     // Update toBePopulated by assigning to references.
     const toBePopulated = cloneDeep(records) as Record<string, unknown>[];
-    await this._recursivePopulate(tableName, toBePopulated, []);
+    await this.recursivePopulate(tableName, toBePopulated);
 
     this._populated = toBePopulated as Populated<T, B, K>[];
     return this._populated;
   }
 
+  private _records: T[];
+  private _populated: Populated<T, B, K>[];
+  /** Provided selection of keys to populate in populate([]).*/
+  private _keysToPopulate: string[] | undefined;
+  /** Provided options in populate({}). */
+  private _options: PopulateOptions<B> | undefined;
+  /** Table and keys of documents that are populated on the result.*/
+  private _populatedTree: PopulateTree;
+
+  /** Check for valid key with IndexedDb */
   private keyIsValidDbKey(key: unknown): boolean {
     try {
       IDBKeyRange.only(key);
@@ -258,13 +221,102 @@ export class Populate<
     return true;
   }
 
+  /** Set's circular refs on referenced object */
+  private setReferences(
+    ownerRef: Record<string, unknown>,
+    sourceTable: string,
+    targetKey: string,
+    targetTable: string,
+    results: Record<string, unknown>[],
+    popKeys: string[],
+    referenceCache: ReferenceCache,
+    deepReferences: DeepReferences,
+    disableCache = false
+  ): void {
+    if (typeof ownerRef !== "object" || ownerRef === null) {
+      return;
+    }
+    if (sourceTable === targetTable && !disableCache) {
+      const ownerId = ownerRef[targetKey] as IndexableType;
+      referenceCache.setReference(sourceTable, ownerId, ownerRef);
+    }
+
+    popKeys.forEach((popKey) => {
+      const ownerRefPopValue = ownerRef[popKey] as
+        | IndexableType
+        | IndexableType[];
+
+      const result: Record<string, unknown>[] = [];
+
+      if (!Array.isArray(ownerRefPopValue)) {
+        const cachedReference = referenceCache.getReference(
+          targetTable,
+          ownerRefPopValue
+        );
+
+        if (cachedReference) {
+          ownerRef[popKey] = cachedReference;
+          result.push(cachedReference);
+        } else {
+          const resultRef =
+            results.find((result) => result[targetKey] === ownerRefPopValue) ||
+            null;
+
+          ownerRef[popKey] = resultRef;
+
+          if (!disableCache) {
+            referenceCache.setReference(
+              targetTable,
+              ownerRefPopValue,
+              resultRef
+            );
+          }
+          if (resultRef) {
+            result.push(resultRef);
+          }
+        }
+      } else {
+        ownerRefPopValue.forEach((_popValueKey, i) => {
+          const popValueKey = _popValueKey as IndexableType;
+
+          const cachedReference = referenceCache.getReference(
+            targetTable,
+            popValueKey
+          );
+
+          if (cachedReference) {
+            ownerRef[popKey]![i] = cachedReference;
+            result.push(cachedReference);
+          } else {
+            const resultRef =
+              results.find((result) => result[targetKey] === popValueKey) ||
+              null;
+
+            ownerRef[popKey]![i] = resultRef;
+
+            if (!disableCache) {
+              referenceCache.setReference(targetTable, popValueKey, resultRef);
+            }
+            if (resultRef) {
+              result.push(resultRef);
+            }
+          }
+        });
+      }
+
+      if (result!) {
+        deepReferences.setReference(targetTable, result);
+      }
+    });
+  }
+
   /**
    * Recursively populate the provided records (ref based strategy).
    */
-  private _recursivePopulate = async (
+  private recursivePopulate = async (
     sourceTable: string,
     populateRefs: (Record<string, unknown> | null)[],
-    circularRefs: Record<string, unknown>[],
+    circularRefs: ReferenceCache = new ReferenceCache(),
     deepRecursive = false
   ) => {
     const schema = this._relationalSchema[sourceTable];
@@ -273,7 +325,8 @@ export class Populate<
     }
 
     const keysToPopulate = this._keysToPopulate || [];
-    const deepRefsToPopulate: DeepRefsPopulate = {};
+    const deepReferences = new DeepReferences();
+    const shallowPopulate = this._options && this._options.shallow;
 
     // Collect all target id's per target table per target key to optimise db queries.
     const mappedIds = populateRefs.reduce<MappedIds>((acc, record) => {
@@ -341,6 +394,7 @@ export class Populate<
         (acc, [targetTable, targetKeys]) => {
           Object.entries(targetKeys).forEach(([targetKey, entries]) => {
             const uniqueIds = [...new Set(entries.map((entry) => entry.id))];
+
             if (!uniqueIds.length) {
               return;
             }
@@ -374,54 +428,20 @@ export class Populate<
               .toArray()
 
               // Set the result on the populated record by reference
-              .then((_results: Record<string, unknown>[]) => {
-                // Merge result with already found circular refs since these are not queried again
-                const results = [..._results, ...circularRefs];
-
-                if (!deepRefsToPopulate[targetTable]) {
-                  deepRefsToPopulate[targetTable] = {
-                    refs: new Set(),
-                    circularRefs: new Set(),
-                  };
-                }
-
+              .then((results: Record<string, unknown>[]) => {
                 mergeByRef.forEach((entry) => {
                   const { ownerRef, popKeys } = entry;
-                  if (typeof ownerRef !== "object" || ownerRef === null) return;
-
-                  popKeys.forEach((popKey) => {
-                    const refKey = ownerRef[popKey];
-
-                    const newRef = Array.isArray(refKey)
-                      ? refKey.map(
-                          (value) =>
-                            results.find(
-                              (result) =>
-                                result[targetKey] === value || result === value
-                            ) || null
-                        )
-                      : results.find(
-                          (result) =>
-                            result[targetKey] === refKey || result === refKey
-                        ) || null;
-
-                    // Update the referenced record with found record(s)
-                    ownerRef[popKey] = newRef;
-                    if (newRef === null) return;
-
-                    this.setCircularRefs(
-                      ownerRef,
-                      sourceTable,
-                      targetKey,
-                      targetTable,
-                      newRef,
-                      popKey,
-                      deepRefsToPopulate
-                    );
-
-                    // Push the ref for furter populating
-                    deepRefsToPopulate[targetTable].refs.add(newRef);
-                  });
+                  this.setReferences(
+                    ownerRef,
+                    sourceTable,
+                    targetKey,
+                    targetTable,
+                    results,
+                    popKeys,
+                    circularRefs,
+                    deepReferences,
+                    shallowPopulate
+                  );
                 });
               });
 
@@ -435,20 +455,15 @@ export class Populate<
     );
 
     // Return when shallow option is provided.
-    if (this._options && this._options.shallow) {
+    if (shallowPopulate) {
       return;
     }
 
     // Recursively populate refs further per table
-    if (Object.keys(deepRefsToPopulate).length) {
+    if (deepReferences.size) {
       await Promise.all(
-        Object.entries(deepRefsToPopulate).map(([table, refs]) => {
-          return this._recursivePopulate(
-            table,
-            [...refs.refs.values()].flat(),
-            [...refs.circularRefs.values()].flat(),
-            true
-          );
+        deepReferences.getReferencesArray().map(([table, refs]) => {
+          return this.recursivePopulate(table, refs, circularRefs, true);
         })
       );
     }

@@ -2,6 +2,7 @@ import { Dexie, IndexableTypeArray } from "dexie";
 import faker from "faker/locale/nl";
 import { firstValueFrom, Observable, Subscription } from "rxjs";
 import { filter, take } from "rxjs/operators";
+import { dexieRxjs } from "../../../src";
 import {
   databasesPositive,
   Friend,
@@ -30,6 +31,54 @@ function flatPromise<T = unknown>(): FlatPromise<T> {
 }
 
 describe("dexie-rxjs-addon dexie-rxjs.spec Rxjs", () => {
+  describe("Database", () => {
+    it("should throw if database name contains '/'", async () => {
+      const db = new Dexie(
+        "TestDB/with/slashes - " + faker.random.alphaNumeric(5),
+        {
+          addons: [dexieRxjs],
+        }
+      );
+      db.on("blocked", () => false);
+      db.version(1).stores({
+        someTable: "++id",
+      });
+      await expectAsync(db.open()).toBeRejected();
+
+      await db.delete();
+    });
+  });
+  describe("Tables", () => {
+    it("should throw if table name contains '/'", async () => {
+      const db = new Dexie("TestDB - " + faker.random.alphaNumeric(5), {
+        addons: [dexieRxjs],
+      });
+      db.on("blocked", () => false);
+      db.version(1).stores({
+        "some/table/with/slashes": "++id",
+      });
+      await expectAsync(db.open()).toBeRejected();
+
+      await db.delete();
+    });
+  });
+  describe("Indices", () => {
+    it("should throw if index name contains '/'", async () => {
+      const db = new Dexie("TestDB - " + faker.random.alphaNumeric(5), {
+        addons: [dexieRxjs],
+      });
+      db.on("blocked", () => false);
+      db.version(1).stores({
+        someTable: "id/with/slashes",
+      });
+      // This will be rejected by dexie anyways but now has an internal bug
+      // in the weird error mapping of dexie.
+      await expectAsync(db.open()).toBeRejected();
+
+      await db.delete();
+    });
+  });
+
   databasesPositive.forEach((database, _i) => {
     // if (_i !== 0) {
     //   return;

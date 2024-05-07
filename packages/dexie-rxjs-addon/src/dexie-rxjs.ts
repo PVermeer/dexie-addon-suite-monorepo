@@ -36,4 +36,35 @@ export function dexieRxjs(db: Dexie) {
   Object.defineProperty(db, "Table", {
     value: getTableExtended(db),
   });
+
+  db.on("ready", async () => {
+    // Do not allow any forward slashes in names
+    // This can collide with ObservabilitySet
+    if (db.name.includes("/")) {
+      db.close();
+      throw new Error(
+        "DEXIE-RXJS-ADDON: Do not use '/' in the database name. This is not supported"
+      );
+    }
+    db.tables.forEach((table) => {
+      if (table.name.includes("/")) {
+        db.close();
+        throw new Error(
+          "DEXIE-RXJS-ADDON: Do not use '/' in table names. This is not supported"
+        );
+      }
+    });
+    Object.values(db._dbSchema).forEach((schema) => {
+      const indices = [
+        ...schema.indexes.map((index) => index.name),
+        schema.primKey.name,
+      ];
+      if (indices.some((index) => index.includes("/"))) {
+        db.close();
+        throw new Error(
+          "DEXIE-RXJS-ADDON: Do not use '/' in index name. This is not supported"
+        );
+      }
+    });
+  });
 }

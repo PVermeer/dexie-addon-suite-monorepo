@@ -9,6 +9,9 @@ interface MappedIds {
       id: IndexableType;
       popKey: string;
       ownerRef: Record<string, unknown>;
+      sourceTable: string;
+      targetTable: string;
+      targetKey: string;
     }[];
   };
 }
@@ -17,6 +20,19 @@ interface MergeRef {
   id: IndexableType;
   popKeys: string[];
   ownerRef: Record<string, unknown>;
+  sourceTable: string;
+  targetTable: string;
+  targetKey: string;
+}
+
+interface ReferenceFnInput {
+  ownerRef: Record<string, unknown>;
+  targetKey: string;
+  targetTable: string;
+  results: Record<string, unknown>[];
+  popKeys: string[];
+  referenceCache: ReferenceCache;
+  deepReferences: DeepReferences;
 }
 
 class DeepReferences extends Map<string, Set<Record<string, unknown>>> {
@@ -71,7 +87,11 @@ class ReferenceCache extends Map<
       this.set(table, new Map());
     }
     const tableRefs = this.get(table)!;
-    tableRefs.set(key, reference);
+
+    // Don't overwrite existing reference
+    if (!tableRefs.has(key)) {
+      tableRefs.set(key, reference);
+    }
   }
 }
 
@@ -215,8 +235,8 @@ export class Populate<
   /** Table and keys of documents that are populated on the result.*/
   private _populatedTree: PopulateTree;
 
-  /** Check for valid key with IndexedDb */
-  private keyIsValidDbKey(key: unknown): boolean {
+  /** Typeguard: Check for valid key with IndexedDb */
+  private keyIsValidDbKey(key: unknown | IndexableType): key is IndexableType {
     try {
       IDBKeyRange.only(key);
     } catch {
@@ -226,92 +246,62 @@ export class Populate<
   }
 
   /** Set's circular refs on referenced object */
-  private setReferences(
-    ownerRef: Record<string, unknown>,
-    sourceTable: string,
-    targetKey: string,
-    targetTable: string,
-    results: Record<string, unknown>[],
-    popKeys: string[],
-    referenceCache: ReferenceCache,
-    deepReferences: DeepReferences,
-    disableCache = false
-  ): void {
-    if (typeof ownerRef !== "object" || ownerRef === null) {
-      return;
-    }
-    if (sourceTable === targetTable && !disableCache) {
-      const ownerId = ownerRef[targetKey] as IndexableType;
-      referenceCache.setReference(sourceTable, ownerId, ownerRef);
-    }
+  private setReferences(input: ReferenceFnInput): void {
+    const {
+      ownerRef,
+      targetKey,
+      targetTable,
+      results,
+      popKeys,
+      referenceCache,
+      deepReferences,
+    } = input;
+    const result = new Set<Record<string, unknown>>();
+
+    results.forEach((result) => {
+      const resultId = result[targetKey] as IndexableType;
+      referenceCache.setReference(targetTable, resultId, result);
+    });
 
     popKeys.forEach((popKey) => {
-      const ownerRefPopValue = ownerRef[popKey] as
-        | IndexableType
-        | IndexableType[];
-
-      const result: Record<string, unknown>[] = [];
+      const ownerRefPopValue = ownerRef[popKey];
 
       if (!Array.isArray(ownerRefPopValue)) {
+        // Check if already populated
+        if (!this.keyIsValidDbKey(ownerRefPopValue)) {
+          return;
+        }
+
         const cachedReference = referenceCache.getReference(
           targetTable,
           ownerRefPopValue
         );
 
-        if (cachedReference) {
-          ownerRef[popKey] = cachedReference;
-          result.push(cachedReference);
-        } else {
-          const resultRef =
-            results.find((result) => result[targetKey] === ownerRefPopValue) ||
-            null;
+        ownerRef[popKey] = cachedReference;
+        if (cachedReference) result.add(cachedReference);
 
-          ownerRef[popKey] = resultRef;
+        return;
+      }
 
-          if (!disableCache) {
-            referenceCache.setReference(
-              targetTable,
-              ownerRefPopValue,
-              resultRef
-            );
-          }
-          if (resultRef) {
-            result.push(resultRef);
-          }
+      ownerRefPopValue.forEach((popValueKey, i) => {
+        // Check if already populated
+        if (!this.keyIsValidDbKey(popValueKey)) {
+          return;
         }
-      } else {
-        ownerRefPopValue.forEach((_popValueKey, i) => {
-          const popValueKey = _popValueKey as IndexableType;
 
-          const cachedReference = referenceCache.getReference(
-            targetTable,
-            popValueKey
-          );
+        const cachedReference = referenceCache.getReference(
+          targetTable,
+          popValueKey
+        );
 
-          if (cachedReference) {
-            ownerRef[popKey]![i] = cachedReference;
-            result.push(cachedReference);
-          } else {
-            const resultRef =
-              results.find((result) => result[targetKey] === popValueKey) ||
-              null;
-
-            ownerRef[popKey]![i] = resultRef;
-
-            if (!disableCache) {
-              referenceCache.setReference(targetTable, popValueKey, resultRef);
-            }
-            if (resultRef) {
-              result.push(resultRef);
-            }
-          }
-        });
-      }
-
-      if (result!) {
-        deepReferences.setReference(targetTable, result);
-      }
+        ownerRef[popKey]![i] = cachedReference;
+        if (cachedReference) result.add(cachedReference);
+      });
     });
+
+    if (result) {
+      deepReferences.setReference(targetTable, [...result]);
+    }
   }
 
   /**
@@ -319,18 +309,20 @@ export class Populate<
    */
   private recursivePopulate = async (
     sourceTable: string,
-    populateRefs: (Record<string, unknown> | null)[],
-    circularRefs: ReferenceCache = new ReferenceCache(),
+    populateRefs: Record<string, unknown>[],
+    referenceCache: ReferenceCache = new ReferenceCache(),
     deepRecursive = false
   ) => {
-    const schema = this._relationalSchema[sourceTable];
-    if (!schema) {
+    const relationalSchema = this._relationalSchema[sourceTable];
+    const dbSchema = this._db._dbSchema[sourceTable];
+    if (!relationalSchema || !dbSchema) {
       return;
     }
 
     const keysToPopulate = this._keysToPopulate || [];
     const deepReferences = new DeepReferences();
     const shallowPopulate = this._options && this._options.shallow;
+    const sourceTablePrimaryKey = dbSchema.primKey.name;
 
     // Collect all target id's per target table per target key to optimise db queries.
     const mappedIds = populateRefs.reduce<MappedIds>((acc, record) => {
@@ -338,10 +330,21 @@ export class Populate<
         return acc;
       }
 
+      // Push ownerRef to the cache as early as possible
+      // Do not push this ref to the cache if shallow
+      // as it will trigger some nesting
+      if (!shallowPopulate) {
+        const recordPrimaryKeyValue = record[
+          sourceTablePrimaryKey
+        ] as IndexableType;
+
+        referenceCache.setReference(sourceTable, recordPrimaryKeyValue, record);
+      }
+
       // Gather all id's per target key
       Object.entries(record).forEach(([key, value]) => {
         if (
-          !schema[key] ||
+          !relationalSchema[key] ||
           (!deepRecursive &&
             keysToPopulate.length &&
             !keysToPopulate.some((popKey) => popKey === key)) ||
@@ -350,7 +353,7 @@ export class Populate<
           return;
         }
 
-        const { targetTable, targetKey } = schema[key];
+        const { targetTable, targetKey } = relationalSchema[key];
 
         if (!acc[targetTable]) {
           acc[targetTable] = {};
@@ -368,6 +371,9 @@ export class Populate<
           id,
           popKey: key,
           ownerRef: record,
+          sourceTable,
+          targetTable,
+          targetKey,
         }));
 
         acc[targetTable][targetKey] = [
@@ -405,7 +411,7 @@ export class Populate<
 
             // Speed up query when record is already cached
             uniqueIds = uniqueIds.filter(
-              (id) => !circularRefs.hasReference(targetTable, id)
+              (id) => !referenceCache.hasReference(targetTable, id)
             );
 
             const mergeByRef: MergeRef[] = entries.reduce((acc, entry) => {
@@ -418,6 +424,9 @@ export class Populate<
                   id: entry.id,
                   popKeys: [],
                   ownerRef: entry.ownerRef,
+                  sourceTable,
+                  targetTable,
+                  targetKey,
                 };
 
                 acc.push(refEntry);
@@ -439,18 +448,12 @@ export class Populate<
               // Set the result on the populated record by reference
               .then((results: Record<string, unknown>[]) => {
                 mergeByRef.forEach((entry) => {
-                  const { ownerRef, popKeys } = entry;
-                  this.setReferences(
-                    ownerRef,
-                    sourceTable,
-                    targetKey,
-                    targetTable,
+                  this.setReferences({
+                    ...entry,
                     results,
-                    popKeys,
-                    circularRefs,
+                    referenceCache,
                     deepReferences,
-                    shallowPopulate
-                  );
+                  });
                 });
               });
 
@@ -472,7 +475,7 @@ export class Populate<
     if (deepReferences.size) {
       await Promise.all(
         deepReferences.getReferencesArray().map(([table, refs]) => {
-          return this.recursivePopulate(table, refs, circularRefs, true);
+          return this.recursivePopulate(table, refs, referenceCache, true);
         })
       );
     }

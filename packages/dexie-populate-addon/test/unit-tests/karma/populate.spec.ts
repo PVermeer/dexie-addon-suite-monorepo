@@ -300,6 +300,12 @@ describe("dexie-populate-addon populate.spec", () => {
                       )
                         .withContext("3")
                         .toBeTrue();
+                      expect(
+                        // @ts-expect-error
+                        getFriend?.hasFriends[4].hasFriends[0] === getFriend
+                      )
+                        .withContext("4")
+                        .toBeTrue();
                     });
                     if (_method.populatedPartial) {
                       it("should be populated with theme", async () => {
@@ -354,9 +360,22 @@ describe("dexie-populate-addon populate.spec", () => {
                       it("should not be populated with friends deep", async () => {
                         const getFriend = await method(id, true);
                         expect(
+                          (getFriend?.hasFriends as Friend[]).some(
+                            (x) => x.hasFriends.length
+                          )
+                        )
+                          .withContext("Should have nested friends")
+                          .toBeTrue();
+                        expect(
                           (getFriend?.hasFriends as Friend[]).every((x) =>
                             x.hasFriends.every((y) => typeof y === "number")
                           )
+                        ).toBeTrue();
+                      });
+                      it("should be populated with hairColor", async () => {
+                        const getFriend = await method(id, true);
+                        expect(
+                          getFriend?.hairColor instanceof HairColor
                         ).toBeTrue();
                       });
                       it("should not be populated with clubs deep", async () => {

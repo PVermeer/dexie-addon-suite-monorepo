@@ -54,20 +54,24 @@ class ReferenceCache extends Map<
   string,
   Map<IndexableType, Record<string, unknown> | null>
 > {
-  getReference(table: string, keyValue: IndexableType) {
-    return this.get(table)?.get(keyValue) || null;
+  hasReference(table: string, key: IndexableType) {
+    return this.get(table)?.has(key) || false;
+  }
+
+  getReference(table: string, key: IndexableType) {
+    return this.get(table)?.get(key) || null;
   }
 
   setReference(
     table: string,
-    keyValue: IndexableType,
-    ref: Record<string, unknown> | null
+    key: IndexableType,
+    reference: Record<string, unknown> | null
   ) {
     if (!this.has(table)) {
       this.set(table, new Map());
     }
     const tableRefs = this.get(table)!;
-    tableRefs.set(keyValue, ref);
+    tableRefs.set(key, reference);
   }
 }
 
@@ -393,11 +397,16 @@ export class Populate<
       Object.entries(mappedIds).reduce<Promise<void>[]>(
         (acc, [targetTable, targetKeys]) => {
           Object.entries(targetKeys).forEach(([targetKey, entries]) => {
-            const uniqueIds = [...new Set(entries.map((entry) => entry.id))];
+            let uniqueIds = [...new Set(entries.map((entry) => entry.id))];
 
             if (!uniqueIds.length) {
               return;
             }
+
+            // Speed up query when record is already cached
+            uniqueIds = uniqueIds.filter(
+              (id) => !circularRefs.hasReference(targetTable, id)
+            );
 
             const mergeByRef: MergeRef[] = entries.reduce((acc, entry) => {
               let refEntry = acc.find(

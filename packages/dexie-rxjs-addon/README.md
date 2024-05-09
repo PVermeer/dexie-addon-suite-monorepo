@@ -9,18 +9,18 @@
 This addon can be used as a stand-alone addon for Dexie.js yet is also part of dexie-addon-suite [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
 that combines a number of addons for Dexie. It contains code to combine some addons like populated rxjs observables.
 
-## Install over npm
+## Install with npm
 
 ```
-npm install @pvermeer/dexie-rxjs-addon rxjs
+npm install @pvermeer/dexie-rxjs-addon rxjs dexie
 ```
 
-#### Dependencies
+#### Peer Dependencies
 
 **rxjs**: https://rxjs-dev.firebaseapp.com/
 
 **Dexie.js**:
-Dexie RxJs Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie RxJs Addon depends on Dexie.js v4. Latest dexie version: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
 ```
 npm install dexie
@@ -33,7 +33,7 @@ npm install dexie
 Plugin is written to extend Dexie.js with your own RxJs by adding methods and properties to the Dexie classes.
 RxJs is not bundled so you can use your own implementation.
 
-This addon implements the [Dexie.Observable](https://dexie.org/docs/Observable/Dexie.Observable) addon to detect changes.
+Since v2 this addon now uses the liveQuery() methods. Change detection logic is now handled by `dexie` and this addon only converts `dexie observables` to `rxjs` observables. Any change detection issues should now be filed upstream to `dexie`.
 
 ### How to use
 
@@ -41,113 +41,29 @@ This addon implements the [Dexie.Observable](https://dexie.org/docs/Observable/D
 
 Add dexieRxjs() to your Dexie database. See below examples and https://dexie.org for more info.
 
-#### changes$
+#### Dexie.changes$
 
-On the Dexie database itself you can get an observable for all changes. It reflects the [Dexie.Observable](https://dexie.org/docs/Observable/Dexie.Observable) addon. See https://dexie.org/docs/Observable/Dexie.Observable for more info.
+On your created Dexie database you can get an observable for all changes. It reflects the [ObservabilitySet](https://dexie.org/docs/Dexie/Dexie.on.storagemutated#observabilityset) implementation for [liveQuery()](<https://dexie.org/docs/liveQuery()>).
 
 ```ts
-interface Database {
+// Dexie database extended
+class Dexie {
   /**
-   * Get on('changes') from 'dexie-observable' as an RxJs observable and observe changes.
-   * @link https://dexie.org/docs/Observable/Dexie.Observable
+   * Get on('storagemutated') from 'Dexie' as an RxJs observable and observe changes in this database.
+   * @link https://dexie.org/docs/Dexie/Dexie.on.storagemutated
    */
-  changes$: Observable<import("dexie-observable/api").IDatabaseChange[]>;
+  changes$: import("rxjs").Observable<ObservabilitySet>;
 }
 ```
 
 #### Table.$
 
-The Dexie Tables are extended with `$` property. This returns a `ObservableTable` with many normal Table methods but now they return `Observable` instead of a `DexiePromise`.
+The dexie Table class is extended with `$` property. This returns a [ObservableTable](https://github.com/PVermeer/dexie-addon-suite-monorepo/blob/master/packages/dexie-rxjs-addon/src/observable-table.class.ts) with the normal query methods but now they return a `rxjs` `Observable`.
 
 ```ts
-interface TableExtended<T, TKey> {
-  $: ObservableTable<T, TKey>;
-}
-```
-
-#### ObservableTable
-
-Instead of the `Dexie.Table` an `ObservableTable` is returned after using `$`.
-
-```ts
-class ObservableTable<T, TKey> {
-  /**
-   * Observable stream of table changes.
-   * Emits updated value on changes.
-   * @note Stays open so unsubscribe.
-   */
-  public changes(): Observable<IDatabaseChange[]>;
-  /**
-   * Create an Observable Collection of this table.
-   */
-  public toCollection(): ObservableCollection<T, TKey>;
-  /**
-   * Observable stream of the complete Table.
-   * Emits updated Table array on changes.
-   * @note Stays open so unsubscribe.
-   */
-  public toArray(): Observable<T[]>;
-  /**
-   * Observable stream of a get request.
-   * Emits updated value on changes.
-   * @note Stays open so unsubscribe.
-   */
-  public get(
-    keyOrequalityCriterias:
-      | TKey
-      | {
-          [key: string]: any;
-        }
-  ): Observable<T | undefined>;
-  /**
-   * Observable stream of a where query.
-   * Emits updated values on changes, including new or updated records that are in range.
-   * @return ObservableWhereClause that behaves like a normal Dexie where-clause or an ObservableCollection.
-   * @note Stays open so unsubscribe.
-   */
-  public where(index: string | string[]): ObservableWhereClause<T, TKey>;
-  public where(equalityCriterias: {
-    [key: string]: IndexableType;
-  }): ObservableCollection<T, TKey>;
-  /**
-   * Observable stream of the complete Table orderd by indexed key.
-   * Emits updated Table array on changes.
-   * @note Stays open so unsubscribe.
-   */
-  public orderBy(index: string | string[]): ObservableCollection<T, TKey> {
-    const collection = this._table.orderBy(
-      Array.isArray(index) ? `[${index.join("+")}]` : index
-    );
-    const observableCollection = new ObservableCollection(
-      this._db,
-      this._table,
-      collection
-    );
-    return observableCollection;
-  }
-  /**
-   * Observable stream of the complete Table count.
-   * Emits updated new number on changes.
-   * @note Stays open so unsubscribe.
-   */
-  public count(): Observable<number> {
-    const count$ = this.toCollection().count();
-    return count$;
-  }
-
-  // Mapped Dexie Table methods
-  public filter: (
-    ...args: Parameters<Table["filter"]>
-  ) => ObservableCollection<T, TKey>;
-  public offset: (
-    ...args: Parameters<Table["offset"]>
-  ) => ObservableCollection<T, TKey>;
-  public limit: (
-    ...args: Parameters<Table["limit"]>
-  ) => ObservableCollection<T, TKey>;
-  public reverse: (
-    ...args: Parameters<Table["reverse"]>
-  ) => ObservableCollection<T, TKey>;
+// Dexie Table extended
+class Table<T, TKey, TInsertType> {
+  $: ObservableTable<T, TKey, TInsertType>;
 }
 ```
 
@@ -159,7 +75,7 @@ import { Subscription } from "rxjs";
 const subs = new Subscription();
 
 const friends = get20Friends(); // Array of 20 friends
-await db.friends.bulkAdd(Friends);
+await db.friends.bulkAdd(friends);
 
 const friend$ = await db.friends.$.get(1);
 const table$ = await db.friends.$.toArray();
@@ -212,7 +128,7 @@ subs.unsubscribe();
 
 ### Load the addon
 
-#### Example (ESM)
+#### Example ESM
 
 ```js
 import Dexie from "dexie";
@@ -231,7 +147,7 @@ db.open().then(() => {
 });
 ```
 
-#### Example (Typescript)
+#### Example TypeScript
 
 ```ts
 import Dexie from "dexie";
@@ -265,7 +181,7 @@ db.open().then(() => {
 });
 ```
 
-#### Example (HTML import)
+#### Example HTML import
 
 Bundled & minified package: <https://unpkg.com/@pvermeer/dexie-rxjs-addon@latest/dist/dexie-rxjs-addon.min.js>.
 
@@ -309,7 +225,7 @@ The packet exposes a single export:
 function dexieRxjs(db: Dexie): void;
 ```
 
-Also exports some other classes and types to support further extension. See declaration or source.
+Also exports some other classes and types to support further extension. See typescript declaration or source.
 
 ---
 

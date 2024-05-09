@@ -9,8 +9,8 @@ export type { TableExtended } from "./table-extended.class";
 declare module "dexie" {
   interface Dexie {
     /**
-     * Get on('changes') from 'dexie-observable' as an RxJs observable and observe changes.
-     * @link https://dexie.org/docs/Observable/Dexie.Observable
+     * Get on('storagemutated') from 'Dexie' as an RxJs observable and observe changes in this database.
+     * @link https://dexie.org/docs/Dexie/Dexie.on.storagemutated
      */
     changes$: import("rxjs").Observable<ObservabilitySet>;
   }

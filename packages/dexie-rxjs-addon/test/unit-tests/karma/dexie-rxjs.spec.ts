@@ -115,6 +115,45 @@ describe("dexie-rxjs-addon dexie-rxjs.spec Rxjs", () => {
         subs.unsubscribe();
         await db.delete();
       });
+      describe("db.changes$", () => {
+        it("should be an observable", () => {
+          expect(db.changes$ instanceof Observable).toBeTrue();
+        });
+        it("should be open", async () => {
+          let sub = new Subscription();
+          const emitPromise = new Promise<void>((resolve) => {
+            sub = db.changes$.subscribe(() => resolve());
+            subs.add(sub);
+          });
+          await db.friends.bulkAdd(mockFriends(1));
+          await emitPromise;
+          expect(sub.closed).toBe(false);
+        });
+        it(`should have same behavior as db.on('storagemutated')`, async () => {
+          const emitEventPromise = new Promise((resolve) => {
+            const dexieChangesSub = Dexie.on("storagemutated");
+
+            /**
+             * The documentation refers to yourListenerFunction as the function you pass as a second argument to hook('creating'). You would need to give that function a name or store a reference to it somewhere in order to unsubscribe to it.
+             */
+            function listenerFunction(data: any) {
+              dexieChangesSub.unsubscribe(listenerFunction);
+              resolve(data);
+            }
+            dexieChangesSub.subscribe(listenerFunction);
+          });
+
+          const emitObsPromise = new Promise((resolve) => {
+            subs.add(db.changes$.subscribe((data) => resolve(data)));
+          });
+          await db.friends.bulkAdd(mockFriends(1));
+          const resolved = await Promise.all([
+            emitObsPromise,
+            emitEventPromise,
+          ]);
+          expect(resolved[0]).toEqual(resolved[1]);
+        });
+      });
       describe("Methods", () => {
         methods.forEach((method, _j) => {
           // if (_j !== 0) {
@@ -349,6 +388,85 @@ describe("dexie-rxjs-addon dexie-rxjs.spec Rxjs", () => {
 
               expect(obsFriend).toEqual(friend);
             });
+            it("should not emit when no changes", async () => {
+              await db.friends.clear();
+              const friends = mockFriends(50);
+              const updateFriends = [
+                ...friends.map((x) => {
+                  const { customId: _customId, ...rest } = x;
+                  return rest;
+                }),
+              ];
+              const ids = await db.friends.bulkAdd(friends, { allKeys: true });
+              const lastId = id;
+              const updateIds = friends.map((_, i) =>
+                database.desc !== "TestDatabaseCustomKey" && ids[i] > 1000000
+                  ? lastId + i + 1
+                  : ids[i]
+              );
+
+              const idx1 = faker.datatype.number({ min: 10, max: 19 });
+              const id1 = ids[idx1];
+              const updateId1 = updateIds[idx1];
+              let emitCount = 0;
+              let emitCountChanges = 0;
+
+              const waits = new Array(4).fill(null).map(() => flatPromise());
+              const waitsChanges = new Array(3)
+                .fill(null)
+                .map(() => flatPromise());
+              subs.add(
+                method$(id1, friends[idx1].customId).subscribe(() => {
+                  emitCount++;
+                  switch (emitCount) {
+                    case 1:
+                      waits[0].resolve();
+                      break;
+                    case 2:
+                      waits[1].resolve();
+                      waits[2].resolve();
+                      waits[3].resolve();
+                      break;
+                  }
+                })
+              );
+              subs.add(
+                db.changes$.subscribe(() => {
+                  emitCountChanges++;
+                  waitsChanges[emitCountChanges - 1].resolve();
+                })
+              );
+
+              // First emit
+              await waits[0].promise;
+              expect(emitCount).toBe(1);
+
+              // Update different record
+              const idx2 = faker.datatype.number({ min: 20, max: 29 });
+              const updateId2 = updateIds[idx2];
+              await db.friends.update(updateId2, updateFriends[idx2]);
+              await waitsChanges[0].promise;
+              expect(emitCount).toBe(1);
+
+              // Update record with same data
+              await db.friends.update(updateId1, updateFriends[idx1]);
+              await waitsChanges[1].promise;
+              expect(emitCount).toBe(1);
+
+              // Update record with different data
+              if (method.first)
+                await db.friends.update(ids[0], updateFriends[45]);
+              else if (method.last)
+                await db.friends.update(
+                  ids[(method.limit || friends.length) - 1],
+                  updateFriends[45]
+                );
+              else await db.friends.update(updateId1, updateFriends[45]);
+
+              await waits[3].promise;
+              await waitsChanges[2].promise;
+              expect(emitCount).toBe(2);
+            });
 
             if (method.array) {
               it("should be an array", async () => {
@@ -392,6 +510,52 @@ describe("dexie-rxjs-addon dexie-rxjs.spec Rxjs", () => {
                     { ...friend, lastName: "TestieTest" },
                   ]);
                 });
+                it("should not emit on updating a record on the table with same data", async () => {
+                  const collection$ = method$(id, customId, {
+                    emitFull: true,
+                  });
+                  let collection: Friend[];
+                  let emitCount = 0;
+                  let emitCountChanges = 0;
+                  const waits = new Array(1)
+                    .fill(null)
+                    .map(() => flatPromise());
+                  const waitsChanges = new Array(1)
+                    .fill(null)
+                    .map(() => flatPromise());
+                  subs.add(
+                    collection$.subscribe((friendEmit) => {
+                      collection = friendEmit as Friend[];
+                      emitCount++;
+                      switch (emitCount) {
+                        case 1:
+                          waits[0].resolve();
+                          break;
+                        case 2:
+                          waits[1].resolve();
+                          break;
+                      }
+                    })
+                  );
+                  subs.add(
+                    db.changes$.subscribe((_obsSet) => {
+                      emitCountChanges++;
+                      waitsChanges[emitCountChanges - 1].resolve();
+                    })
+                  );
+
+                  // Initial emit
+                  await waits[0].promise;
+                  expect(emitCount).toBe(1);
+                  expect(collection!).toEqual([friend]);
+
+                  // Update with same data
+                  await db.friends.update(id, { lastName: friend.lastName });
+                  await waitsChanges[0].promise;
+                  expect(emitCount).toBe(1);
+                  expect(collection!).toEqual([friend]);
+                });
+
                 it("should emit on adding/removing to the table", async () => {
                   const getObs$ = method$(id, customId, { emitFull: true });
                   let collection: Friend[];

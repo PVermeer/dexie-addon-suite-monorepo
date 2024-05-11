@@ -17,7 +17,7 @@ npm install @pvermeer/dexie-populate-addon
 
 #### Dexie.js
 
-Dexie Populate Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie Populate Addon depends on Dexie.js v4. Latest dexie version: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
 ```
 npm install dexie
@@ -31,17 +31,28 @@ Addon is written to be as easy to use as Dexie.js itself.
 
 ### Added Schema Syntax
 
+The [dexie schema](https://dexie.org/docs/API-Reference#quick-reference) is extended with:
+
 | Symbol | Description                                                    |
 | ------ | -------------------------------------------------------------- |
 | =>     | Relational notation: `group => groups.id` (_group is indexed_) |
 
-#### Population
+#### Explanation
 
-Index keys of `group` may be an array of keys `[1, 2, 3]` or a single key `1`.
+`group` Is the property on the record and will create an index on the database.
+`groups.id` Groups is the referenced table and `id` is the key to query for on this table.
 
-#### Indices
+Multi-entry index is supported:
 
-Relational keys will be indexed. Multi-index `*groups` and compound indices can be used `++id, group => groups.id, [id+group]`.
+- `++id, *group => group.id`
+
+Compound poplulation is supported:
+
+- `++id, group => groups.id, [id+group]`
+
+Queries for `[id+group]` (e.g.`where()`) will have populated results
+
+[#35](https://github.com/PVermeer/dexie-addon-suite-monorepo/issues/35) A compound key as primary key on a referenced table is not supported. It's recommoneded to always use a single primary key (e.g. auto-incremented) for the referenced table key.
 
 ### How to use
 
@@ -51,7 +62,7 @@ Add populate() to your Dexie database. See below examples and https://dexie.org 
 
 #### Ref type (TypeScript)
 
-For typescript there is a special `Ref` type for your Classes and Interfaces to let the type system know that this is a potentially populated property:
+For typescript there is a special `Ref` type for your Classes and Interfaces so the type system knows id this propery is populated or not:
 
 ```ts
 import { Ref } from "@pvermeer/dexie-populate-addon";
@@ -73,7 +84,7 @@ export class Friend {
 }
 ```
 
-With this notation we let the typesystem know we have a property `memberOf` that can be assigned with index keys of `number`. When population methods are used, TypeScript now knows that this has changed to `Club[]` in `memberOf`. If a Ref is not found it is `null`, thus the result for `memberOf` will be `(Club | null)[]`.
+With `memberOf: Ref<Club, number>[]` the typesystem now knows we have a property `memberOf` that can be assigned with an array of `number` keys. When population methods are used, TypeScript now understands that this has changed to the type `Club[]` in `memberOf`. If one of the referenced records is not found it will be `null`, thus the type for `memberOf` will be `(Club | null)[]`.
 
 The `Ref` type is a (fake) nominal type so the type system can differentiate this type from other assignable types.
 
@@ -93,8 +104,14 @@ It returns a new `PopulateTable` with the available `Dexie.Table` methods that s
 
 When no options are provided, the return is a deep populated record. Since this is not always wanted and to speed up the database lookup, options can be provided:
 
-- Providing `string[]` expects population keys as provided in the table schema. Only thoses properties will be populated .
+- Limit population by providing `string[]`. `string[]` Expects population keys as provided in the table schema. Only thoses properties will be populated .
 - Providing `{ shallow: true }` disables deep population. Only one layer of population is applied.
+
+##### References
+
+All references are internally cached for the duration of the population. This means that the same record will never be queried twice and instead a reference from the cache is set on the populated record.
+
+This allows for circular references to be resolved.
 
 ##### Examples:
 
@@ -242,8 +259,8 @@ Addon is export as namespace DexiePopulateAddon
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- Include Dexie (@next if v3 is still in RC) -->
-    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <!-- Include Dexie -->
+    <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
 
     <!-- Include DexiePopulateAddon (always after Dexie, it's a dependency) -->
     <script src="https://unpkg.com/@pvermeer/dexie-populate-addon@latest/dist/dexie-populate-addon.min.js"></script>

@@ -17,7 +17,7 @@ npm install @pvermeer/dexie-immutable-addon
 
 #### Dexie.js
 
-Dexie Immutable Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie Immutable Addon depends on Dexie.js v4. Latest dexie version: [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
 ```
 npm install dexie
@@ -99,7 +99,7 @@ Addon is export as namespace DexieImmutableAddon
 <html>
   <head>
     <!-- Include Dexie (@next if v3 is still in RC) -->
-    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
 
     <!-- Include DexieImmutableAddon (always after Dexie, it's a dependency) -->
     <script src="https://unpkg.com/@pvermeer/dexie-immutable-addon@latest/dist/dexie-immutable-addon.min.js"></script>

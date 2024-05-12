@@ -17,18 +17,10 @@ npm install @pvermeer/dexie-encrypted-addon
 
 #### Dexie.js
 
-Dexie Encrypted Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie Encrypted Addon depends on Dexie.js v4. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
 ```
 npm install dexie
-```
-
-## Updating package
-
-Updating the addon to major version 3 requires a database version update. The addon needs to create an internal table to check if the encryption key has changed.
-
-```ts
-db.version(2).stores({ friends: "++id, $name, shoeSize" }); // Provide full schema with all tables on upgrading to version 2
 ```
 
 ## Angular > 10
@@ -66,10 +58,10 @@ Addon is written to be as easy to use as Dexie.js itself.
 
 #### Added Schema Syntax
 
-| Symbol | Description                                                       |
-| ------ | ----------------------------------------------------------------- |
-| $      | Encrypt this value (does not create an index)                     |
-| \#     | Only as first key: Hash the original document and create an index |
+| Symbol | Description                                                                  |
+| ------ | ---------------------------------------------------------------------------- |
+| $      | Encrypt this value (does not create an index)                                |
+| \#     | Only as first key: Create primary key with the hash of the original document |
 
 ```ts
 const friend = '#id, $name, age';
@@ -81,14 +73,14 @@ const friend = '#id, $name, age';
 }
 ```
 
-Using **$** on your keys will encrypt these keys.
+Using the prefix **$** on your keys will encrypt these keys.
 
-Using **#** on the first key will hash this key with the document on creation.
-This will create an unique primary key based on the document itself and will update or create the key on the document itself.
+Using the prefix **#** on the first key will hash the document on creation and uses this hash as the primary key.
+This will create an unique primary key based on the document itself and will update or create the key on the document in IndexedDB.
 
 #### Secret key
 
-On first use of the database a new key can be generated with `Encryption.createRandomEncryptionKey()` on the exported `Encryption` class.
+When creating the database a new key can be generated with `Encryption.createRandomEncryptionKey()` using the exported `Encryption` class.
 
 ```ts
 import { Encryption } from "@pvermeer/dexie-encrypted-addon";
@@ -134,7 +126,7 @@ Always provide the full schema in `stores()`. This is because the addon derives 
 db.version(2).stores({ friends: "#id, $name, shoeSize" }); // Always provide the full schema with all tables on version increase
 ```
 
-When also an `upgrade()` is necessary and/or encrypted keys have changed the `Encrypted` class can be used to decrypt and encrypt data.
+If an `upgrade()` is necessary and/or encrypted keys have changed, the `Encrypted` class can be used to decrypt and encrypt data.
 
 ```ts
 import { Encryption } from "@pvermeer/dexie-encrypted-addon";
@@ -178,7 +170,7 @@ await db.transaction("readonly", db.friends, async (transaction) => {
 });
 ```
 
-All read actions in the transaction will return a raw document as saved in the db. All set actions will save the document as is. So no Class mapping or decryption / encryption will be performed on the document.
+All read actions in the transaction will return a raw document as saved in the db. All set actions will save the document as is. So no class mapping or decryption / encryption will be performed on the document.
 
 #### Example (ESM)
 
@@ -255,7 +247,7 @@ Addon is export as namespace DexieEncryptedAddon
 <html>
   <head>
     <!-- Include Dexie -->
-    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
 
     <!-- Include DexieEncryptedAddon (always after Dexie, it's a dependency) -->
     <script src="https://unpkg.com/@pvermeer/dexie-encrypted-addon@latest/dist/dexie-encrypted-addon.min.js"></script>

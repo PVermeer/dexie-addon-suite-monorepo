@@ -12,6 +12,14 @@ export interface OnSerialize {
   serialize(): Partial<SerializeObject>;
 }
 
+type SerializeFunReturn<T> =
+  | Parameters<Dexie.Table<T, any>["add"]>[0]
+  | Parameters<Dexie.Table<T, any>["bulkAdd"]>[0][0]
+  | Parameters<Dexie.Table<T, any>["put"]>[0]
+  | Parameters<Dexie.Table<T, any>["bulkPut"]>[0][0]
+  | Parameters<Dexie.Table<T, any>["update"]>[1]
+  | Parameters<Dexie.Table<T, any>["bulkUpdate"]>[0][0]["changes"];
+
 type DexieExtended = Dexie & {
   pVermeerAddonsRegistered?: { [addon: string]: boolean };
 };
@@ -25,52 +33,69 @@ export function classMap(db: Dexie) {
     class: true,
   };
 
-  function serialize<T = unknown>(item: T, table?: Table) {
+  function recursiveSerialize<T extends SerializeFunReturn<unknown>>(
+    item: T,
+    table?: Table
+  ): SerializeFunReturn<T> {
     const transaction = Dexie.currentTransaction;
     if (transaction?.raw) return item;
 
-    if (!(typeof item === "object" && !Array.isArray(item) && item !== null))
+    if (item === null) {
       return item;
+    }
 
-    let itemState = item as Record<keyof any, unknown>;
+    if (Array.isArray(item)) {
+      return item;
+    }
+
+    if (item === undefined || !(typeof item === "object" && item !== null)) {
+      return item;
+    }
 
     // Dexie supports key path updates. These are treated as raw updates.
-    if (Object.keys(itemState).some((key) => key.includes(".")))
-      return itemState;
+    if (Object.keys(item).some((key) => key.includes("."))) {
+      return item;
+    }
 
-    if (
-      itemState["serialize"] &&
-      typeof itemState["serialize"] === "function"
-    ) {
-      itemState = itemState.serialize();
+    if ("serialize" in item && typeof item.serialize === "function") {
+      item = item.serialize();
     } else if (table) {
       // Check if a class is provided and if it has a serialize method. Table.update item has probably no serialize method.
       const constructor = table.schema.mappedClass;
       if (constructor && constructor === item.constructor) {
         const classInstance = Object.create(constructor.prototype);
         if (
-          classInstance["serialize"] &&
-          typeof classInstance["serialize"] === "function"
+          "serialize" in classInstance &&
+          typeof classInstance.serialize === "function"
         ) {
           Object.assign(classInstance, item);
-          itemState = classInstance["serialize"];
+          item = classInstance.serialize();
         }
       }
     }
-    // Recursive for nested classes
-    Object.entries(itemState).forEach(
-      ([key, value]) => (itemState[key] = serialize(value))
-    );
 
-    if (!table) return itemState;
+    if (item === undefined || !(typeof item === "object" && item !== null)) {
+      return item;
+    }
+
+    // Recursive for nested classes
+    Object.entries(item).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        item[key] = value.map((entry) => recursiveSerialize(entry));
+        return;
+      }
+      item[key] = recursiveSerialize(value);
+    });
+
+    if (!table) return item;
 
     // Delete primary key property if it's undefined
     const primaryKey = table.schema.primKey.name;
-    if (primaryKey in itemState && itemState[primaryKey] === undefined) {
-      delete itemState[primaryKey];
+    if (primaryKey in item && item[primaryKey] === undefined) {
+      delete item[primaryKey];
     }
 
-    return itemState;
+    return item;
   }
 
   // Extend / override the Table class.
@@ -85,7 +110,7 @@ export function classMap(db: Dexie) {
       function (this: Table, item, key?) {
         if (this.name.startsWith("_")) return origFunc.call(this, item, key);
 
-        const itemState = serialize(item, this);
+        const itemState = recursiveSerialize(item, this);
         return origFunc.call(this, itemState, key);
       } as typeof origFunc
   );
@@ -100,7 +125,7 @@ export function classMap(db: Dexie) {
       ) {
         if (this.name.startsWith("_")) return origFunc.call(this, items, key);
 
-        const itemStates = items.map((item) => serialize(item, this));
+        const itemStates = items.map((item) => recursiveSerialize(item, this));
         return origFunc.call(this, itemStates, key);
       } as typeof origFunc
   );
@@ -111,7 +136,7 @@ export function classMap(db: Dexie) {
       function (this: Table, item, key?) {
         if (this.name.startsWith("_")) return origFunc.call(this, item, key);
 
-        const itemState = serialize(item, this);
+        const itemState = recursiveSerialize(item, this);
 
         return origFunc.call(this, itemState, key);
       } as typeof origFunc
@@ -127,7 +152,7 @@ export function classMap(db: Dexie) {
       ) {
         if (this.name.startsWith("_")) return origFunc.call(this, items, key);
 
-        const itemStates = items.map((item) => serialize(item, this));
+        const itemStates = items.map((item) => recursiveSerialize(item, this));
 
         return origFunc.call(this, itemStates, key);
       } as typeof origFunc
@@ -139,7 +164,7 @@ export function classMap(db: Dexie) {
       function (this: Table<unknown>, key, changes) {
         if (this.name.startsWith("_")) return origFunc.call(this, key, changes);
 
-        const changesState = serialize(changes, this);
+        const changesState = recursiveSerialize(changes, this);
 
         return origFunc.call(this, key, changesState);
       } as typeof origFunc
@@ -153,7 +178,7 @@ export function classMap(db: Dexie) {
 
         const itemStates = keysAndChanges.map((item) => ({
           key: item.key,
-          changes: serialize(item.changes, this),
+          changes: recursiveSerialize(item.changes, this),
         }));
 
         return origFunc.call(this, itemStates);

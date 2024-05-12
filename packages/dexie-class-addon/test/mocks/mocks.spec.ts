@@ -1,5 +1,5 @@
 import { Dexie } from "dexie";
-import faker from "faker/locale/en";
+import faker from "faker";
 import { classMap, OmitMethods, OnSerialize } from "../../src/class";
 
 class Theme implements OnSerialize {
@@ -23,7 +23,7 @@ class Theme implements OnSerialize {
   }
 }
 
-class Club implements OnSerialize {
+export class Club implements OnSerialize {
   name: string;
   theme: Theme;
   createdAt: Date;
@@ -38,11 +38,32 @@ class Club implements OnSerialize {
 
   deserialize(input: OmitMethods<Club>) {
     Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
-    this.theme = new Theme(this.theme);
+    this.theme = new Theme(input.theme);
     this.createdAt = new Date(input.createdAt);
   }
 
   constructor(input: OmitMethods<Club>) {
+    this.deserialize(input);
+  }
+}
+
+export class Tag implements OnSerialize {
+  name: string;
+  createdAt: Date;
+
+  serialize() {
+    return {
+      name: this.name,
+      createdAt: this.createdAt.getTime(),
+    };
+  }
+
+  deserialize(input: OmitMethods<Tag>) {
+    Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
+    this.createdAt = new Date(input.createdAt);
+  }
+
+  constructor(input: OmitMethods<Tag>) {
     this.deserialize(input);
   }
 }
@@ -55,6 +76,7 @@ export class Friend implements OnSerialize {
   shoeSize: number;
   date: Date;
   memberOf: Club;
+  tags: Tag[];
 
   address: {
     zipCode: string;
@@ -75,13 +97,15 @@ export class Friend implements OnSerialize {
       date: this.date.getTime(),
       address: { ...this.address },
       memberOf: this.memberOf,
+      tags: this.tags,
     };
   }
 
   deserialize(input: OmitMethods<Friend>) {
     Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
     this.date = new Date(input.date);
-    this.memberOf = new Club(this.memberOf);
+    this.memberOf = new Club(input.memberOf);
+    this.tags = input.tags.map((tag) => new Tag(tag));
   }
 
   constructor(input: OmitMethods<Friend>) {
@@ -165,11 +189,19 @@ export const mockFriends = (count = 5): Friend[] => {
           name: faker.name.jobArea(),
         }),
       }),
-
       address: {
         zipCode: faker.address.zipCode(),
         street: faker.address.streetName(),
       },
+      tags: new Array(faker.datatype.number({ min: 1, max: 10 }))
+        .fill(null)
+        .map(
+          () =>
+            new Tag({
+              name: faker.name.jobType(),
+              createdAt: faker.date.past(),
+            })
+        ),
     });
   return new Array(count).fill(null).map(() => friend());
 };

@@ -1,6 +1,11 @@
 import type { Dexie as DexieImport } from "dexie";
 import { classMap } from "../../../src";
-import { databasesPositive, Friend, mockFriends } from "../../mocks/mocks.spec";
+import {
+  databasesPositive,
+  Friend,
+  mockFriends,
+  Tag,
+} from "../../mocks/mocks.spec";
 
 declare interface DexieClassAddon {
   classMap: typeof classMap;
@@ -83,6 +88,7 @@ describe("dexie-class-addon dexie.spec", () => {
         expect(getFriend).toBeInstanceOf(Friend);
         expect(getFriend?.someMethod).toBeDefined();
         expect(getFriend?.date).toBeInstanceOf(Date);
+        expect(getFriend?.tags.every((tag) => tag instanceof Tag)).toBeTrue();
         await db.delete();
       });
     });

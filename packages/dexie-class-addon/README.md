@@ -9,6 +9,12 @@
 This addon can be used as a stand-alone addon for Dexie.js, yet is also part of dexie-addon-suite [![NPM Version](https://img.shields.io/npm/v/@pvermeer/dexie-addon-suite/latest.svg)](https://www.npmjs.com/package/@pvermeer/dexie-addon-suite)
 that combines a number of addons for Dexie. It contains code to combine some addons like populated rxjs observables.
 
+## Why
+
+The [Table.mapToClass()](<https://dexie.org/docs/Table/Table.mapToClass()>) method from dexie only assigns a new constructor to the object returned from the database. This is a very limited solution since the class constructor never gets called. For complex data structures, defined in classes, it's expected that the class contructor get's called on creation.
+
+This addon provides a solution where the constructor does get called with the object from the database and where a user defined `serialize()` method gets called to serialize the class before saving to the database.
+
 ## Install over npm
 
 ```
@@ -17,7 +23,7 @@ npm install @pvermeer/dexie-class-addon
 
 #### Dexie.js
 
-Dexie Class Addon depends on Dexie.js v3. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
+Dexie Class Addon depends on Dexie.js v4. [![NPM Version](https://img.shields.io/npm/v/dexie/latest.svg)](https://www.npmjs.com/package/dexie)
 
 ```
 npm install dexie
@@ -31,46 +37,63 @@ npm install dexie
 
 Add `classMap()` to your Dexie database. See below examples and https://dexie.org for more info.
 
-This addon overwrites the save and read methods of Dexie.js and maps the record to class by calling the class constructor.
+This addon overwrites the save and read methods of Dexie.js and maps the record to a class by calling the class constructor.
 Dexie already has a method `mapToClass()` on tables for doing this, however this method does not call the constructor and does no serialization. This addon overwrites that method on the table so it will call the class constructor and also call the `serialize()` method if defined.
 
-The `serialize()` must return an object with database keys as object keys and an arrow function for the value that returns the correct data to save to the database.
+The `serialize()` must return an object with the keys and values to be saved to the database. The object provided here is the object to be saved to the database. This object may contain nested classes that also have a serialize method.
+
+Nested classes that have a `serialize()` method will also be be serialized with a call to this method before saving to the database. This to help with abstracting code to places where it should be.
 
 This package also export the `OnSerialize` interface for TypeScript classes. Implementing this in your database class makes sure you implement the serialize correctly.
 
+##### Note:
+
 Dexie supports nested updates with key paths `Table.update({'some.path': 'some value'})`. This addon treats these updates as raw. The addon does not run the `serialize()` method on these kind of updates.
 
-Example (TypeScript):
+#### Example TypeScript
 
 ```js
 import { OnSerialize } from '@pvermeer/dexie-class-addon';
 
-export class Friend implements OnSerialize {
+// Simplified Club class with a serialize method
+class Club implements OnSerialize {
+  serialize() {}
+}
+
+class Friend implements OnSerialize {
     id?: number;
     age?: number;
     firstName: string;
     lastName: string;
     shoeSize: number;
     date: Date;
+    memberOf: Club;
 
     someMethod() { return; }
 
+    // Define how to save the class to the database
     serialize() {
         return {
-            id: () => this.id,
-            age: () => this.age,
-            firstName: () => this.firstName,
-            lastName: () => this.lastName,
-            shoeSize: () => this.shoeSize,
-            date: () => this.date.getTime()
+            id: this.id,
+            age: this.age,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            shoeSize: this.shoeSize,
+            date: this.date.getTime(),
+            // The memberOf class instance can be passed
+            // because Club contains a the serialize() method.
+            memberOf: this.memberOf,
         };
     }
 
+    // Define how to build the class
     deserialize(input: OmitMethods<Friend>) {
         Object.entries(input).forEach(([prop, value]) => this[prop] = value);
         this.date = new Date(input.date);
+        this.memberOf = new Club(input.memberOd);
     }
 
+    // Constructor will be called when reading the database
     constructor(input: OmitMethods<Friend>) {
         this.deserialize(input);
     }
@@ -138,6 +161,8 @@ class FriendsDatabase extends Dexie {
     this.version(1).stores({
       friends: "++id, firstName, lastName, shoeSize, age",
     });
+
+    this.friends.mapToClass(Friend);
   }
 }
 
@@ -161,7 +186,7 @@ Addon is export as namespace DexieClassAddon
 <html>
   <head>
     <!-- Include Dexie -->
-    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
 
     <!-- Include DexieClassAddon (always after Dexie, it's a dependency) -->
     <script src="https://unpkg.com/@pvermeer/dexie-class-addon@latest/dist/dexie-class-addon.min.js"></script>

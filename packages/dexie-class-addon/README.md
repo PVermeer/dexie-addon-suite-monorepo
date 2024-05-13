@@ -37,18 +37,22 @@ npm install dexie
 
 Add `classMap()` to your Dexie database. See below examples and https://dexie.org for more info.
 
-This addon overwrites the save and read methods of Dexie.js and maps the record to a class by calling the class constructor.
+This addon overwrites the write and read methods of Dexie.js and maps the record on read to a class by calling the class constructor.
 Dexie already has a method `mapToClass()` on tables for doing this, however this method does not call the constructor and does no serialization. This addon overwrites that method on the table so it will call the class constructor and also call the `serialize()` method if defined.
 
 The `serialize()` must return an object with the keys and values to be saved to the database. The object provided here is the object to be saved to the database. This object may contain nested classes that also have a serialize method.
 
-Nested classes that have a `serialize()` method will also be be serialized with a call to this method before saving to the database. This to help with abstracting code to places where it should be.
+#### Nesting
+
+Nested classes that have a `serialize()` method will also be be serialized with a call to this method before saving to the database. This to help with abstracting code to places where it should be. This is a deep lookup in (nested) array's and objects. So as long as the class has a `serialize()` method, it will be used to replace the class before saving to the database.
+
+#### Key paths
+
+Dexie supports nested updates with key paths `Table.update({'some.path': 'some value'})`. This addon will evaluate the values of this object and if it finds the `serialize()` method on a value it will be used to replace the class before saving to the database.
+
+#### Typing
 
 This package also export the `OnSerialize` interface for TypeScript classes. Implementing this in your database class makes sure you implement the serialize correctly.
-
-##### Note:
-
-Dexie supports nested updates with key paths `Table.update({'some.path': 'some value'})`. This addon treats these updates as raw. The addon does not run the `serialize()` method on these kind of updates.
 
 #### Example TypeScript
 

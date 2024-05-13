@@ -1,6 +1,7 @@
-import * as classMap from "../../../src/class";
+import * as classMapModule from "../../../src/class";
 import {
   Club,
+  Color,
   databasesPositive,
   Friend,
   mockFriends,
@@ -19,6 +20,8 @@ describe("dexie-class-addon class.spec", () => {
       let deSerializeSpyClub: jasmine.Spy;
       let serializeSpyTag: jasmine.Spy;
       let deSerializeSpyTag: jasmine.Spy;
+      let serializeSpyColor: jasmine.Spy;
+      let deSerializeSpyColor: jasmine.Spy;
 
       let friends: Friend[];
       let ids: number[];
@@ -32,10 +35,16 @@ describe("dexie-class-addon class.spec", () => {
         expect(deSerializeSpyClub).withContext("Club class").toHaveBeenCalled();
         expect(serializeSpyTag).withContext("Tag class").toHaveBeenCalled();
         expect(deSerializeSpyTag).withContext("Tag class").toHaveBeenCalled();
+        expect(serializeSpyColor).withContext("Color class").toHaveBeenCalled();
+        expect(deSerializeSpyColor)
+          .withContext("Color class")
+          .toHaveBeenCalled();
+
         expect(friendUpdated).toEqual(friend);
         expect(friendUpdated).toBeInstanceOf(Friend);
         expect(friendUpdated?.someMethod).toBeDefined();
         expect(friendUpdated?.date).toBeInstanceOf(Date);
+
         expect(friendUpdated.tags.length).toBeTruthy();
         expect(friendUpdated?.tags.every((tag) => tag instanceof Tag))
           .withContext("Tag class expectation")
@@ -47,17 +56,29 @@ describe("dexie-class-addon class.spec", () => {
         )
           .withContext("should create new Tags")
           .toBeTrue();
+
+        friendUpdated.tags.forEach((tag) => {
+          expect(tag.color).toBeInstanceOf(Color);
+          expect(friend.tags.some((tag2) => tag.color !== tag2.color))
+            .withContext("should create new Colors")
+            .toBeTrue();
+        });
+
+        friendUpdated.colors.forEach((item) => {
+          item.forEach((color) => {
+            expect(color).toBeInstanceOf(Color);
+          });
+        });
       };
 
       beforeEach(async () => {
-        spyOn(classMap, "classMap").and.callThrough();
+        spyOn(classMapModule, "classMap").and.callThrough();
 
         serializeSpy = spyOn(Friend.prototype, "serialize").and.callThrough();
         deSerializeSpy = spyOn(
           Friend.prototype,
           "deserialize"
         ).and.callThrough();
-        db = database.db();
 
         serializeSpyTag = spyOn(Tag.prototype, "serialize").and.callThrough();
         deSerializeSpyTag = spyOn(
@@ -71,6 +92,16 @@ describe("dexie-class-addon class.spec", () => {
           "deserialize"
         ).and.callThrough();
 
+        serializeSpyColor = spyOn(
+          Color.prototype,
+          "serialize"
+        ).and.callThrough();
+        deSerializeSpyColor = spyOn(
+          Color.prototype,
+          "deserialize"
+        ).and.callThrough();
+
+        db = database.db();
         await db.open();
         expect(db.isOpen()).toBeTrue();
 
@@ -87,7 +118,7 @@ describe("dexie-class-addon class.spec", () => {
       it("should override create methods", async () => {
         const [friend] = mockFriends(1);
         await db.friends.add(friend);
-        expect(classMap.classMap).toHaveBeenCalled();
+        expect(classMapModule.classMap).toHaveBeenCalled();
       });
       describe("Methods", () => {
         describe("Add()", () => {
@@ -141,6 +172,7 @@ describe("dexie-class-addon class.spec", () => {
         describe("Update()", () => {
           it("should be able to update document", async () => {
             const updatedDoc: Partial<Friend> = { firstName: "mock name" };
+            // @ts-expect-error BAD dexie type!
             await db.friends.update(id, updatedDoc);
             friend.firstName = "mock name";
 
@@ -157,6 +189,7 @@ describe("dexie-class-addon class.spec", () => {
                 changes: friend,
               };
             });
+            // @ts-expect-error BAD dexie type!
             await db.friends.bulkUpdate(updateDocs);
             expect(serializeSpy).toHaveBeenCalledTimes(friends.length * 2);
 
@@ -173,15 +206,43 @@ describe("dexie-class-addon class.spec", () => {
             expect(deSerializeSpy).toHaveBeenCalledTimes(friends.length * 2);
           });
           it("should be able to update document with key paths", async () => {
+            const newFriend = mockFriends(1)[0];
+            const updateClub = newFriend.memberOf;
+            const updateTag = newFriend.tags[0];
+            const updateColor = newFriend.colors[0][0];
+
+            serializeSpyClub.calls.reset();
+            serializeSpyTag.calls.reset();
+            serializeSpyColor.calls.reset();
+
             const updatedDoc = {
               "address.zipCode": "someZipCode",
               "address.street": "someStreetName",
+              "tags.0.name": "someTagName",
+              "tags.1": updateTag,
+              "colors.0.0": updateColor,
+              memberOf: updateClub,
             };
+            // @ts-expect-error BAD dexie type!
             await db.friends.update(id, updatedDoc);
             friend.address = {
               zipCode: "someZipCode",
               street: "someStreetName",
             };
+            friend.memberOf = updateClub;
+            friend.tags[0].name = "someTagName";
+            friend.tags[1] = updateTag;
+            friend.colors[0][0] = updateColor;
+
+            expect(serializeSpyClub)
+              .withContext("Club class")
+              .toHaveBeenCalled();
+
+            expect(serializeSpyTag).withContext("Tag class").toHaveBeenCalled();
+
+            expect(serializeSpyColor)
+              .withContext("Color class")
+              .toHaveBeenCalled();
 
             const getFriend = await db.friends.get(id);
             friendExpectations(getFriend!);
@@ -189,6 +250,7 @@ describe("dexie-class-addon class.spec", () => {
           it("should run serializer", async () => {
             const date = new Date();
             const updatedDoc: Partial<Friend> = { date };
+            // @ts-expect-error BAD dexie type!
             await db.friends.update(id, updatedDoc);
             friend.date = date;
 
@@ -305,6 +367,7 @@ describe("dexie-class-addon class.spec", () => {
       });
       describe("Fixes", () => {
         it("should remove an undefined primary index", async () => {
+          // @ts-expect-error BAD dexie type!
           await db.friends.update(id, friend as Partial<Friend>);
 
           const getFriend = (await db.friends.get(id)) as Friend;

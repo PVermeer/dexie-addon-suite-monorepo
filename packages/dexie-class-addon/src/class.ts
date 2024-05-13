@@ -6,19 +6,9 @@ export type OmitMethods<T> = Pick<
   { [P in keyof T]: T[P] extends (...args: any[]) => any ? never : P }[keyof T]
 >;
 
-export type SerializeObject = { [prop: string]: unknown };
-
 export interface OnSerialize {
-  serialize(): Partial<SerializeObject>;
+  serialize(): Record<keyof any, unknown>;
 }
-
-type SerializeFunReturn<T> =
-  | Parameters<Dexie.Table<T, any>["add"]>[0]
-  | Parameters<Dexie.Table<T, any>["bulkAdd"]>[0][0]
-  | Parameters<Dexie.Table<T, any>["put"]>[0]
-  | Parameters<Dexie.Table<T, any>["bulkPut"]>[0][0]
-  | Parameters<Dexie.Table<T, any>["update"]>[1]
-  | Parameters<Dexie.Table<T, any>["bulkUpdate"]>[0][0]["changes"];
 
 type DexieExtended = Dexie & {
   pVermeerAddonsRegistered?: { [addon: string]: boolean };
@@ -33,10 +23,10 @@ export function classMap(db: Dexie) {
     class: true,
   };
 
-  function recursiveSerialize<T extends SerializeFunReturn<unknown>>(
-    item: T,
+  function recursiveSerialize<T = unknown>(
+    item: T | unknown[],
     table?: Table
-  ): SerializeFunReturn<T> {
+  ): T | unknown[] {
     const transaction = Dexie.currentTransaction;
     if (transaction?.raw) return item;
 
@@ -44,16 +34,13 @@ export function classMap(db: Dexie) {
       return item;
     }
 
+    // Recursive for nested classes
     if (Array.isArray(item)) {
+      item = item.map((entry) => recursiveSerialize(entry));
       return item;
     }
 
     if (item === undefined || !(typeof item === "object" && item !== null)) {
-      return item;
-    }
-
-    // Dexie supports key path updates. These are treated as raw updates.
-    if (Object.keys(item).some((key) => key.includes("."))) {
       return item;
     }
 
@@ -80,10 +67,6 @@ export function classMap(db: Dexie) {
 
     // Recursive for nested classes
     Object.entries(item).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        item[key] = value.map((entry) => recursiveSerialize(entry));
-        return;
-      }
       item[key] = recursiveSerialize(value);
     });
 

@@ -47,20 +47,43 @@ export class Club implements OnSerialize {
   }
 }
 
+export class Color {
+  name: string;
+  enabled: boolean;
+
+  serialize() {
+    return {
+      name: this.name,
+      enabled: this.enabled,
+    };
+  }
+
+  deserialize(input: OmitMethods<Color>) {
+    Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
+  }
+
+  constructor(input: OmitMethods<Color>) {
+    this.deserialize(input);
+  }
+}
+
 export class Tag implements OnSerialize {
   name: string;
   createdAt: Date;
+  color: Color;
 
   serialize() {
     return {
       name: this.name,
       createdAt: this.createdAt.getTime(),
+      color: this.color,
     };
   }
 
   deserialize(input: OmitMethods<Tag>) {
     Object.entries(input).forEach(([prop, value]) => (this[prop] = value));
     this.createdAt = new Date(input.createdAt);
+    this.color = new Color(input.color);
   }
 
   constructor(input: OmitMethods<Tag>) {
@@ -77,6 +100,7 @@ export class Friend implements OnSerialize {
   date: Date;
   memberOf: Club;
   tags: Tag[];
+  colors: Color[][];
 
   address: {
     zipCode: string;
@@ -98,6 +122,7 @@ export class Friend implements OnSerialize {
       address: { ...this.address },
       memberOf: this.memberOf,
       tags: this.tags,
+      colors: this.colors,
     };
   }
 
@@ -106,6 +131,9 @@ export class Friend implements OnSerialize {
     this.date = new Date(input.date);
     this.memberOf = new Club(input.memberOf);
     this.tags = input.tags.map((tag) => new Tag(tag));
+    this.colors = input.colors.map((item) =>
+      item.map((color) => new Color(color))
+    );
   }
 
   constructor(input: OmitMethods<Friend>) {
@@ -193,14 +221,29 @@ export const mockFriends = (count = 5): Friend[] => {
         zipCode: faker.address.zipCode(),
         street: faker.address.streetName(),
       },
-      tags: new Array(faker.datatype.number({ min: 1, max: 10 }))
+      tags: new Array(faker.datatype.number({ min: 2, max: 10 }))
         .fill(null)
         .map(
           () =>
             new Tag({
               name: faker.name.jobType(),
               createdAt: faker.date.past(),
+              color: new Color({
+                name: faker.name.middleName(),
+                enabled: faker.datatype.boolean(),
+              }),
             })
+        ),
+      colors: new Array(faker.datatype.number({ min: 2, max: 10 }))
+        .fill(null)
+        .map(() =>
+          new Array(faker.datatype.number({ min: 2, max: 10 })).fill(null).map(
+            () =>
+              new Color({
+                name: faker.name.middleName(),
+                enabled: faker.datatype.boolean(),
+              })
+          )
         ),
     });
   return new Array(count).fill(null).map(() => friend());
